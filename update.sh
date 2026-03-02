@@ -53,10 +53,10 @@ echo "--- Starting Install Process ---"
 
 # --- 4. Git Pull ---
 echo "Pulling changes..."
-if ! git pull origin $BRANCH; then
+if ! git pull --rebase origin $BRANCH; then
     echo "Resetting install.sh and update.sh (chmod changes) and retrying..."
     git checkout -- install.sh update.sh 2>/dev/null
-    if ! git pull origin $BRANCH; then
+    if ! git pull --rebase origin $BRANCH; then
         echo "[ERROR] git pull failed."
         exit 1
     fi

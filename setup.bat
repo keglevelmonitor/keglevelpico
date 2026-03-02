@@ -141,7 +141,7 @@ IF EXIST "%INSTALL_DIR%" (
     echo.
     echo Updating code...
     cd /d "%INSTALL_DIR%"
-    git pull
+    git pull --rebase
 ) ELSE (
     echo.
     echo Cloning repository to %INSTALL_DIR%...

@@ -51,7 +51,7 @@ echo --- Starting Install Process ---
 
 :: 1. Git Pull
 echo [1/2] Pulling latest code...
-git pull origin %BRANCH%
+git pull --rebase origin %BRANCH%
 
 IF %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Git pull failed.

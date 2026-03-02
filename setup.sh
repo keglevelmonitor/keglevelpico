@@ -142,7 +142,7 @@ if [ -d "$INSTALL_DIR" ]; then
     echo "Directory exists. Updating via Git Pull..."
     cd "$INSTALL_DIR" || exit 1
     git reset --hard
-    git pull
+    git pull --rebase
 else
     echo "Cloning repository to $INSTALL_DIR..."
     git clone https://github.com/keglevelmonitor/keglevel_lite.git "$INSTALL_DIR"
