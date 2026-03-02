@@ -421,7 +421,7 @@ class SettingsManager:
 
     def _save_keg_library(self, library):
         try:
-            with open(self.keg_library_file_path, 'w') as f: 
+            with open(self.keg_library_file_path, 'w', encoding='utf-8') as f: 
                 json.dump(library, f, indent=4) 
             print(f"Keg Library saved to {self.keg_library_file_path}.") 
         except Exception as e:
@@ -522,7 +522,7 @@ class SettingsManager:
             
     def _save_beverage_library(self, library):
         try:
-            with open(self.beverages_file_path, 'w') as f: 
+            with open(self.beverages_file_path, 'w', encoding='utf-8') as f: 
                 json.dump(library, f, indent=4) 
             print(f"Beverage Library saved to {self.beverages_file_path}.") 
         except Exception as e:
@@ -1204,7 +1204,7 @@ class SettingsManager:
     def _save_all_settings(self, current_settings=None):
         settings_to_save = current_settings if current_settings is not None else self.settings
         try:
-            with open(self.settings_file_path, 'w') as f: json.dump(settings_to_save, f, indent=4) 
+            with open(self.settings_file_path, 'w', encoding='utf-8') as f: json.dump(settings_to_save, f, indent=4) 
             print(f"Settings saved to {self.settings_file_path}.") 
         except Exception as e: print(f"Error saving all settings to {self.settings_file_path}: {e}")
 

@@ -232,7 +232,7 @@ class TemperatureLogic:
                     if isinstance(ts, datetime):
                         data_to_save[section][key]["last_updated"] = ts.isoformat()
             
-            with open(self.log_file, 'w') as f:
+            with open(self.log_file, 'w', encoding='utf-8') as f:
                 json.dump(data_to_save, f, indent=4)
             # print(f"TemperatureLogic: Log data saved.") # Commented out to reduce spam
         except Exception as e:
