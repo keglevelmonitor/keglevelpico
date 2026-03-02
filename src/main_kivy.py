@@ -1,5 +1,6 @@
 # keglevel-lite app
 # main_kivy.py
+# test for update function with windows deployment
 import os
 import threading
 import uuid
