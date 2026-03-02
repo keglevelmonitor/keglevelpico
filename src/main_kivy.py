@@ -136,7 +136,7 @@ class SettingsConfigTab(BoxLayout):
             app.settings_manager.save_displayed_taps(new_taps)
         except ValueError: pass
         app.apply_config_changes()
-        app.root.current = 'dashboard'
+        app.navigate_to('dashboard')
 
     def request_monitor_import(self):
         """Triggers the backend migration tool and reports results."""
@@ -728,7 +728,7 @@ class KegEditScreen(Screen):
         app.refresh_keg_list()
         app.refresh_dashboard_metadata()
         app.sensor_logic.force_recalculation()
-        app.root.current = 'inventory'
+        app.navigate_to('inventory')
 
 class BeverageEditScreen(Screen):
     screen_title = StringProperty("Edit Beverage")
@@ -1033,6 +1033,33 @@ class KegLevelApp(App):
         
         return self.sm
 
+    def navigate_to(self, target_screen):
+        """
+        Navigates top-level screens with consistent horizontal direction.
+        """
+        if not self.root:
+            return
+
+        screen_depth = {
+            'dashboard': 0,
+            'inventory': 1,
+            'settings': 1,
+            'keg_edit': 2,
+            'bev_edit': 2
+        }
+
+        current_screen = self.root.current
+        current_depth = screen_depth.get(current_screen)
+        target_depth = screen_depth.get(target_screen)
+
+        if current_depth is not None and target_depth is not None:
+            if target_depth > current_depth:
+                self.root.transition.direction = 'left'
+            elif target_depth < current_depth:
+                self.root.transition.direction = 'right'
+
+        self.root.current = target_screen
+
     def on_start(self):
         # Schedule initialization.
         # Note: We DO NOT kill the splash screen here anymore.
@@ -1207,7 +1234,7 @@ class KegLevelApp(App):
     def open_simulation_dashboard(self):
         """Switches the Dashboard footer to Simulation Mode."""
         # Ensure we are on the dashboard screen
-        self.root.current = 'dashboard'
+        self.navigate_to('dashboard')
         self.dashboard_screen.toggle_sim_footer(True)
         self.simulated_temp = 4.0 # Default start temp
         self.update_kegerator_temp(0)
@@ -1567,7 +1594,7 @@ class KegLevelApp(App):
                 self.keg_edit_screen.total_weight_kg = 8.8
 
         self.keg_edit_screen.update_display_labels()
-        self.root.current = 'keg_edit'
+        self.navigate_to('keg_edit')
 
     def request_delete_keg(self, keg_id):
         keg = self.settings_manager.get_keg_by_id(keg_id)
@@ -1640,7 +1667,7 @@ class KegLevelApp(App):
             self.bev_edit_screen.bev_abv = 0.0
             self.bev_edit_screen.bev_ibu = 0
             self.bev_edit_screen.bev_srm = 5
-        self.root.current = 'bev_edit'
+        self.navigate_to('bev_edit')
 
     def save_beverage_edit(self):
         scr = self.bev_edit_screen
@@ -1693,7 +1720,7 @@ class KegLevelApp(App):
         self.settings_manager.save_beverage_library(lib)
         self.refresh_beverage_list()
         self.refresh_dashboard_metadata()
-        self.root.current = 'inventory'
+        self.navigate_to('inventory')
     
     def request_delete_beverage(self, bev_id):
         lib = self.settings_manager.get_beverage_library().get('beverages', [])

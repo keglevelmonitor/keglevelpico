@@ -1178,11 +1178,11 @@
                     NavButton:
                         text: "INVENTORY"
                         font_size: '16sp' # Standardized
-                        on_release: app.root.current = 'inventory'
+                        on_release: app.navigate_to('inventory')
                     NavButton:
                         text: "SETTINGS"
                         font_size: '16sp' # Standardized
-                        on_release: app.root.current = 'settings'
+                        on_release: app.navigate_to('settings')
 
             # MODE 2: Simulation Controls
             Screen:
@@ -1261,7 +1261,7 @@
                 background_normal: ''              # Flat style
                 background_color: 0.4, 0.4, 0.4, 1 # Dark Grey
                 size_hint_x: 0.3
-                on_release: app.root.current = 'dashboard'
+                on_release: app.navigate_to('dashboard')
             
             Label:
                 size_hint_x: 0.4
@@ -1416,7 +1416,7 @@
                 text: "Cancel"
                 font_size: '18sp'
                 background_color: 0.6, 0.2, 0.2, 1
-                on_release: app.root.current = 'inventory'
+                on_release: app.navigate_to('inventory')
             Button:
                 text: "Save Keg"
                 font_size: '18sp'
@@ -1567,7 +1567,7 @@
                 text: "Cancel"
                 font_size: '18sp'
                 background_color: 0.6, 0.2, 0.2, 1
-                on_release: app.root.current = 'inventory'
+                on_release: app.navigate_to('inventory')
             Button:
                 text: "Save Beverage"
                 font_size: '18sp'
@@ -1679,7 +1679,7 @@
                         bold: True
                         background_normal: '' # MATCHING FLAT STYLE
                         background_color: 0.4, 0.4, 0.4, 1
-                        on_release: app.root.current = 'dashboard'
+                        on_release: app.navigate_to('dashboard')
                     Label:
                         text: "" 
                     Label:
@@ -1703,7 +1703,7 @@
                         bold: True
                         background_normal: '' # MATCHING FLAT STYLE
                         background_color: 0.4, 0.4, 0.4, 1
-                        on_release: app.root.current = 'dashboard'
+                        on_release: app.navigate_to('dashboard')
                     Button:
                         text: "CHECK"
                         font_size: '16sp'
@@ -1738,7 +1738,7 @@
                         bold: True
                         background_normal: '' # MATCHING FLAT STYLE
                         background_color: 0.4, 0.4, 0.4, 1
-                        on_release: app.root.current = 'dashboard'
+                        on_release: app.navigate_to('dashboard')
                     Label: 
                     Label: 
                     Label: 
@@ -1758,7 +1758,7 @@
                         on_release: 
                             root.ids.tab_cal_content.reset_calibration()
                             root.set_calibration_mode(False) 
-                            app.root.current = 'dashboard'
+                            app.navigate_to('dashboard')
                     
                     Button:
                         text: "SET TO DEFAULT"
