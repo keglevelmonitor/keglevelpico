@@ -69,7 +69,7 @@ class SettingsManager:
 
     def _get_default_push_notification_settings(self):
         return {
-            "notification_type": "None", "frequency": "Daily", "server_email": "", "server_password": "", 
+            "notification_type": "None", "frequency": "None", "server_email": "", "server_password": "", 
             "email_recipient": "", "smtp_server": "", "smtp_port": "", "sms_number": "", 
             "sms_carrier_gateway": "",
             "notify_on_update": True
@@ -89,8 +89,8 @@ class SettingsManager:
         
     def _get_default_conditional_notification_settings(self):
         return {
-            "notification_type": "None", "threshold_liters": 4.0, "sent_notifications": [False] * self.num_sensors, 
-            "low_temp_f": 35.0, "high_temp_f": 45.0, "temp_sent_timestamps": [], 
+            "notification_type": "None", "threshold_liters": 0.0, "sent_notifications": [False] * self.num_sensors, 
+            "low_temp_f": 27.0, "high_temp_f": 61.0, "temp_sent_timestamps": [], 
             "error_reported_times": {"push": 0, "volume": 0, "temperature": 0}
         }
     
