@@ -130,7 +130,7 @@ class NotificationManager:
         """
         if not self._scheduler_running:
             return
-        print("[NotificationManager] Settings changed — rescheduling.")
+        print("[NotificationManager] Settings changed -- rescheduling.")
         push     = self.settings_manager.get_push_notification_settings()
         freq     = push.get("frequency", "None")
         interval = FREQUENCY_SECONDS.get(freq, 0)
@@ -153,7 +153,7 @@ class NotificationManager:
             if ok:
                 print("[NotificationManager] Test send succeeded.")
             else:
-                print("[NotificationManager] Test send failed — check SMTP settings.")
+                print("[NotificationManager] Test send failed -- check SMTP settings.")
 
         threading.Thread(target=_task, daemon=True,
                          name="KegLevelNotifManual").start()
@@ -258,12 +258,12 @@ class NotificationManager:
                     )
                     if self._send_email(subject, body, recipient, push):
                         self.settings_manager.update_conditional_sent_status(i, True)
-                        print(f"[NotificationManager] Low-volume alert sent — Tap {i + 1}.")
+                        print(f"[NotificationManager] Low-volume alert sent -- Tap {i + 1}.")
 
                 elif remaining > threshold_liters and already_sent:
                     # Keg was refilled or replaced — reset the flag
                     self.settings_manager.update_conditional_sent_status(i, False)
-                    print(f"[NotificationManager] Volume alert reset — Tap {i + 1} (refilled).")
+                    print(f"[NotificationManager] Volume alert reset -- Tap {i + 1} (refilled).")
 
         # --- B. Temperature Out-of-Range Alert ---
         low_temp_f  = float(cond.get("low_temp_f",  LOW_TEMP_OFF))

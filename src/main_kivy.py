@@ -9,6 +9,13 @@ import sys
 import glob
 from datetime import datetime
 
+# Force UTF-8 on stdout/stderr so print() works with non-ASCII characters
+# on systems whose locale defaults to latin-1 (e.g. Raspberry Pi).
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
+
 # --- 0. OS ENVIRONMENT & ICON SETUP (Must be first) ---
 import os
 
@@ -1034,15 +1041,15 @@ class SettingsAlertsTab(BoxLayout):
         app.settings_manager.save_push_notification_settings(push)
 
         cond = app.settings_manager.get_conditional_notification_settings()
-        cond["threshold_liters"] = self.ids.slider_volume.value
-        cond["low_temp_f"]       = self.ids.slider_low_temp.value
-        cond["high_temp_f"]      = self.ids.slider_high_temp.value
+        cond["threshold_liters"] = float(self.ids.slider_volume.value)
+        cond["low_temp_f"]       = float(self.ids.slider_low_temp.value)
+        cond["high_temp_f"]      = float(self.ids.slider_high_temp.value)
         app.settings_manager.save_conditional_notification_settings(cond)
 
         print("SettingsAlertsTab: Notification settings saved.")
 
         if hasattr(app, "notification_manager") and app.notification_manager:
-            app.notification_manager.force_reschedule()
+            Clock.schedule_once(lambda dt: app.notification_manager.force_reschedule(), 0.1)
 
     def save_all_settings(self):
         """Save and return to the dashboard."""
