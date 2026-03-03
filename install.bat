@@ -10,7 +10,7 @@ IF %PROJECT_DIR:~-1%==\ SET "PROJECT_DIR=%PROJECT_DIR:~0,-1%"
 SET "VENV_DIR=%PROJECT_DIR%\venv"
 SET "DATA_DIR=%USERPROFILE%\keglevel_lite-data"
 SET "SHORTCUT_PATH=%USERPROFILE%\Desktop\KegLevel Lite.lnk"
-SET "ICON_PATH=%PROJECT_DIR%\src\assets\beer-keg.png"
+SET "ICON_PATH=%PROJECT_DIR%\src\assets\beer-keg.ico"
 SET "SCRIPT_PATH=%PROJECT_DIR%\src\main_kivy.py"
 
 echo.
@@ -58,14 +58,7 @@ IF %ERRORLEVEL% NEQ 0 (
 :: --- Step 3: Desktop Shortcut ---
 echo.
 echo --- [Step 3/3] Creating Desktop Shortcut ---
-:: Windows shortcuts need .ico format; convert PNG to ICO using Pillow (Kivy dependency)
-SET "ICON_ICO=%PROJECT_DIR%\src\assets\beer-keg.ico"
-"%VENV_DIR%\Scripts\python.exe" -c "from PIL import Image; img=Image.open(r'%ICON_PATH%'); img=img.convert('RGBA'); img.save(r'%ICON_ICO%', format='ICO', sizes=[(256,256),(48,48),(32,32),(16,16)])" 2>nul
-IF EXIST "%ICON_ICO%" (
-    SET "SHORTCUT_ICON=%ICON_ICO%"
-) ELSE (
-    SET "SHORTCUT_ICON=%ICON_PATH%"
-)
+SET "SHORTCUT_ICON=%ICON_PATH%"
 
 SET "TARGET=%VENV_DIR%\Scripts\pythonw.exe"
 SET "ARGS=\"%SCRIPT_PATH%\""
