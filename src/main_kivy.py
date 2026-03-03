@@ -51,6 +51,7 @@ from kivy.core.window import Window
 # --- 2. IMPORT BACKEND LOGIC ---
 from settings_manager import SettingsManager, UNASSIGNED_KEG_ID, UNASSIGNED_BEVERAGE_ID
 from sensor_logic import SensorLogic, FLOW_SENSOR_PINS
+from notification_manager import NotificationManager
 
 # Special flag for the "Keg Kicked" action
 KEG_KICKED_ID = "keg_kicked_action"
@@ -235,10 +236,12 @@ class SettingsUpdatesTab(BoxLayout):
         print("[System] Restarting application...")
         
         # 1. Stop background threads
+        if hasattr(app, 'notification_manager') and app.notification_manager:
+            app.notification_manager.stop_scheduler()
         if hasattr(app, 'sensor_logic') and app.sensor_logic:
             app.sensor_logic.stop_monitoring()
             app.sensor_logic.cleanup_gpio()
-            
+
         # 2. Exec new process
         python = sys.executable
         script = os.path.abspath(sys.argv[0])
@@ -391,10 +394,11 @@ class SettingsScreen(Screen):
 
         # Map codes to UI IDs and Screen Names
         tab_map = {
-            'conf':  ('btn_sys',   'tab_conf',   'footer_conf'),
-            'upd':   ('btn_upd',   'tab_upd',    'footer_upd'),
-            'about': ('btn_about', 'tab_about',  'footer_about'),
-            'cal':   ('btn_cal',   'tab_cal',    'footer_cal')
+            'conf':   ('btn_sys',    'tab_conf',   'footer_conf'),
+            'upd':    ('btn_upd',    'tab_upd',    'footer_upd'),
+            'about':  ('btn_about',  'tab_about',  'footer_about'),
+            'cal':    ('btn_cal',    'tab_cal',    'footer_cal'),
+            'alerts': ('btn_alerts', 'tab_alerts', 'footer_alerts'),
         }
 
         if tab_code not in tab_map: return
@@ -417,19 +421,22 @@ class SettingsScreen(Screen):
         if tab_code == 'cal':
             self.set_calibration_mode(active=True)
             
-        # Explicitly initialize UI for Config tab to load current settings
+        # Explicitly initialize UI when entering tabs that need a fresh load
         if tab_code == 'conf':
             self.ids.tab_conf_content.init_ui()
+        elif tab_code == 'alerts':
+            self.ids.tab_alerts_content.init_ui()
 
     def set_calibration_mode(self, active):
         """
         active=True: Disables navigation tabs (Modal Mode).
         active=False: Re-enables navigation tabs.
         """
-        self.ids.btn_sys.disabled = active
-        self.ids.btn_upd.disabled = active
-        self.ids.btn_about.disabled = active
-        
+        self.ids.btn_sys.disabled    = active
+        self.ids.btn_upd.disabled    = active
+        self.ids.btn_about.disabled  = active
+        self.ids.btn_alerts.disabled = active
+
         # If deactivating, ensure mimic mode is off
         if not active:
             self.mimic_mode_active = False
@@ -956,6 +963,100 @@ class SettingsCalibrationTab(BoxLayout):
         self.reset_form_soft()
         self.instruction_text = "Open any tap to begin calibration."
 
+class SettingsAlertsTab(BoxLayout):
+    """Logic for the Alerts / Notifications settings tab."""
+
+    # Sentinel values must match the constants in notification_manager.py
+    VOLUME_OFF    = 0.0
+    LOW_TEMP_OFF  = 27.0
+    HIGH_TEMP_OFF = 61.0
+
+    def init_ui(self):
+        """Load current settings into all widgets."""
+        app  = App.get_running_app()
+        push = app.settings_manager.get_push_notification_settings()
+        cond = app.settings_manager.get_conditional_notification_settings()
+
+        # Push notification fields
+        self.ids.spin_frequency.text      = push.get("frequency", "None")
+        self.ids.txt_smtp_server.text     = str(push.get("smtp_server", ""))
+        port_val = push.get("smtp_port", "")
+        self.ids.txt_smtp_port.text       = str(port_val) if port_val else ""
+        self.ids.txt_server_email.text    = str(push.get("server_email", ""))
+        self.ids.txt_server_password.text = str(push.get("server_password", ""))
+        self.ids.txt_email_recipient.text = str(push.get("email_recipient", ""))
+
+        # Conditional sliders — clamp to valid slider ranges on load
+        vol = float(cond.get("threshold_liters", self.VOLUME_OFF))
+        self.ids.slider_volume.value = max(0.0, min(5.0, vol))
+        self.on_volume_slider(self.ids.slider_volume.value)
+
+        low_t = float(cond.get("low_temp_f", self.LOW_TEMP_OFF))
+        self.ids.slider_low_temp.value = max(27.0, min(45.0, low_t))
+        self.on_low_temp_slider(self.ids.slider_low_temp.value)
+
+        high_t = float(cond.get("high_temp_f", self.HIGH_TEMP_OFF))
+        self.ids.slider_high_temp.value = max(35.0, min(61.0, high_t))
+        self.on_high_temp_slider(self.ids.slider_high_temp.value)
+
+    # --- Slider label callbacks (called from KV on_value) ---
+
+    def on_volume_slider(self, value):
+        lbl = self.ids.get("lbl_volume")
+        if lbl:
+            lbl.text = "OFF" if value <= self.VOLUME_OFF else f"{value:.2f} L"
+
+    def on_low_temp_slider(self, value):
+        lbl = self.ids.get("lbl_low_temp")
+        if lbl:
+            lbl.text = "OFF" if value <= self.LOW_TEMP_OFF else f"{int(value)}°F"
+
+    def on_high_temp_slider(self, value):
+        lbl = self.ids.get("lbl_high_temp")
+        if lbl:
+            lbl.text = "OFF" if value >= self.HIGH_TEMP_OFF else f"{int(value)}°F"
+
+    # --- Save / Test ---
+
+    def _save_to_backend(self):
+        """Persists all alert settings without navigating away."""
+        app = App.get_running_app()
+
+        # Load existing dicts first to preserve fields we don't expose
+        push = app.settings_manager.get_push_notification_settings()
+        push["frequency"]         = self.ids.spin_frequency.text
+        push["smtp_server"]       = self.ids.txt_smtp_server.text.strip()
+        push["smtp_port"]         = self.ids.txt_smtp_port.text.strip()
+        push["server_email"]      = self.ids.txt_server_email.text.strip()
+        push["server_password"]   = self.ids.txt_server_password.text.strip()
+        push["email_recipient"]   = self.ids.txt_email_recipient.text.strip()
+        push["notification_type"] = "Email"
+        app.settings_manager.save_push_notification_settings(push)
+
+        cond = app.settings_manager.get_conditional_notification_settings()
+        cond["threshold_liters"] = self.ids.slider_volume.value
+        cond["low_temp_f"]       = self.ids.slider_low_temp.value
+        cond["high_temp_f"]      = self.ids.slider_high_temp.value
+        app.settings_manager.save_conditional_notification_settings(cond)
+
+        print("SettingsAlertsTab: Notification settings saved.")
+
+        if hasattr(app, "notification_manager") and app.notification_manager:
+            app.notification_manager.force_reschedule()
+
+    def save_all_settings(self):
+        """Save and return to the dashboard."""
+        self._save_to_backend()
+        App.get_running_app().navigate_to("dashboard")
+
+    def test_send(self):
+        """Save current UI values then fire an immediate test email."""
+        self._save_to_backend()
+        app = App.get_running_app()
+        if hasattr(app, "notification_manager") and app.notification_manager:
+            app.notification_manager.send_manual_status()
+
+
 class DashboardScreen(Screen):
     kegerator_temp = StringProperty("--.- °F")
     
@@ -1016,7 +1117,8 @@ class DashboardScreen(Screen):
 # --- 4. MAIN APP CLASS ---
 
 class KegLevelApp(App):
-    simulated_temp = None  # None = use sensor, Float = use value
+    simulated_temp = None   # None = use sensor, float (°C) = override
+    current_temp_f = None   # Always °F; read by NotificationManager
     _sim_flow_event = None
     _active_sim_taps = set()
     
@@ -1135,12 +1237,19 @@ class KegLevelApp(App):
         self.refresh_beverage_list()
         self.sensor_logic.start_monitoring()
         self.init_temp_sensor()
-        
-        # 8. Switch to Dashboard
+
+        # 8. Initialize Notification Manager
+        self.notification_manager = NotificationManager(
+            self.settings_manager,
+            get_temp_f_cb=lambda: self.current_temp_f,
+        )
+        self.notification_manager.start_scheduler()
+
+        # 9. Switch to Dashboard
         # The Dashboard is now "Active" logically, but not yet rendered.
         self.sm.current = 'dashboard'
-        
-        # 9. Schedule Splash Dismissal (DELAYED)
+
+        # 10. Schedule Splash Dismissal (DELAYED)
         # We wait 0.5 seconds to allow the Main Thread to finish this function,
         # return to the Kivy Loop, and render the Dashboard frame *under* the splash window.
         Clock.schedule_once(self.dismiss_splash, 0.5)
@@ -1182,12 +1291,13 @@ class KegLevelApp(App):
 
     def update_kegerator_temp(self, dt):
         """Updates the temp display, preferring Simulation value if set, else reading Hardware."""
-        
+
         # 1. Check Simulation Override
         if self.simulated_temp is not None:
+            t_f = self.simulated_temp * 9.0 / 5.0 + 32.0
+            self.current_temp_f = t_f
             units = self.settings_manager.get_display_units()
             if units == 'imperial':
-                t_f = self.simulated_temp * 9.0 / 5.0 + 32.0
                 self.dashboard_screen.kegerator_temp = f"{t_f:.1f} °F (Sim)"
             else:
                 self.dashboard_screen.kegerator_temp = f"{self.simulated_temp:.1f} °C (Sim)"
@@ -1195,6 +1305,7 @@ class KegLevelApp(App):
 
         # 2. Windows default (no DS18b20 on Windows)
         if sys.platform == "win32":
+            self.current_temp_f = 68.0
             units = self.settings_manager.get_display_units()
             if units == 'imperial':
                 self.dashboard_screen.kegerator_temp = "68.0 °F"
@@ -1206,27 +1317,30 @@ class KegLevelApp(App):
         try:
             # If no device file detected during startup or it vanished, blank it
             if not hasattr(self, 'temp_device_file') or self.temp_device_file is None or not os.path.exists(self.temp_device_file):
+                self.current_temp_f = None
                 self.dashboard_screen.kegerator_temp = ""
                 return
 
             with open(self.temp_device_file, 'r') as f:
                 lines = f.readlines()
-            
+
             # Check CRC and parse
             if len(lines) > 0 and lines[0].strip()[-3:] == 'YES':
                 equals_pos = lines[1].find('t=')
                 if equals_pos != -1:
                     temp_string = lines[1][equals_pos+2:]
                     temp_c = float(temp_string) / 1000.0
-                    
+                    temp_f = temp_c * 9.0 / 5.0 + 32.0
+                    self.current_temp_f = temp_f
+
                     units = self.settings_manager.get_display_units()
                     if units == 'imperial':
-                        temp_f = temp_c * 9.0 / 5.0 + 32.0
                         self.dashboard_screen.kegerator_temp = f"{temp_f:.1f} °F"
                     else:
                         self.dashboard_screen.kegerator_temp = f"{temp_c:.1f} °C"
         except Exception:
             # On read error, default to blank
+            self.current_temp_f = None
             self.dashboard_screen.kegerator_temp = ""
 
 
@@ -1849,6 +1963,9 @@ class KegLevelApp(App):
                 safe_height
             )
         # ---------------------------------
+
+        if hasattr(self, 'notification_manager') and self.notification_manager:
+            self.notification_manager.stop_scheduler()
 
         if hasattr(self, 'sensor_logic') and self.sensor_logic:
             self.sensor_logic.cleanup_gpio()

@@ -1575,6 +1575,246 @@
                 background_color: 0.2, 0.6, 0.2, 1
                 on_release: app.save_beverage_edit()
 
+<SettingsAlertsTab>:
+    ScrollView:
+        do_scroll_x: False
+        BoxLayout:
+            orientation: 'vertical'
+            padding: dp(10)
+            spacing: dp(6)
+            size_hint_y: None
+            height: self.minimum_height
+
+            # ── PUSH NOTIFICATIONS ──────────────────────────────────────
+            Label:
+                text: "PUSH NOTIFICATIONS"
+                font_size: '15sp'
+                bold: True
+                color: 1, 0.75, 0, 1
+                halign: 'left'
+                text_size: self.size
+                size_hint_y: None
+                height: dp(26)
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(36)
+                spacing: dp(8)
+                Label:
+                    text: "Alert Frequency:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                Spinner:
+                    id: spin_frequency
+                    values: ['None', 'Hourly', 'Daily', 'Weekly', 'Monthly']
+                    text: 'None'
+                    background_normal: ''
+                    background_color: 0.25, 0.25, 0.25, 1
+                    color: 1, 1, 1, 1
+                    font_size: '14sp'
+                    size_hint_x: 0.62
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(36)
+                spacing: dp(8)
+                Label:
+                    text: "SMTP Server:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                TextInput:
+                    id: txt_smtp_server
+                    multiline: False
+                    font_size: '14sp'
+                    background_color: 0.2, 0.2, 0.2, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 1, 0.75, 0, 1
+                    size_hint_x: 0.62
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(36)
+                spacing: dp(8)
+                Label:
+                    text: "SMTP Port:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                TextInput:
+                    id: txt_smtp_port
+                    multiline: False
+                    font_size: '14sp'
+                    input_filter: 'int'
+                    background_color: 0.2, 0.2, 0.2, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 1, 0.75, 0, 1
+                    size_hint_x: 0.62
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(36)
+                spacing: dp(8)
+                Label:
+                    text: "Sender Email:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                TextInput:
+                    id: txt_server_email
+                    multiline: False
+                    font_size: '14sp'
+                    background_color: 0.2, 0.2, 0.2, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 1, 0.75, 0, 1
+                    size_hint_x: 0.62
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(36)
+                spacing: dp(8)
+                Label:
+                    text: "App Password:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                TextInput:
+                    id: txt_server_password
+                    multiline: False
+                    font_size: '14sp'
+                    password: True
+                    background_color: 0.2, 0.2, 0.2, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 1, 0.75, 0, 1
+                    size_hint_x: 0.62
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(36)
+                spacing: dp(8)
+                Label:
+                    text: "Recipient Email:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                TextInput:
+                    id: txt_email_recipient
+                    multiline: False
+                    font_size: '14sp'
+                    background_color: 0.2, 0.2, 0.2, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 1, 0.75, 0, 1
+                    size_hint_x: 0.62
+
+            # ── CONDITIONAL ALERTS ──────────────────────────────────────
+            Label:
+                text: "CONDITIONAL ALERTS"
+                font_size: '15sp'
+                bold: True
+                color: 1, 0.75, 0, 1
+                halign: 'left'
+                text_size: self.size
+                size_hint_y: None
+                height: dp(26)
+
+            # Low Volume  (OFF at 0.0 L)
+            BoxLayout:
+                size_hint_y: None
+                height: dp(48)
+                spacing: dp(8)
+                Label:
+                    text: "Low Volume Alert:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                Slider:
+                    id: slider_volume
+                    min: 0.0
+                    max: 5.0
+                    step: 0.25
+                    value: 0.0
+                    size_hint_x: 0.47
+                    on_value: root.on_volume_slider(self.value)
+                Label:
+                    id: lbl_volume
+                    text: "OFF"
+                    halign: 'center'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.15
+                    color: 0.6, 0.8, 1, 1
+                    font_size: '13sp'
+                    bold: True
+
+            # Low Temp  (OFF at 27 °F — leftmost)
+            BoxLayout:
+                size_hint_y: None
+                height: dp(48)
+                spacing: dp(8)
+                Label:
+                    text: "Low Temp Alert:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                Slider:
+                    id: slider_low_temp
+                    min: 27
+                    max: 45
+                    step: 1
+                    value: 27
+                    size_hint_x: 0.47
+                    on_value: root.on_low_temp_slider(self.value)
+                Label:
+                    id: lbl_low_temp
+                    text: "OFF"
+                    halign: 'center'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.15
+                    color: 0.6, 0.8, 1, 1
+                    font_size: '13sp'
+                    bold: True
+
+            # High Temp  (OFF at 61 °F — rightmost)
+            BoxLayout:
+                size_hint_y: None
+                height: dp(48)
+                spacing: dp(8)
+                Label:
+                    text: "High Temp Alert:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                Slider:
+                    id: slider_high_temp
+                    min: 35
+                    max: 61
+                    step: 1
+                    value: 61
+                    size_hint_x: 0.47
+                    on_value: root.on_high_temp_slider(self.value)
+                Label:
+                    id: lbl_high_temp
+                    text: "OFF"
+                    halign: 'center'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.15
+                    color: 0.6, 0.8, 1, 1
+                    font_size: '13sp'
+                    bold: True
+
+
 <SettingsScreen>:
     BoxLayout:
         orientation: 'vertical'
@@ -1638,6 +1878,12 @@
                 group: 'settings_tabs'
                 allow_no_selection: False
                 on_release: root.set_active_tab('cal')
+            TabButton:
+                id: btn_alerts
+                text: "ALERTS"
+                group: 'settings_tabs'
+                allow_no_selection: False
+                on_release: root.set_active_tab('alerts')
 
         # --- CONTENT AREA ---
         ScreenManager:
@@ -1659,6 +1905,10 @@
                 name: 'tab_cal'
                 SettingsCalibrationTab:
                     id: tab_cal_content
+            Screen:
+                name: 'tab_alerts'
+                SettingsAlertsTab:
+                    id: tab_alerts_content
 
         # --- DYNAMIC FOOTER AREA ---
         ScreenManager:
@@ -1794,3 +2044,31 @@
                         spacing: 10
                         size_hint: None, 1
                         width: self.minimum_width
+
+            # 6. ALERTS FOOTER
+            Screen:
+                name: 'footer_alerts'
+                BoxLayout:
+                    padding: 5
+                    spacing: 10
+                    Button:
+                        text: "CANCEL / EXIT"
+                        font_size: '16sp'
+                        bold: True
+                        background_normal: ''
+                        background_color: 0.4, 0.4, 0.4, 1
+                        on_release: app.navigate_to('dashboard')
+                    Button:
+                        text: "TEST SEND"
+                        font_size: '16sp'
+                        bold: True
+                        background_normal: ''
+                        background_color: 0.2, 0.4, 0.8, 1
+                        on_release: root.ids.tab_alerts_content.test_send()
+                    Button:
+                        text: "SAVE"
+                        font_size: '16sp'
+                        bold: True
+                        background_normal: ''
+                        background_color: 0.2, 0.6, 0.2, 1
+                        on_release: root.ids.tab_alerts_content.save_all_settings()
