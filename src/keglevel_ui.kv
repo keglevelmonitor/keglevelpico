@@ -1578,9 +1578,12 @@
 <SettingsAlertsTab>:
     ScrollView:
         do_scroll_x: False
+        bar_width: dp(50)
+        bar_color: 1, 0.75, 0, 0.9
+        bar_inactive_color: 0.35, 0.35, 0.35, 0.9
         BoxLayout:
             orientation: 'vertical'
-            padding: dp(10)
+            padding: [dp(10), dp(10), dp(50), dp(10)]
             spacing: dp(6)
             size_hint_y: None
             height: self.minimum_height
@@ -1861,6 +1864,12 @@
                 allow_no_selection: False
                 on_release: root.set_active_tab('conf')
             TabButton:
+                id: btn_alerts
+                text: "ALERTS"
+                group: 'settings_tabs'
+                allow_no_selection: False
+                on_release: root.set_active_tab('alerts')
+            TabButton:
                 id: btn_upd
                 text: "UPDATES"
                 group: 'settings_tabs'
@@ -1878,12 +1887,6 @@
                 group: 'settings_tabs'
                 allow_no_selection: False
                 on_release: root.set_active_tab('cal')
-            TabButton:
-                id: btn_alerts
-                text: "ALERTS"
-                group: 'settings_tabs'
-                allow_no_selection: False
-                on_release: root.set_active_tab('alerts')
 
         # --- CONTENT AREA ---
         ScreenManager:
