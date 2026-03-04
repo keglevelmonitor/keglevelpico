@@ -1,6 +1,7 @@
 # keglevel-lite app
 # main_kivy.py
 # test for update function with windows deployment
+# versioning system added 2026-03-04
 import os
 import threading
 import uuid
