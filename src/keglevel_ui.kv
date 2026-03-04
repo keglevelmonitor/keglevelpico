@@ -848,6 +848,7 @@
                 bold: True
                 background_normal: ''
                 background_color: (0.2, 0.6, 0.2, 1) if self.state == 'down' else (0.2, 0.2, 0.2, 1)
+                on_release: app.mark_settings_dirty()
             ToggleButton:
                 id: btn_metric
                 text: "Metric\n(L / kg)"
@@ -857,6 +858,7 @@
                 bold: True
                 background_normal: ''
                 background_color: (0.2, 0.6, 0.2, 1) if self.state == 'down' else (0.2, 0.2, 0.2, 1)
+                on_release: app.mark_settings_dirty()
 
     # 2. TAPS
     BoxLayout:
@@ -877,6 +879,7 @@
             size_hint_x: 0.35
             font_size: '20sp'
             background_color: 0.25, 0.25, 0.25, 1
+            on_text: app.mark_settings_dirty()
         
         # Spacer to maintain alignment
         Label:
@@ -1575,6 +1578,54 @@
                 background_color: 0.2, 0.6, 0.2, 1
                 on_release: app.save_beverage_edit()
 
+<DirtySettingsPopup@Popup>:
+    title: 'Unsaved Changes'
+    title_size: '18sp'
+    size_hint: 0.8, 0.42
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(12)
+        spacing: dp(10)
+        canvas.before:
+            Color:
+                rgba: 0.12, 0.12, 0.12, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            text: "You have unsaved changes.\nDo you want to save them before exiting?"
+            font_size: '16sp'
+            halign: 'center'
+            text_size: self.size
+            valign: 'middle'
+        BoxLayout:
+            spacing: dp(8)
+            size_hint_y: None
+            height: dp(55)
+            Button:
+                text: "DISCARD & EXIT"
+                font_size: '14sp'
+                bold: True
+                background_color: 0.75, 0.15, 0.15, 1
+                on_release:
+                    app.discard_settings()
+                    root.dismiss()
+            Button:
+                text: "STAY"
+                font_size: '14sp'
+                bold: True
+                background_color: 0.4, 0.4, 0.4, 1
+                on_release: root.dismiss()
+            Button:
+                text: "SAVE & EXIT"
+                font_size: '14sp'
+                bold: True
+                background_color: 0.15, 0.75, 0.15, 1
+                on_release:
+                    app.save_and_exit_settings()
+                    root.dismiss()
+
 <SettingsAlertsTab>:
     ScrollView:
         do_scroll_x: False
@@ -1618,6 +1669,7 @@
                     color: 1, 1, 1, 1
                     font_size: '14sp'
                     size_hint_x: 0.62
+                    on_text: app.mark_settings_dirty()
 
             BoxLayout:
                 size_hint_y: None
@@ -1637,6 +1689,7 @@
                     foreground_color: 1, 1, 1, 1
                     cursor_color: 1, 0.75, 0, 1
                     size_hint_x: 0.62
+                    on_text: app.mark_settings_dirty()
 
             BoxLayout:
                 size_hint_y: None
@@ -1657,6 +1710,7 @@
                     foreground_color: 1, 1, 1, 1
                     cursor_color: 1, 0.75, 0, 1
                     size_hint_x: 0.62
+                    on_text: app.mark_settings_dirty()
 
             BoxLayout:
                 size_hint_y: None
@@ -1676,6 +1730,7 @@
                     foreground_color: 1, 1, 1, 1
                     cursor_color: 1, 0.75, 0, 1
                     size_hint_x: 0.62
+                    on_text: app.mark_settings_dirty()
 
             BoxLayout:
                 size_hint_y: None
@@ -1696,6 +1751,7 @@
                     foreground_color: 1, 1, 1, 1
                     cursor_color: 1, 0.75, 0, 1
                     size_hint_x: 0.62
+                    on_text: app.mark_settings_dirty()
 
             BoxLayout:
                 size_hint_y: None
@@ -1715,6 +1771,7 @@
                     foreground_color: 1, 1, 1, 1
                     cursor_color: 1, 0.75, 0, 1
                     size_hint_x: 0.62
+                    on_text: app.mark_settings_dirty()
 
             # ── CONDITIONAL ALERTS ──────────────────────────────────────
             Label:
@@ -1862,30 +1919,40 @@
                 text: "SYSTEM"
                 group: 'settings_tabs'
                 allow_no_selection: False
+                disabled: (app.is_settings_dirty and self.state == 'normal') or root._cal_mode_active
+                opacity: 0.35 if app.is_settings_dirty and self.state == 'normal' else 1.0
                 on_release: root.set_active_tab('conf')
             TabButton:
                 id: btn_alerts
                 text: "ALERTS"
                 group: 'settings_tabs'
                 allow_no_selection: False
+                disabled: (app.is_settings_dirty and self.state == 'normal') or root._cal_mode_active
+                opacity: 0.35 if app.is_settings_dirty and self.state == 'normal' else 1.0
                 on_release: root.set_active_tab('alerts')
             TabButton:
                 id: btn_upd
                 text: "UPDATES"
                 group: 'settings_tabs'
                 allow_no_selection: False
+                disabled: (app.is_settings_dirty and self.state == 'normal') or root._cal_mode_active
+                opacity: 0.35 if app.is_settings_dirty and self.state == 'normal' else 1.0
                 on_release: root.set_active_tab('upd')
             TabButton:
                 id: btn_about
                 text: "ABOUT"
                 group: 'settings_tabs'
                 allow_no_selection: False
+                disabled: (app.is_settings_dirty and self.state == 'normal') or root._cal_mode_active
+                opacity: 0.35 if app.is_settings_dirty and self.state == 'normal' else 1.0
                 on_release: root.set_active_tab('about')
             TabButton:
                 id: btn_cal
                 text: "CALIBRATION"
                 group: 'settings_tabs'
                 allow_no_selection: False
+                disabled: app.is_settings_dirty and self.state == 'normal'
+                opacity: 0.35 if app.is_settings_dirty and self.state == 'normal' else 1.0
                 on_release: root.set_active_tab('cal')
 
         # --- CONTENT AREA ---
@@ -1927,12 +1994,12 @@
                     padding: 5
                     spacing: 10
                     Button:
-                        text: "CANCEL / EXIT"
+                        text: "EXIT"
                         font_size: '16sp'
                         bold: True
-                        background_normal: '' # MATCHING FLAT STYLE
-                        background_color: 0.4, 0.4, 0.4, 1
-                        on_release: app.navigate_to('dashboard')
+                        background_normal: ''
+                        background_color: (0.85, 0.4, 0.1, 1) if app.is_settings_dirty else (0.4, 0.4, 0.4, 1)
+                        on_release: app.attempt_exit_settings()
                     Label:
                         text: "" 
                     Label:
@@ -1951,10 +2018,10 @@
                     padding: 5
                     spacing: 10
                     Button:
-                        text: "CANCEL / EXIT"
+                        text: "EXIT"
                         font_size: '16sp'
                         bold: True
-                        background_normal: '' # MATCHING FLAT STYLE
+                        background_normal: ''
                         background_color: 0.4, 0.4, 0.4, 1
                         on_release: app.navigate_to('dashboard')
                     Button:
@@ -1986,10 +2053,10 @@
                     padding: 5
                     spacing: 10
                     Button:
-                        text: "CANCEL / EXIT"
+                        text: "EXIT"
                         font_size: '16sp'
                         bold: True
-                        background_normal: '' # MATCHING FLAT STYLE
+                        background_normal: ''
                         background_color: 0.4, 0.4, 0.4, 1
                         on_release: app.navigate_to('dashboard')
                     Label: 
@@ -2055,12 +2122,12 @@
                     padding: 5
                     spacing: 10
                     Button:
-                        text: "CANCEL / EXIT"
+                        text: "EXIT"
                         font_size: '16sp'
                         bold: True
                         background_normal: ''
-                        background_color: 0.4, 0.4, 0.4, 1
-                        on_release: app.navigate_to('dashboard')
+                        background_color: (0.85, 0.4, 0.1, 1) if app.is_settings_dirty else (0.4, 0.4, 0.4, 1)
+                        on_release: app.attempt_exit_settings()
                     Button:
                         text: "TEST SEND"
                         font_size: '16sp'

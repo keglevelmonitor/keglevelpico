@@ -124,25 +124,29 @@ class SettingsConfigTab(BoxLayout):
     """Logic for the Configuration Tab."""
     def init_ui(self):
         app = App.get_running_app()
-        units = app.settings_manager.get_display_units()
-        if units == 'imperial':
-            self.ids.btn_imperial.state = 'down'
-            self.ids.btn_metric.state = 'normal'
-        else:
-            self.ids.btn_metric.state = 'down'
-            self.ids.btn_imperial.state = 'normal'
-        taps = app.settings_manager.get_displayed_taps()
-        self.ids.spin_taps.text = str(taps)
+        app._suppress_dirty = True
+        try:
+            units = app.settings_manager.get_display_units()
+            if units == 'imperial':
+                self.ids.btn_imperial.state = 'down'
+                self.ids.btn_metric.state = 'normal'
+            else:
+                self.ids.btn_metric.state = 'down'
+                self.ids.btn_imperial.state = 'normal'
+            taps = app.settings_manager.get_displayed_taps()
+            self.ids.spin_taps.text = str(taps)
+        finally:
+            app._suppress_dirty = False
 
     def save_config(self):
         app = App.get_running_app()
-        # Use button state, not checkbox active
         new_units = 'imperial' if self.ids.btn_imperial.state == 'down' else 'metric'
         app.settings_manager.save_display_units(new_units)
         try:
             new_taps = int(self.ids.spin_taps.text)
             app.settings_manager.save_displayed_taps(new_taps)
         except ValueError: pass
+        app.is_settings_dirty = False
         app.apply_config_changes()
         app.navigate_to('dashboard')
 
@@ -339,6 +343,9 @@ class SettingsScreen(Screen):
     """
     Manages the Settings Tabs and the corresponding dynamic Footer.
     """
+    # KV-observable flag that drives tab-button disabled/opacity bindings
+    _cal_mode_active = BooleanProperty(False)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.last_click_time = 0
@@ -347,22 +354,22 @@ class SettingsScreen(Screen):
 
     def on_pre_enter(self, *args):
         """Always reset to the System tab when opening Settings."""
-        self.set_calibration_mode(active=False)
+        app = App.get_running_app()
+        app.is_settings_dirty = False   # fresh entry — discard any stale flag
+        self._cal_mode_active = False
         self.mimic_mode_active = False
         self.set_active_tab('conf')
 
     def on_leave(self, *args):
-        """Ensure we exit calibration mode when leaving the screen."""
-        self.set_calibration_mode(active=False)
+        """Ensure we exit calibration/dirty mode when leaving the screen."""
+        app = App.get_running_app()
+        app.is_settings_dirty = False   # safety net
+        self._cal_mode_active = False
         self.mimic_mode_active = False
         
         # Force backend to stop calibration mode immediately
-        app = App.get_running_app()
         if hasattr(app, 'sensor_logic') and app.sensor_logic:
-            # 1. Stop Auto-Detect Calibration (The likely culprit)
             app.sensor_logic.stop_auto_calibration_mode()
-            
-            # 2. Safety: Stop Manual Calibration if active
             if app.sensor_logic._is_calibrating:
                 app.sensor_logic._is_calibrating = False
                 app.sensor_logic._cal_target_tap = -1
@@ -392,11 +399,16 @@ class SettingsScreen(Screen):
     def set_active_tab(self, tab_code):
         """
         Manually handles tab switching.
-        tab_code: 'conf', 'upd', 'about', 'cal'
+        tab_code: 'conf', 'upd', 'about', 'cal', 'alerts'
         """
-        # If we are locked in calibration mode, ignore other clicks
-        # UNLESS the user is clicking 'cal' again (which does nothing now, handled by header)
-        if self.ids.btn_sys.disabled and tab_code != 'cal':
+        app = App.get_running_app()
+
+        # Block tab switching when settings are dirty — user must Save or Exit first
+        if app.is_settings_dirty:
+            return
+
+        # Block tab switching when in calibration mode (except re-clicking 'cal')
+        if self._cal_mode_active and tab_code != 'cal':
             return
 
         # Map codes to UI IDs and Screen Names
@@ -428,23 +440,29 @@ class SettingsScreen(Screen):
         if tab_code == 'cal':
             self.set_calibration_mode(active=True)
             
-        # Explicitly initialize UI when entering tabs that need a fresh load
+        # Initialize UI when entering tabs that load from backend
+        # Suppress dirty-flag changes while programmatically loading values
         if tab_code == 'conf':
-            self.ids.tab_conf_content.init_ui()
+            app._suppress_dirty = True
+            try:
+                self.ids.tab_conf_content.init_ui()
+            finally:
+                app._suppress_dirty = False
         elif tab_code == 'alerts':
-            self.ids.tab_alerts_content.init_ui()
+            app._suppress_dirty = True
+            try:
+                self.ids.tab_alerts_content.init_ui()
+            finally:
+                app._suppress_dirty = False
 
     def set_calibration_mode(self, active):
         """
-        active=True: Disables navigation tabs (Modal Mode).
-        active=False: Re-enables navigation tabs.
+        active=True:  Locks all non-calibration tabs (modal calibration mode).
+        active=False: Restores normal tab navigation.
+        KV bindings on each tab button observe _cal_mode_active to apply
+        disabled/opacity automatically.
         """
-        self.ids.btn_sys.disabled    = active
-        self.ids.btn_upd.disabled    = active
-        self.ids.btn_about.disabled  = active
-        self.ids.btn_alerts.disabled = active
-
-        # If deactivating, ensure mimic mode is off
+        self._cal_mode_active = active
         if not active:
             self.mimic_mode_active = False
 
@@ -981,30 +999,34 @@ class SettingsAlertsTab(BoxLayout):
     def init_ui(self):
         """Load current settings into all widgets."""
         app  = App.get_running_app()
-        push = app.settings_manager.get_push_notification_settings()
-        cond = app.settings_manager.get_conditional_notification_settings()
+        app._suppress_dirty = True
+        try:
+            push = app.settings_manager.get_push_notification_settings()
+            cond = app.settings_manager.get_conditional_notification_settings()
 
-        # Push notification fields
-        self.ids.spin_frequency.text      = push.get("frequency", "None")
-        self.ids.txt_smtp_server.text     = str(push.get("smtp_server", ""))
-        port_val = push.get("smtp_port", "")
-        self.ids.txt_smtp_port.text       = str(port_val) if port_val else ""
-        self.ids.txt_server_email.text    = str(push.get("server_email", ""))
-        self.ids.txt_server_password.text = str(push.get("server_password", ""))
-        self.ids.txt_email_recipient.text = str(push.get("email_recipient", ""))
+            # Push notification fields
+            self.ids.spin_frequency.text      = push.get("frequency", "None")
+            self.ids.txt_smtp_server.text     = str(push.get("smtp_server", ""))
+            port_val = push.get("smtp_port", "")
+            self.ids.txt_smtp_port.text       = str(port_val) if port_val else ""
+            self.ids.txt_server_email.text    = str(push.get("server_email", ""))
+            self.ids.txt_server_password.text = str(push.get("server_password", ""))
+            self.ids.txt_email_recipient.text = str(push.get("email_recipient", ""))
 
-        # Conditional sliders — clamp to valid slider ranges on load
-        vol = float(cond.get("threshold_liters", self.VOLUME_OFF))
-        self.ids.slider_volume.value = max(0.0, min(5.0, vol))
-        self.on_volume_slider(self.ids.slider_volume.value)
+            # Conditional sliders — clamp to valid slider ranges on load
+            vol = float(cond.get("threshold_liters", self.VOLUME_OFF))
+            self.ids.slider_volume.value = max(0.0, min(5.0, vol))
+            self.on_volume_slider(self.ids.slider_volume.value)
 
-        low_t = float(cond.get("low_temp_f", self.LOW_TEMP_OFF))
-        self.ids.slider_low_temp.value = max(27.0, min(45.0, low_t))
-        self.on_low_temp_slider(self.ids.slider_low_temp.value)
+            low_t = float(cond.get("low_temp_f", self.LOW_TEMP_OFF))
+            self.ids.slider_low_temp.value = max(27.0, min(45.0, low_t))
+            self.on_low_temp_slider(self.ids.slider_low_temp.value)
 
-        high_t = float(cond.get("high_temp_f", self.HIGH_TEMP_OFF))
-        self.ids.slider_high_temp.value = max(35.0, min(61.0, high_t))
-        self.on_high_temp_slider(self.ids.slider_high_temp.value)
+            high_t = float(cond.get("high_temp_f", self.HIGH_TEMP_OFF))
+            self.ids.slider_high_temp.value = max(35.0, min(61.0, high_t))
+            self.on_high_temp_slider(self.ids.slider_high_temp.value)
+        finally:
+            app._suppress_dirty = False
 
     # --- Slider label callbacks (called from KV on_value) ---
 
@@ -1012,16 +1034,19 @@ class SettingsAlertsTab(BoxLayout):
         lbl = self.ids.get("lbl_volume")
         if lbl:
             lbl.text = "OFF" if value <= self.VOLUME_OFF else f"{value:.2f} L"
+        App.get_running_app().mark_settings_dirty()
 
     def on_low_temp_slider(self, value):
         lbl = self.ids.get("lbl_low_temp")
         if lbl:
             lbl.text = "OFF" if value <= self.LOW_TEMP_OFF else f"{int(value)}°F"
+        App.get_running_app().mark_settings_dirty()
 
     def on_high_temp_slider(self, value):
         lbl = self.ids.get("lbl_high_temp")
         if lbl:
             lbl.text = "OFF" if value >= self.HIGH_TEMP_OFF else f"{int(value)}°F"
+        App.get_running_app().mark_settings_dirty()
 
     # --- Save / Test ---
 
@@ -1054,12 +1079,15 @@ class SettingsAlertsTab(BoxLayout):
     def save_all_settings(self):
         """Save and return to the dashboard."""
         self._save_to_backend()
-        App.get_running_app().navigate_to("dashboard")
+        app = App.get_running_app()
+        app.is_settings_dirty = False
+        app.navigate_to("dashboard")
 
     def test_send(self):
         """Save current UI values then fire an immediate test email."""
         self._save_to_backend()
         app = App.get_running_app()
+        app.is_settings_dirty = False
         if hasattr(app, "notification_manager") and app.notification_manager:
             app.notification_manager.send_manual_status()
 
@@ -1124,11 +1152,51 @@ class DashboardScreen(Screen):
 # --- 4. MAIN APP CLASS ---
 
 class KegLevelApp(App):
-    simulated_temp = None   # None = use sensor, float (°C) = override
-    current_temp_f = None   # Always °F; read by NotificationManager
-    _sim_flow_event = None
-    _active_sim_taps = set()
-    
+    simulated_temp    = None   # None = use sensor, float (°C) = override
+    current_temp_f    = None   # Always °F; read by NotificationManager
+    _sim_flow_event   = None
+    _active_sim_taps  = set()
+    is_settings_dirty = BooleanProperty(False)
+    _suppress_dirty   = False
+
+    # ------------------------------------------------------------------
+    # Dirty-settings helpers
+    # ------------------------------------------------------------------
+
+    def mark_settings_dirty(self):
+        """Flag that the active settings tab has unsaved changes."""
+        if not self._suppress_dirty:
+            self.is_settings_dirty = True
+
+    def attempt_exit_settings(self):
+        """Exit settings; show a dirty popup if there are unsaved changes."""
+        if self.is_settings_dirty:
+            from kivy.factory import Factory
+            Clock.schedule_once(lambda dt: Factory.DirtySettingsPopup().open(), 0)
+        else:
+            self.navigate_to('dashboard')
+
+    def discard_settings(self):
+        """Discard unsaved changes and return to the dashboard."""
+        self.is_settings_dirty = False
+        self.navigate_to('dashboard')
+
+    def save_and_exit_settings(self):
+        """Save the currently active settings tab, then return to the dashboard."""
+        try:
+            settings_screen = self.root.get_screen('settings')
+            current_tab = settings_screen.ids.settings_manager.current
+            if current_tab == 'tab_conf':
+                # save_config() handles dirty-clear and navigation itself
+                settings_screen.ids.tab_conf_content.save_config()
+                return
+            elif current_tab == 'tab_alerts':
+                settings_screen.ids.tab_alerts_content._save_to_backend()
+        except Exception as e:
+            print(f"[Settings] save_and_exit error: {e}")
+        self.is_settings_dirty = False
+        self.navigate_to('dashboard')
+
     def build(self):
         self.title = "KegLevel Lite"
         Builder.load_file('keglevel_ui.kv')
