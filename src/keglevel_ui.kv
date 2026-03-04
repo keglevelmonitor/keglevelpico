@@ -1290,7 +1290,7 @@
                 size_hint_y: None
                 height: 50
                 EditLabel:
-                    text: "Contents:"
+                    text: root.keg_label_text
                 Spinner:
                     id: bev_spinner
                     text: root.beverage_name
@@ -1391,9 +1391,8 @@
                 height: 60
                 padding: (0, 10, 0, 0)
                 Label:
-                    # UPDATED: Added Markup for SG explanation
-                    text: "Liquid Volume:\n[size=14sp][color=#888888](calc @ 1.014 SG)[/color][/size]"
-                    markup: True 
+                    text: "Volume at Fill:\n[size=14sp][color=#888888](calc @ 1.014 SG)[/color][/size]"
+                    markup: True
                     font_size: '20sp'
                     bold: True
                     halign: 'right'
@@ -1405,6 +1404,28 @@
                     font_size: '28sp'
                     bold: True
                     color: 0, 1, 0, 1
+                    halign: 'left'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.4
+                    padding: (20, 0)
+            BoxLayout:
+                size_hint_y: None
+                height: 60
+                padding: (0, 0, 0, 0)
+                Label:
+                    text: "Current Remaining:"
+                    font_size: '20sp'
+                    bold: True
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.6
+                Label:
+                    text: root.ui_remaining_text
+                    font_size: '28sp'
+                    bold: True
+                    color: 1, 0.78, 0, 1
                     halign: 'left'
                     valign: 'middle'
                     text_size: self.size

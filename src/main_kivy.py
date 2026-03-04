@@ -555,8 +555,11 @@ class KegEditScreen(Screen):
     ui_tare_text = StringProperty("")
     ui_total_text = StringProperty("")
     ui_calculated_text = StringProperty("")
-    
+    ui_remaining_text = StringProperty("")
+    keg_label_text = StringProperty("Contents:")
+
     is_metric = True
+    _current_dispensed_liters = 0.0
 
     def on_pre_enter(self):
         app = App.get_running_app()
@@ -578,6 +581,9 @@ class KegEditScreen(Screen):
                 self.total_min, self.total_max, self.total_step = 0.0, 170.0, 0.1 # Lbs
 
             # 3. Load Current Database Values (Always Metric in DB)
+            self.keg_label_text = "Contents:"
+            self._current_dispensed_liters = 0.0
+
             keg = app.settings_manager.get_keg_by_id(self.keg_id)
             if keg:
                 raw_vol = keg.get('maximum_full_volume_liters', 19.0)
@@ -593,7 +599,15 @@ class KegEditScreen(Screen):
                     self.max_volume_liters = raw_vol * LITERS_TO_GAL
                     self.tare_weight_kg = raw_tare * KG_TO_LBS
                     self.total_weight_kg = raw_total * KG_TO_LBS
-                
+
+                # Keg title label
+                keg_title = keg.get('title', '')
+                if keg_title:
+                    self.keg_label_text = f"{keg_title}  Contents:"
+
+                # Current dispensed amount (for remaining volume display)
+                self._current_dispensed_liters = keg.get('current_dispensed_liters', 0.0)
+
                 # Fetch Beverage Name
                 b_id = keg.get('beverage_id')
                 lib = app.settings_manager.get_beverage_library().get('beverages', [])
@@ -605,36 +619,41 @@ class KegEditScreen(Screen):
     def update_display_labels(self, *args):
         # Calculate Liquid Volume based on current slider values and unit mode
         density = 1.014
-        
+
         if self.is_metric:
             # Inputs are already kg/L
             liquid_kg = self.total_weight_kg - self.tare_weight_kg
             vol_liters = liquid_kg / density
-            
+            remaining_liters = max(0.0, vol_liters - self._current_dispensed_liters)
+
             # Update UI Strings
             self.ui_max_vol_text = f"{self.max_volume_liters:.1f} L"
             self.ui_tare_text = f"{self.tare_weight_kg:.2f} kg"
             self.ui_total_text = f"{self.total_weight_kg:.2f} kg"
             self.ui_calculated_text = f"{vol_liters:.2f} L"
-            
+            self.ui_remaining_text = f"{remaining_liters:.2f} L"
+
         else:
             # Inputs are Lbs/Gal
             # 1. Convert Lbs -> Kg for density math
             total_kg = self.total_weight_kg / KG_TO_LBS
             tare_kg = self.tare_weight_kg / KG_TO_LBS
             liquid_kg = total_kg - tare_kg
-            
+
             # 2. Get Liters
             vol_liters = liquid_kg / density
-            
+            remaining_liters = max(0.0, vol_liters - self._current_dispensed_liters)
+
             # 3. Convert Liters -> Gal for display
             vol_gal = vol_liters * LITERS_TO_GAL
-            
+            remaining_gal = remaining_liters * LITERS_TO_GAL
+
             # Update UI Strings
             self.ui_max_vol_text = f"{self.max_volume_liters:.1f} Gal"
             self.ui_tare_text = f"{self.tare_weight_kg:.1f} lb"
             self.ui_total_text = f"{self.total_weight_kg:.1f} lb"
             self.ui_calculated_text = f"{vol_gal:.2f} Gal"
+            self.ui_remaining_text = f"{remaining_gal:.2f} Gal"
 
     def set_max_volume_from_slider(self, value):
         self.max_volume_liters = value
