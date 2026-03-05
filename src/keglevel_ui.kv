@@ -885,7 +885,71 @@
         Label:
             size_hint_x: 0.35
 
-    # 3. MIGRATION (New Section)
+    # 3. SENSOR BACKEND
+    BoxLayout:
+        size_hint_y: None
+        height: 60
+        spacing: 10
+        Label:
+            text: "Sensor Backend:"
+            font_size: '22sp'
+            bold: True
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.size
+            size_hint_x: 0.3
+        BoxLayout:
+            size_hint_x: 0.7
+            spacing: 20
+            ToggleButton:
+                id: btn_gpio
+                text: "GPIO (Pi)"
+                group: 'sensor_backend'
+                allow_no_selection: False
+                font_size: '18sp'
+                bold: True
+                background_normal: ''
+                background_color: (0.2, 0.6, 0.2, 1) if self.state == 'down' else (0.2, 0.2, 0.2, 1)
+                on_release: app.mark_settings_dirty()
+            ToggleButton:
+                id: btn_pico_w
+                text: "Pico W"
+                group: 'sensor_backend'
+                allow_no_selection: False
+                font_size: '18sp'
+                bold: True
+                background_normal: ''
+                background_color: (0.2, 0.6, 0.2, 1) if self.state == 'down' else (0.2, 0.2, 0.2, 1)
+                on_release: app.mark_settings_dirty()
+
+    # 4. PICO W HOST OVERRIDE
+    BoxLayout:
+        size_hint_y: None
+        height: 60
+        spacing: 10
+        Label:
+            text: "Pico W Host:"
+            font_size: '20sp'
+            bold: True
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.size
+            size_hint_x: 0.3
+        TextInput:
+            id: txt_pico_host
+            hint_text: "keglevel-pico.local  (leave blank for default)"
+            font_size: '17sp'
+            size_hint_x: 0.55
+            multiline: False
+            background_color: 0.18, 0.18, 0.18, 1
+            foreground_color: 1, 1, 1, 1
+            cursor_color: 1, 0.75, 0, 1
+            padding: [10, 10]
+            on_text: app.mark_settings_dirty()
+        Label:
+            size_hint_x: 0.15
+
+    # 5. MIGRATION (New Section)
     BoxLayout:
         size_hint_y: None
         height: 60

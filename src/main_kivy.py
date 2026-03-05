@@ -60,6 +60,11 @@ from kivy.metrics import Metrics
 # --- 2. IMPORT BACKEND LOGIC ---
 from settings_manager import SettingsManager, UNASSIGNED_KEG_ID, UNASSIGNED_BEVERAGE_ID
 from sensor_logic import SensorLogic, FLOW_SENSOR_PINS
+try:
+    from pico_sensor_logic import PicoSensorLogic
+    _PICO_BACKEND_AVAILABLE = True
+except ImportError:
+    _PICO_BACKEND_AVAILABLE = False
 from notification_manager import NotificationManager
 from version import APP_VERSION
 
@@ -138,6 +143,15 @@ class SettingsConfigTab(BoxLayout):
                 self.ids.btn_imperial.state = 'normal'
             taps = app.settings_manager.get_displayed_taps()
             self.ids.spin_taps.text = str(taps)
+            # Sensor backend
+            backend = app.settings_manager.get_sensor_backend()
+            if backend == 'pico_w':
+                self.ids.btn_pico_w.state = 'down'
+                self.ids.btn_gpio.state   = 'normal'
+            else:
+                self.ids.btn_gpio.state   = 'down'
+                self.ids.btn_pico_w.state = 'normal'
+            self.ids.txt_pico_host.text = app.settings_manager.get_pico_w_host()
         finally:
             app._suppress_dirty = False
 
@@ -149,6 +163,10 @@ class SettingsConfigTab(BoxLayout):
             new_taps = int(self.ids.spin_taps.text)
             app.settings_manager.save_displayed_taps(new_taps)
         except ValueError: pass
+        # Sensor backend
+        new_backend = 'pico_w' if self.ids.btn_pico_w.state == 'down' else 'gpio'
+        pico_host   = self.ids.txt_pico_host.text.strip()
+        app.settings_manager.save_sensor_backend(new_backend, pico_host)
         app.is_settings_dirty = False
         app.apply_config_changes()
 
@@ -1324,8 +1342,15 @@ class KegLevelApp(App):
             "auto_cal_pulse_cb": cal_bridge_callback 
         }
 
-        # 6. Initialize Sensor Logic
-        self.sensor_logic = SensorLogic(self.num_sensors, callbacks, self.settings_manager)
+        # 6. Initialize Sensor Logic (GPIO or Pico W backend)
+        sensor_backend = self.settings_manager.get_sensor_backend()
+        if sensor_backend == 'pico_w' and _PICO_BACKEND_AVAILABLE:
+            print(f"[App] Using Pico W sensor backend.")
+            self.sensor_logic = PicoSensorLogic(self.num_sensors, callbacks, self.settings_manager)
+        else:
+            if sensor_backend == 'pico_w':
+                print("[App] Pico W backend requested but pico_sensor_logic.py not found — falling back to GPIO.")
+            self.sensor_logic = SensorLogic(self.num_sensors, callbacks, self.settings_manager)
         
         # 7. Refresh UI & Start Hardware
         self.refresh_dashboard_metadata()
@@ -1363,6 +1388,12 @@ class KegLevelApp(App):
 
     def init_temp_sensor(self):
         """Finds 1-wire temp sensor and starts update loop. Non-Pi platforms use a default temp."""
+        # Pico W backend — temperature comes from the Pico API, no local 1-wire setup needed
+        if self.settings_manager.get_sensor_backend() == 'pico_w':
+            self.temp_device_file = None
+            Clock.schedule_interval(self.update_kegerator_temp, 5.0)
+            return
+
         if sys.platform in ("win32", "darwin"):
             # No DS18B20 on Windows or macOS - use default temp
             self.temp_device_file = None
@@ -1399,7 +1430,25 @@ class KegLevelApp(App):
                 self.dashboard_screen.kegerator_temp = f"{self.simulated_temp:.1f} °C (Sim)"
             return
 
-        # 2. Non-Pi platforms (Windows and macOS) — no DS18B20
+        # 2. Pico W backend — read from cached /api/state temperature field
+        if self.settings_manager.get_sensor_backend() == 'pico_w':
+            if hasattr(self, 'sensor_logic') and hasattr(self.sensor_logic, 'get_pico_temperature'):
+                temp_data = self.sensor_logic.get_pico_temperature()
+                if temp_data and temp_data.get('sensor_available'):
+                    temp_c = temp_data['celsius']
+                    temp_f = temp_data['fahrenheit']
+                    self.current_temp_f = temp_f
+                    units = self.settings_manager.get_display_units()
+                    if units == 'imperial':
+                        self.dashboard_screen.kegerator_temp = f"{temp_f:.1f} °F"
+                    else:
+                        self.dashboard_screen.kegerator_temp = f"{temp_c:.1f} °C"
+                else:
+                    self.current_temp_f = None
+                    self.dashboard_screen.kegerator_temp = ""
+            return
+
+        # 3. Non-Pi platforms (Windows and macOS) — no DS18B20
         if sys.platform in ("win32", "darwin"):
             self.current_temp_f = 68.0
             units = self.settings_manager.get_display_units()
@@ -2036,11 +2085,19 @@ class KegLevelApp(App):
             "update_cal_data_cb": lambda x, y: None 
         }
 
-        self.sensor_logic = SensorLogic(
-            num_sensors_from_config=self.num_sensors,
-            ui_callbacks=callbacks,
-            settings_manager=self.settings_manager
-        )
+        sensor_backend = self.settings_manager.get_sensor_backend()
+        if sensor_backend == 'pico_w' and _PICO_BACKEND_AVAILABLE:
+            self.sensor_logic = PicoSensorLogic(
+                num_sensors_from_config=self.num_sensors,
+                ui_callbacks=callbacks,
+                settings_manager=self.settings_manager
+            )
+        else:
+            self.sensor_logic = SensorLogic(
+                num_sensors_from_config=self.num_sensors,
+                ui_callbacks=callbacks,
+                settings_manager=self.settings_manager
+            )
         
         self.refresh_dashboard_metadata()
         self.sensor_logic.start_monitoring()

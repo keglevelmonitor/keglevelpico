@@ -122,7 +122,10 @@ class SettingsManager:
             "window_x": -1,
             "window_y": -1,
             "window_width": 800,
-            "window_height": 417
+            "window_height": 417,
+            # --- Sensor Backend ---
+            "sensor_backend": "gpio",
+            "pico_w_host": ""
         }
     
     # --- NEW METHODS for App Window Persistence ---
@@ -1053,7 +1056,23 @@ class SettingsManager:
         displayed_taps = system_settings.get('displayed_taps', default_taps) 
         try: displayed_taps = int(displayed_taps) 
         except ValueError: displayed_taps = default_taps 
-        return max(1, min(displayed_taps, self.num_sensors)) 
+        return max(1, min(displayed_taps, self.num_sensors))
+
+    def get_sensor_backend(self):
+        """Return 'gpio' or 'pico_w'."""
+        return self.settings.get('system_settings', {}).get('sensor_backend', 'gpio')
+
+    def get_pico_w_host(self):
+        """Return the user-overridden Pico W hostname/IP, or '' to use mDNS default."""
+        return self.settings.get('system_settings', {}).get('pico_w_host', '')
+
+    def save_sensor_backend(self, backend, pico_host=""):
+        sys_settings = self.settings.get('system_settings', {})
+        sys_settings['sensor_backend'] = backend if backend in ('gpio', 'pico_w') else 'gpio'
+        sys_settings['pico_w_host']    = pico_host.strip()
+        self.settings['system_settings'] = sys_settings
+        self._save_all_settings()
+        print(f"SettingsManager: Sensor backend saved: {backend}, host: '{pico_host.strip()or 'keglevel-pico.local'}'.") 
     def save_displayed_taps(self, number_of_taps):
         if isinstance(number_of_taps, int) and 1 <= number_of_taps <= self.num_sensors: 
             self.settings.setdefault('system_settings', self._get_default_system_settings())['displayed_taps'] = number_of_taps; self._save_all_settings() 
