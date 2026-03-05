@@ -227,7 +227,7 @@ class ConfirmPopup(Popup):
 
 class SettingsUpdatesTab(BoxLayout):
     """Logic for System Updates."""
-    log_text = StringProperty("Ready to check for updates.\n")
+    log_text = StringProperty(f"Version: {APP_VERSION}\nReady to check for updates.\n")
     is_working = BooleanProperty(False)
     install_enabled = BooleanProperty(False)
 
