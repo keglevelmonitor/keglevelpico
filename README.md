@@ -38,6 +38,16 @@ On a Windows 10+ computer, open **Command Prompt** and run this command. Type ca
 curl -sL bit.ly/keglevel-lite-win -o setup.bat && setup.bat
 ```
 
+## To TEST the App on a Mac
+
+On a macOS computer, open **Terminal** and run this command. Type carefully and use proper uppercase / lowercase because it matters:
+
+```bash
+bash <(curl -sL bit.ly/keglevel-lite-mac)
+```
+
+You will find the app launcher in **Finder → Home → Applications → KegLevel Lite**.
+
 ## 🔗 Detailed installation instructions
 
 👉 (placeholder for detailed installation instructions)

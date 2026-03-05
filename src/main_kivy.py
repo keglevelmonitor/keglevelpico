@@ -262,13 +262,16 @@ class SettingsUpdatesTab(BoxLayout):
         os.execv(python, [python, script] + args)
 
     def _run_update_process(self, flags, is_check_mode):
-        """Runs the update script (update.sh on Linux, update.bat on Windows)."""
+        """Runs the platform-appropriate update script."""
         src_dir = os.path.dirname(os.path.abspath(__file__))
         project_root = os.path.dirname(src_dir)
 
         if sys.platform == "win32":
             script_path = os.path.join(project_root, "update.bat")
             cmd = ["cmd", "/c", script_path] + flags
+        elif sys.platform == "darwin":
+            script_path = os.path.join(project_root, "update_mac.sh")
+            cmd = ["bash", script_path] + flags
         else:
             script_path = os.path.join(project_root, "update.sh")
             cmd = ["bash", script_path] + flags
@@ -1359,9 +1362,9 @@ class KegLevelApp(App):
             self.sm.remove_widget(self.temp_screen)
 
     def init_temp_sensor(self):
-        """Finds 1-wire temp sensor and starts update loop. On Windows, uses default 68°F/20°C."""
-        if sys.platform == "win32":
-            # No DS18b20 on Windows - use default temp
+        """Finds 1-wire temp sensor and starts update loop. Non-Pi platforms use a default temp."""
+        if sys.platform in ("win32", "darwin"):
+            # No DS18B20 on Windows or macOS - use default temp
             self.temp_device_file = None
             Clock.schedule_interval(self.update_kegerator_temp, 5.0)
             self.update_kegerator_temp(0)
@@ -1396,8 +1399,8 @@ class KegLevelApp(App):
                 self.dashboard_screen.kegerator_temp = f"{self.simulated_temp:.1f} °C (Sim)"
             return
 
-        # 2. Windows default (no DS18b20 on Windows)
-        if sys.platform == "win32":
+        # 2. Non-Pi platforms (Windows and macOS) — no DS18B20
+        if sys.platform in ("win32", "darwin"):
             self.current_temp_f = 68.0
             units = self.settings_manager.get_display_units()
             if units == 'imperial':
