@@ -1,6 +1,7 @@
 #!/bin/bash
 # build_installer_mac.sh
-# Builds KegLevelLite_Setup.dmg for distribution via GitHub Releases.
+# Builds KegLevelSuite_Setup.dmg for distribution via GitHub Releases.
+# Installs BOTH apps: KegLevel Lite + BatchFlow.
 #
 # Usage:
 #   Run from within the keglevel_lite repo folder on your Mac:
@@ -12,7 +13,7 @@
 #   - Xcode Command Line Tools:  xcode-select --install
 #
 # Output:
-#   ~/Desktop/KegLevelLite_Setup.dmg
+#   ~/Desktop/KegLevelSuite_Setup.dmg
 #   Upload this file to GitHub Releases.
 
 set -e
@@ -24,17 +25,18 @@ BUILD_DIR="$SCRIPT_DIR/mac_build"
 SCRIPTS_DIR="$BUILD_DIR/scripts"
 DMG_STAGING="$BUILD_DIR/dmg_staging"
 
-BUNDLE_ID="com.keglevelmonitor.keglevel-lite"
-PKG_COMPONENT="$BUILD_DIR/KegLevelLite_component.pkg"
-PKG_FINAL="$BUILD_DIR/KegLevelLite_Installer.pkg"
-DMG_OUTPUT="$OUTPUT_DIR/KegLevelLite_Setup.dmg"
-DMG_VOLUME="KegLevel Lite Installer"
+BUNDLE_ID="com.keglevelmonitor.keglevel-suite"
+PKG_COMPONENT="$BUILD_DIR/KegLevelSuite_component.pkg"
+PKG_FINAL="$BUILD_DIR/KegLevelSuite_Installer.pkg"
+DMG_OUTPUT="$OUTPUT_DIR/KegLevelSuite_Setup.dmg"
+DMG_VOLUME="KegLevel Suite Installer"
 
 # Read app version from version.py
 APP_VERSION=$(python3 -c "exec(open('$APP_DIR/src/version.py').read()); print(APP_VERSION)" 2>/dev/null || echo "1.0")
 
 echo "========================================"
-echo "   KegLevel Lite macOS DMG Builder"
+echo "   KegLevel Suite macOS DMG Builder"
+echo "   KegLevel Lite + BatchFlow"
 echo "========================================"
 echo "Version:  $APP_VERSION"
 echo "Repo dir: $APP_DIR"
@@ -88,7 +90,7 @@ echo "[....] Generating distribution manifest..."
 cat > "$BUILD_DIR/distribution.xml" << DISTXML
 <?xml version="1.0" encoding="utf-8"?>
 <installer-gui-script minSpecVersion="2">
-    <title>KegLevel Lite</title>
+    <title>KegLevel Suite</title>
     <welcome file="welcome.html" mime-type="text/html"/>
     <conclusion file="conclusion.html" mime-type="text/html"/>
     <pkg-ref id="${BUNDLE_ID}"/>
@@ -102,7 +104,7 @@ cat > "$BUILD_DIR/distribution.xml" << DISTXML
     <choice id="${BUNDLE_ID}" visible="false">
         <pkg-ref id="${BUNDLE_ID}"/>
     </choice>
-    <pkg-ref id="${BUNDLE_ID}" version="${APP_VERSION}" onConclusion="none">KegLevelLite_component.pkg</pkg-ref>
+    <pkg-ref id="${BUNDLE_ID}" version="${APP_VERSION}" onConclusion="none">KegLevelSuite_component.pkg</pkg-ref>
 </installer-gui-script>
 DISTXML
 echo "[OK]   Distribution manifest created."
@@ -114,14 +116,16 @@ cat > "$BUILD_DIR/welcome.html" << WELCOMEHTML
 <!DOCTYPE html>
 <html>
 <body style="font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #e0e0e0;">
-    <h2 style="color: #FFC107;">Welcome to KegLevel Lite</h2>
+    <h2 style="color: #FFC107;">Welcome to KegLevel Suite</h2>
     <p>Version ${APP_VERSION}</p>
-    <p>This installer will set up <strong>KegLevel Lite</strong> on your Mac.</p>
+    <p>This installer will set up <strong>KegLevel Lite</strong> and <strong>BatchFlow</strong> on your Mac.</p>
+    <p>Both apps are installed together &mdash; this is an all-or-nothing install. If either app fails to install, the whole installation is considered failed.</p>
     <p><strong>The installer will:</strong></p>
     <ul>
-        <li>Download the KegLevel Lite app from GitHub (~10 MB)</li>
-        <li>Set up a Python environment with Kivy</li>
-        <li>Create a launcher in your home Applications folder</li>
+        <li>Download KegLevel Lite from GitHub (~10 MB)</li>
+        <li>Download BatchFlow from GitHub (~10 MB)</li>
+        <li>Set up Python environments with required dependencies for each app</li>
+        <li>Create launchers in your home Applications folder</li>
     </ul>
     <p><strong>Requirements:</strong></p>
     <ul>
@@ -147,17 +151,17 @@ cat > "$BUILD_DIR/conclusion.html" << CONCLUSIONHTML
 <html>
 <body style="font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #e0e0e0;">
     <h2 style="color: #FFC107;">Installation Complete!</h2>
-    <p><strong>KegLevel Lite</strong> has been installed successfully.</p>
-    <p><strong>To launch the app:</strong></p>
+    <p><strong>KegLevel Lite</strong> and <strong>BatchFlow</strong> have been installed successfully.</p>
+    <p><strong>To launch the apps:</strong></p>
     <ol>
         <li>Open <strong>Finder</strong></li>
         <li>Press <strong>Cmd + Shift + H</strong> to go to your Home folder</li>
         <li>Open the <strong>Applications</strong> folder</li>
-        <li>Double-click <strong>KegLevel Lite</strong></li>
+        <li>Double-click <strong>KegLevel Lite</strong> or <strong>BatchFlow</strong></li>
     </ol>
-    <p>You can also drag KegLevel Lite from that folder to your Dock for easy access.</p>
+    <p>You can drag either app from that folder to your Dock for easy access.</p>
     <p style="color: #aaa; font-size: 12px;">
-        To update the app in the future, use <strong>Settings &rarr; Updates</strong> inside the app.<br>
+        To update the apps in the future, use <strong>Settings &rarr; Updates</strong> inside KegLevel Lite.<br>
         Install log saved to: ~/keglevel_lite-data/install_log.txt
     </p>
 </body>
@@ -194,13 +198,14 @@ echo "[OK]   Distribution package built."
 # ---------------------------------------------------------------------------
 echo ""
 echo "[....] Staging DMG contents..."
-cp "$PKG_FINAL" "$DMG_STAGING/KegLevel Lite Installer.pkg"
+cp "$PKG_FINAL" "$DMG_STAGING/KegLevel Suite Installer.pkg"
 
 cat > "$DMG_STAGING/README.txt" << README
-KegLevel Lite - macOS Installer
-================================
+KegLevel Suite - macOS Installer
+=================================
+Installs: KegLevel Lite + BatchFlow
 
-1. Double-click "KegLevel Lite Installer.pkg" to install.
+1. Double-click "KegLevel Suite Installer.pkg" to install.
 
 2. If macOS blocks the installer (Gatekeeper warning):
       Right-click the .pkg -> "Open" -> "Open" in the dialog.
@@ -210,11 +215,13 @@ KegLevel Lite - macOS Installer
       - Git (run: xcode-select --install  in Terminal)
       - Python 3.8+ (https://www.python.org/downloads/macos/)
 
-4. After installation, find the app at:
-      Finder -> Go -> Home (Cmd+Shift+H) -> Applications -> KegLevel Lite
+4. After installation, find the apps at:
+      Finder -> Go -> Home (Cmd+Shift+H) -> Applications
+      -> KegLevel Lite
+      -> BatchFlow
 
-5. To update the app in the future:
-      Use Settings -> Updates inside the app.
+5. To update the apps in the future:
+      Use Settings -> Updates inside KegLevel Lite.
 
 Installation log: ~/keglevel_lite-data/install_log.txt
 README
@@ -243,7 +250,7 @@ echo ""
 echo "========================================"
 echo "   Build Complete!"
 echo ""
-echo "   ~/Desktop/KegLevelLite_Setup.dmg"
+echo "   ~/Desktop/KegLevelSuite_Setup.dmg"
 echo ""
 echo "   Upload this file to GitHub Releases."
 echo "========================================"
