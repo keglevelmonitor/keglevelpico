@@ -170,6 +170,43 @@ class SettingsConfigTab(BoxLayout):
         app.is_settings_dirty = False
         app.apply_config_changes()
 
+    def find_pico(self):
+        """Scan the local subnet for the Pico W and fill the host field."""
+        if not _PICO_BACKEND_AVAILABLE:
+            return
+        btn = self.ids.btn_find_pico
+        btn.disabled = True
+        btn.text = "Scanning..."
+
+        def _scan():
+            from pico_sensor_logic import scan_for_pico, get_local_subnet_prefix
+            prefix = get_local_subnet_prefix()
+            ip = scan_for_pico(prefix) if prefix else None
+            from kivy.clock import Clock
+            Clock.schedule_once(lambda dt: self._on_find_pico_result(ip))
+
+        threading.Thread(target=_scan, daemon=True).start()
+
+    def _on_find_pico_result(self, ip):
+        btn = self.ids.btn_find_pico
+        if ip:
+            self.ids.txt_pico_host.text = ip
+            btn.text = "Found!"
+            app = App.get_running_app()
+            if hasattr(app, 'mark_settings_dirty'):
+                app.mark_settings_dirty()
+            else:
+                app.is_settings_dirty = True
+        else:
+            btn.text = "Not Found"
+        from kivy.clock import Clock
+        Clock.schedule_once(lambda dt: self._reset_find_button(), 3.0)
+
+    def _reset_find_button(self):
+        btn = self.ids.btn_find_pico
+        btn.text = "FIND PICO"
+        btn.disabled = False
+
     def request_monitor_import(self):
         """Triggers the backend migration tool and reports results."""
         from kivy.uix.popup import Popup

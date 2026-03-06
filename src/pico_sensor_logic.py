@@ -434,3 +434,68 @@ class PicoSensorLogic:
         cb = self.ui_callbacks.get("update_sensor_data_cb")
         if cb:
             cb(idx, rate, rem, status, pour_vol)
+
+
+# ---------------------------------------------------------------------------
+# Module-level discovery helpers (called from SettingsConfigTab.find_pico)
+# ---------------------------------------------------------------------------
+
+def get_local_subnet_prefix():
+    """
+    Return the first three octets of the machine's LAN IP as a string,
+    e.g. '192.168.68'.  Returns None if the local IP cannot be determined.
+    """
+    import socket as _socket
+    try:
+        s = _socket.socket(_socket.AF_INET, _socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ".".join(ip.split(".")[:3])
+    except Exception:
+        return None
+
+
+def scan_for_pico(subnet_prefix, timeout=0.4):
+    """
+    Probe every host in <subnet_prefix>.1 – .254 in parallel.
+    Returns the IP string of the first host that responds to /api/version
+    with a JSON payload containing a 'version' key, or None if not found.
+
+    timeout: per-host connection timeout in seconds.
+             With 254 concurrent threads this typically resolves in < 500 ms.
+    """
+    if _urllib_request is None:
+        return None
+
+    found = [None]          # list so the closure can mutate it
+    lock  = threading.Lock()
+
+    def _probe(ip):
+        if found[0]:          # already found by another thread
+            return
+        try:
+            req = _urllib_request.Request(
+                f"http://{ip}/api/version",
+                headers={"Accept": "application/json"}
+            )
+            with _urllib_request.urlopen(req, timeout=timeout) as resp:
+                data = json.loads(resp.read().decode())
+                if "version" in data:
+                    with lock:
+                        if not found[0]:
+                            found[0] = ip
+        except Exception:
+            pass
+
+    threads = [
+        threading.Thread(target=_probe, args=(f"{subnet_prefix}.{i}",), daemon=True)
+        for i in range(1, 255)
+    ]
+    for t in threads:
+        t.start()
+    # Wait just long enough for any thread to return
+    for t in threads:
+        t.join(timeout=timeout + 0.25)
+
+    return found[0]

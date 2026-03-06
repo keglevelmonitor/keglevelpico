@@ -937,17 +937,24 @@
             size_hint_x: 0.3
         TextInput:
             id: txt_pico_host
-            hint_text: "keglevel-pico.local  (leave blank for default)"
+            hint_text: "Enter IP address (e.g. 192.168.1.50)"
             font_size: '17sp'
-            size_hint_x: 0.55
+            size_hint_x: 0.45
             multiline: False
             background_color: 0.18, 0.18, 0.18, 1
             foreground_color: 1, 1, 1, 1
             cursor_color: 1, 0.75, 0, 1
             padding: [10, 10]
             on_text: app.mark_settings_dirty()
-        Label:
-            size_hint_x: 0.15
+        Button:
+            id: btn_find_pico
+            text: "FIND PICO"
+            font_size: '14sp'
+            bold: True
+            size_hint_x: 0.25
+            background_normal: ''
+            background_color: 0.15, 0.35, 0.7, 1
+            on_release: root.find_pico()
 
     # 5. MIGRATION (New Section)
     BoxLayout:
