@@ -207,69 +207,6 @@ class SettingsConfigTab(BoxLayout):
         btn.text = "FIND PICO"
         btn.disabled = False
 
-    def request_monitor_import(self):
-        """Triggers the backend migration tool and reports results."""
-        from kivy.uix.popup import Popup
-        from kivy.uix.label import Label
-        from kivy.uix.button import Button
-        from kivy.uix.checkbox import CheckBox
-        
-        content = BoxLayout(orientation='vertical', padding=10, spacing=10)
-        content.add_widget(Label(text="Import data from 'KegLevel Monitor'?\n\nThis will merge unique Kegs & Beverages\nand update Tap Assignments.", halign='center'))
-        
-        # Checkbox Row
-        chk_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40, spacing=5)
-        # Checkbox active by default
-        chk = CheckBox(active=True, size_hint_x=None, width=40)
-        lbl = Label(text="Import sensor calibration factors?", halign='left', valign='middle')
-        lbl.bind(size=lbl.setter('text_size')) # Ensure text wrapping/alignment works if needed
-        
-        chk_box.add_widget(chk)
-        chk_box.add_widget(lbl)
-        content.add_widget(chk_box)
-        
-        btns = BoxLayout(size_hint_y=None, height=50, spacing=10)
-        
-        # Use lambda to capture the specific popup instance and check state
-        btn_cancel = Button(text="Cancel", on_release=lambda x: popup.dismiss())
-        btn_go = Button(text="IMPORT", background_color=(0, 0.6, 0, 1), 
-                        on_release=lambda x: self._run_import(popup, chk.active))
-        
-        btns.add_widget(btn_cancel)
-        btns.add_widget(btn_go)
-        content.add_widget(btns)
-        
-        popup = Popup(title="Confirm Import", content=content, size_hint=(None, None), size=(450, 300))
-        popup.open()
-
-    def _run_import(self, popup, import_calibration):
-        popup.dismiss()
-        app = App.get_running_app()
-        success, msg = app.settings_manager.import_data_from_monitor(import_calibration=import_calibration)
-        
-        # Result Popup
-        from kivy.uix.popup import Popup
-        from kivy.uix.label import Label
-        from kivy.uix.button import Button
-        
-        content = BoxLayout(orientation='vertical', padding=10, spacing=10)
-        content.add_widget(Label(text=msg, text_size=(380, None), halign='center', valign='middle'))
-        
-        res_popup = None
-        def close_res(instance):
-            if res_popup: res_popup.dismiss()
-            
-        btn = Button(text="OK", size_hint_y=None, height=50, on_release=close_res)
-        content.add_widget(btn)
-        
-        res_popup = Popup(title="Import Result", content=content, size_hint=(None, None), size=(400, 250))
-        res_popup.open()
-        
-        if success:
-            app.refresh_keg_list()
-            app.refresh_beverage_list()
-            app.refresh_dashboard_metadata()
-            app.sensor_logic.force_recalculation()
 
 class ConfirmPopup(Popup):
     text = StringProperty("")

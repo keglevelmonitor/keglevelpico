@@ -820,17 +820,17 @@
 
 <SettingsConfigTab>:
     orientation: 'vertical'
-    padding: 20
-    spacing: 15
-    
+    padding: [20, 12, 20, 12]
+    spacing: 10
+
     # 1. UNITS
     BoxLayout:
         size_hint_y: None
-        height: 60
+        height: 52
         spacing: 10
         Label:
             text: "Display Units:"
-            font_size: '22sp'
+            font_size: '20sp'
             bold: True
             halign: 'left'
             valign: 'middle'
@@ -838,23 +838,23 @@
             size_hint_x: 0.3
         BoxLayout:
             size_hint_x: 0.7
-            spacing: 20
+            spacing: 16
             ToggleButton:
                 id: btn_imperial
-                text: "US Imperial\n(Gal / lb)"
+                text: "US Imperial (Gal / lb)"
                 group: 'units'
                 allow_no_selection: False
-                font_size: '18sp'
+                font_size: '17sp'
                 bold: True
                 background_normal: ''
                 background_color: (0.2, 0.6, 0.2, 1) if self.state == 'down' else (0.2, 0.2, 0.2, 1)
                 on_release: app.mark_settings_dirty()
             ToggleButton:
                 id: btn_metric
-                text: "Metric\n(L / kg)"
+                text: "Metric (L / kg)"
                 group: 'units'
                 allow_no_selection: False
-                font_size: '18sp'
+                font_size: '17sp'
                 bold: True
                 background_normal: ''
                 background_color: (0.2, 0.6, 0.2, 1) if self.state == 'down' else (0.2, 0.2, 0.2, 1)
@@ -863,10 +863,10 @@
     # 2. TAPS
     BoxLayout:
         size_hint_y: None
-        height: 60
+        height: 52
         Label:
             text: "Active Taps:"
-            font_size: '22sp'
+            font_size: '20sp'
             bold: True
             halign: 'left'
             valign: 'middle'
@@ -876,23 +876,21 @@
             id: spin_taps
             text: "4"
             values: ["1", "2", "3", "4", "5"]
-            size_hint_x: 0.35
+            size_hint_x: 0.25
             font_size: '20sp'
             background_color: 0.25, 0.25, 0.25, 1
             on_text: app.mark_settings_dirty()
-        
-        # Spacer to maintain alignment
         Label:
-            size_hint_x: 0.35
+            size_hint_x: 0.45
 
     # 3. SENSOR BACKEND
     BoxLayout:
         size_hint_y: None
-        height: 60
+        height: 52
         spacing: 10
         Label:
             text: "Sensor Backend:"
-            font_size: '22sp'
+            font_size: '20sp'
             bold: True
             halign: 'left'
             valign: 'middle'
@@ -900,13 +898,13 @@
             size_hint_x: 0.3
         BoxLayout:
             size_hint_x: 0.7
-            spacing: 20
+            spacing: 16
             ToggleButton:
                 id: btn_gpio
                 text: "GPIO (Pi)"
                 group: 'sensor_backend'
                 allow_no_selection: False
-                font_size: '18sp'
+                font_size: '17sp'
                 bold: True
                 background_normal: ''
                 background_color: (0.2, 0.6, 0.2, 1) if self.state == 'down' else (0.2, 0.2, 0.2, 1)
@@ -916,16 +914,16 @@
                 text: "Pico W"
                 group: 'sensor_backend'
                 allow_no_selection: False
-                font_size: '18sp'
+                font_size: '17sp'
                 bold: True
                 background_normal: ''
                 background_color: (0.2, 0.6, 0.2, 1) if self.state == 'down' else (0.2, 0.2, 0.2, 1)
                 on_release: app.mark_settings_dirty()
 
-    # 4. PICO W HOST OVERRIDE
+    # 4. PICO W HOST
     BoxLayout:
         size_hint_y: None
-        height: 60
+        height: 52
         spacing: 10
         Label:
             text: "Pico W Host:"
@@ -938,45 +936,23 @@
         TextInput:
             id: txt_pico_host
             hint_text: "Enter IP address (e.g. 192.168.1.50)"
-            font_size: '17sp'
+            font_size: '16sp'
             size_hint_x: 0.45
             multiline: False
             background_color: 0.18, 0.18, 0.18, 1
             foreground_color: 1, 1, 1, 1
             cursor_color: 1, 0.75, 0, 1
-            padding: [10, 10]
+            padding: [10, 8]
             on_text: app.mark_settings_dirty()
         Button:
             id: btn_find_pico
             text: "FIND PICO"
-            font_size: '14sp'
+            font_size: '13sp'
             bold: True
             size_hint_x: 0.25
             background_normal: ''
             background_color: 0.15, 0.35, 0.7, 1
             on_release: root.find_pico()
-
-    # 5. MIGRATION (New Section)
-    BoxLayout:
-        size_hint_y: None
-        height: 60
-        Label:
-            text: "Data Migration:"
-            font_size: '22sp'
-            bold: True
-            halign: 'left'
-            valign: 'middle'
-            text_size: self.size
-            size_hint_x: 0.3
-        Button:
-            text: "IMPORT FROM\nKEGLEVEL MONITOR"
-            font_size: '14sp'
-            bold: True
-            background_color: 0.2, 0.4, 0.8, 1
-            size_hint_x: 0.35
-            on_release: root.request_monitor_import()
-        Label:
-            size_hint_x: 0.35
 
     # Spacer
     Label:
