@@ -58,6 +58,10 @@ class PicoSensorLogic:
         # Last Pico-reported dispensed values (used to compute deltas)
         self._last_dispensed = [None] * self.num_sensors
 
+        # Pico dispensed baselines saved from the previous app session.
+        # Used to capture volume poured while the app was not running.
+        self._saved_pico_dispensed = settings_manager.get_pico_tap_last_dispensed()
+
         # Temperature dict from last /api/state poll
         self._pico_temperature = None
 
@@ -266,8 +270,20 @@ class PicoSensorLogic:
                 pouring        = bool(tap.get("pouring", False))
                 flow_rate      = float(tap.get("flow_rate_lpm", 0.0))
 
-                # First poll: initialise baseline without creating a delta
+                # First poll: check for volume dispensed while app was offline
                 if self._last_dispensed[i] is None:
+                    saved = self._saved_pico_dispensed[i] if i < len(self._saved_pico_dispensed) else 0.0
+                    offline_delta = max(0.0, pico_dispensed - saved)
+                    if offline_delta > 0.001:
+                        print(f"[PicoSensor] Tap {i+1}: {offline_delta:.3f} L poured while app was offline — applying.")
+                        keg_id = self.keg_ids_assigned[i]
+                        if keg_id:
+                            new_total = self.keg_dispensed_liters[i] + offline_delta
+                            self.keg_dispensed_liters[i] = new_total
+                            self.settings_manager.update_keg_dispensed_volume(
+                                keg_id, new_total, pulses=0
+                            )
+                        self.last_known_remaining_liters[i] -= offline_delta
                     self._last_dispensed[i] = pico_dispensed
                     self._update_ui(i, 0.0,
                                     self.last_known_remaining_liters[i],
@@ -311,6 +327,8 @@ class PicoSensorLogic:
                                     self.last_known_remaining_liters[i],
                                     "Idle",
                                     self.last_pour_volumes[i])
+                    # Persist Pico baseline so offline pours are captured next session
+                    self._save_pico_baselines()
                 else:
                     self._update_ui(i, 0.0,
                                     self.last_known_remaining_liters[i],
@@ -436,8 +454,18 @@ class PicoSensorLogic:
     # Compatibility stubs (match SensorLogic interface)
     # ------------------------------------------------------------------
 
+    def _save_pico_baselines(self):
+        """Persist the Pico's current dispensed counters to settings so that
+        volume poured while the app is closed is captured on next startup."""
+        baselines = []
+        for i in range(self.num_sensors):
+            val = self._last_dispensed[i]
+            baselines.append(val if val is not None else 0.0)
+        self.settings_manager.save_pico_tap_last_dispensed(baselines)
+
     def cleanup_gpio(self):
-        """Called by on_stop — gracefully halt the polling thread."""
+        """Called by on_stop — save Pico baselines then halt the polling thread."""
+        self._save_pico_baselines()
         self._running = False
         print("[PicoSensor] Monitoring stopped.")
 

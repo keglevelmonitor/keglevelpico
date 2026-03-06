@@ -125,7 +125,9 @@ class SettingsManager:
             "window_height": 417,
             # --- Sensor Backend ---
             "sensor_backend": "gpio",
-            "pico_w_host": ""
+            "pico_w_host": "",
+            # --- Pico dispensed-liter baselines (saved on app close / pour end) ---
+            "pico_tap_last_dispensed": [0.0, 0.0, 0.0, 0.0, 0.0]
         }
     
     # --- NEW METHODS for App Window Persistence ---
@@ -1072,7 +1074,25 @@ class SettingsManager:
         sys_settings['pico_w_host']    = pico_host.strip()
         self.settings['system_settings'] = sys_settings
         self._save_all_settings()
-        print(f"SettingsManager: Sensor backend saved: {backend}, host: '{pico_host.strip()or 'keglevel-pico.local'}'.") 
+        print(f"SettingsManager: Sensor backend saved: {backend}, host: '{pico_host.strip()or 'keglevel-pico.local'}'.")
+
+    def get_pico_tap_last_dispensed(self):
+        """Return the saved Pico dispensed-liter values from the last session."""
+        vals = self.settings.get('system_settings', {}).get(
+            'pico_tap_last_dispensed', [0.0] * self.num_sensors)
+        # Ensure list is long enough for current num_sensors
+        while len(vals) < self.num_sensors:
+            vals.append(0.0)
+        return vals[:self.num_sensors]
+
+    def save_pico_tap_last_dispensed(self, dispensed_list):
+        """Persist the Pico's current dispensed-liter counters so offline pours
+        can be captured on next app startup."""
+        sys_settings = self.settings.get('system_settings', {})
+        sys_settings['pico_tap_last_dispensed'] = list(dispensed_list)
+        self.settings['system_settings'] = sys_settings
+        self._save_all_settings()
+
     def save_displayed_taps(self, number_of_taps):
         if isinstance(number_of_taps, int) and 1 <= number_of_taps <= self.num_sensors: 
             self.settings.setdefault('system_settings', self._get_default_system_settings())['displayed_taps'] = number_of_taps; self._save_all_settings() 
