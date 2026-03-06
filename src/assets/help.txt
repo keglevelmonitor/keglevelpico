@@ -1,54 +1,192 @@
 [SECTION: main]
-[size=24][b][color=33ccff]Project App Help[/color][/b][/size]
+[size=22][b][color=33ccff]KegLevel Pico Help[/color][/b][/size]
 
-Select a topic below:
-  • [ref=operationalControls][color=33ccff]Operational Controls[/color][/ref]
-  • [ref=settingsMenus][color=33ccff]Settings Menus[/color][/ref]
+KegLevel Pico is a keg monitoring system powered by a Raspberry Pi Pico 2 W. The Pico runs 24/7 as the single source of truth — tracking pour volume, temperature, keg inventory, and alerts. The app connects as a thin client whenever you need to view or configure the system.
 
-[size=18][b][color=ffffff]Description[/color][/b][/size]
-Basic description of the app:
-  • Feature 1.
-  • Feature 2.
+[b]Select a topic:[/b]
 
-[size=18][b][color=ffffff]Operational Specs[/color][/b][/size]
-[b]Main hardware component[/b]
-Description of the main components.
+[size=16][b][color=aaaaaa]SCREENS[/color][/b][/size]
+  • [ref=dashboard][color=33ccff]Dashboard[/color][/ref]
+  • [ref=inventory][color=33ccff]Inventory Management[/color][/ref]
+  • [ref=kegEdit][color=33ccff]Edit Keg[/color][/ref]
+  • [ref=beverageEdit][color=33ccff]Edit Beverage[/color][/ref]
 
-[b]Sensors & actuators[/b]
-Description of the sensors.
-
-Description of the actuators.
-
-[b]Operational controls[/b]
-Description of the operational controls.
-
-[size=18][b][color=ffffff]Settings Menus[/color][/b][/size]
-Screens accessible from the Settings menu allow you to adjust system parameters and view important information about the app.
-  • Screen 1
-  • Screen 2
+[size=16][b][color=aaaaaa]SETTINGS[/color][/b][/size]
+  • [ref=settingsSystem][color=33ccff]System (CONFIG tab)[/color][/ref]
+  • [ref=settingsAlerts][color=33ccff]Alerts[/color][/ref]
+  • [ref=settingsCalibration][color=33ccff]Calibration[/color][/ref]
+  • [ref=settingsUpdates][color=33ccff]Updates[/color][/ref]
+  • [ref=settingsAbout][color=33ccff]About[/color][/ref]
 
 
-[SECTION: operationalControls]
-[size=24][b][color=33ccff]Operational Controls[/color][/b][/size]
-Basic description of the operational controls and modes.
+[SECTION: dashboard]
+[size=22][b][color=33ccff]Dashboard[/color][/b][/size]
 
-[b]Control Mode 1[/b]
-More detailed description of Control Mode 1.
+The Dashboard is the main operating screen. It shows live status for each active tap — pour rate, remaining volume, and keg contents — as well as the current kegerator temperature.
 
-[b]Control Mode 2[/b]
-More detailed description of Control Mode 2.
+[size=16][b][color=ffffff]Tap Display[/color][/b][/size]
+Each tap column shows:
+  • Beverage name and style
+  • Volume remaining (bar gauge + numeric)
+  • ABV
+  • Live flow rate and pour status
 
-[ref=main][color=33ccff]<< Back to Help Index[/color][/ref]
+A tap highlighted in blue/cyan indicates an active pour in progress.
+
+[size=16][b][color=ffffff]Temperature[/color][/b][/size]
+The temperature reading appears in the upper-right corner. Tap the temperature area to cycle between Fahrenheit and Celsius display.
+
+[size=16][b][color=ffffff]Navigation[/color][/b][/size]
+  • [b]INVENTORY[/b] — View and manage kegs and beverages
+  • [b]SETTINGS[/b] — Configure the system, alerts, and calibration
+
+[color=ffaa00]This section is a placeholder. Full help content will be added in a future release.[/color]
 
 
-[SECTION: settingsMenus]
-[size=24][b][color=33ccff]Settings Menus[/color][/b][/size]
-Basic description of the settings menus.
+[SECTION: inventory]
+[size=22][b][color=33ccff]Inventory Management[/color][/b][/size]
 
-[b]Menu 1[/b]
-More detailed description.
+The Inventory screen lets you manage the keg library and beverage catalog stored on the Pico.
 
-[b]Menu 2[/b]
-More detailed description.
+[size=16][b][color=ffffff]KEGS Tab[/color][/b][/size]
+Lists all kegs saved on the Pico. Each entry shows the keg name, assigned beverage, and current remaining volume. Tap a keg row to edit it.
 
-[ref=main][color=33ccff]<< Back to Help Index[/color][/ref]
+[size=16][b][color=ffffff]BEVERAGES Tab[/color][/b][/size]
+Lists your beverage catalog. Each beverage can store name, BJCP style, ABV, IBU, SRM color, and description. Tap a beverage row to edit it.
+
+[size=16][b][color=ffffff]+ ADD NEW[/color][/b][/size]
+Creates a new keg or beverage record depending on which tab is active.
+
+[color=ffaa00]This section is a placeholder. Full help content will be added in a future release.[/color]
+
+
+[SECTION: kegEdit]
+[size=22][b][color=33ccff]Edit Keg[/color][/b][/size]
+
+The Keg Edit screen creates or modifies a keg record on the Pico.
+
+[size=16][b][color=ffffff]Fields[/color][/b][/size]
+  • [b]Beverage[/b] — Select from your beverage catalog
+  • [b]Max Capacity[/b] — Full keg volume (e.g. 18.9 L for a half-barrel)
+  • [b]Empty (Tare)[/b] — Weight of the empty keg vessel
+  • [b]Total Weight[/b] — Current total weight used to calculate remaining volume
+
+Volume at Fill is calculated automatically from the weight fields at a standard specific gravity of 1.014.
+
+[size=16][b][color=ffffff]Assigning to a Tap[/color][/b][/size]
+After saving, assign the keg to a tap from the SETTINGS → CALIBRATION screen or via the tap assignment controls.
+
+[color=ffaa00]This section is a placeholder. Full help content will be added in a future release.[/color]
+
+
+[SECTION: beverageEdit]
+[size=22][b][color=33ccff]Edit Beverage[/color][/b][/size]
+
+The Beverage Edit screen creates or modifies a beverage record in the catalog stored on the Pico.
+
+[size=16][b][color=ffffff]Fields[/color][/b][/size]
+  • [b]Name[/b] — Free-text beverage name
+  • [b]BJCP Style[/b] — Select from the BJCP style list
+  • [b]ABV[/b] — Alcohol by volume percentage
+  • [b]IBU[/b] — International Bitterness Units
+  • [b]SRM[/b] — Color value (a color preview swatch is shown)
+  • [b]Description[/b] — Optional tasting notes
+
+[color=ffaa00]This section is a placeholder. Full help content will be added in a future release.[/color]
+
+
+[SECTION: settingsSystem]
+[size=22][b][color=33ccff]Settings — System (CONFIG)[/color][/b][/size]
+
+The SYSTEM tab contains configuration options that control how the app and Pico interact.
+
+[size=16][b][color=ffffff]Display Units[/color][/b][/size]
+Choose between [b]Metric[/b] (liters / °C / mL) and [b]Imperial[/b] (gallons / °F / oz) for all volume and temperature displays. The Pico stores values in SI units internally.
+
+[size=16][b][color=ffffff]Active Taps[/color][/b][/size]
+Set the number of taps shown on the Dashboard (1–5). Taps beyond this count are hidden from the UI but still tracked by the Pico.
+
+[size=16][b][color=ffffff]Pico W Host[/color][/b][/size]
+The IP address of the Pico on your local network. Use [b]FIND PICO[/b] to auto-discover the Pico if the address is unknown. The address is set permanently via the Pico's captive portal during initial WiFi setup.
+
+[color=ffaa00]This section is a placeholder. Full help content will be added in a future release.[/color]
+
+
+[SECTION: settingsAlerts]
+[size=22][b][color=33ccff]Settings — Alerts[/color][/b][/size]
+
+The ALERTS tab configures email notifications sent directly from the Pico — no app required for delivery.
+
+[size=16][b][color=ffffff]Email Provider[/color][/b][/size]
+KegLevel Pico sends alerts via the [b]Mailgun HTTP API[/b]. You must create a free Mailgun account and provide your API key, domain, and the recipient email address. Without these credentials the notification features remain disabled.
+
+[size=16][b][color=ffffff]Push Notifications[/color][/b][/size]
+A periodic status email summarising keg levels and temperature. Set the interval (hourly, daily, etc.) or disable entirely. Default is OFF.
+
+[size=16][b][color=ffffff]Conditional Alerts[/color][/b][/size]
+Triggered emails sent when a specific condition is detected:
+  • [b]Low Volume[/b] — Fires when a keg drops below the configured threshold
+  • [b]Temperature High / Low[/b] — Fires when the kegerator temperature is out of range
+
+[size=16][b][color=ffffff]TEST SEND[/color][/b][/size]
+Sends a test email immediately using the current credentials to verify the configuration is correct.
+
+[color=ffaa00]This section is a placeholder. Full help content will be added in a future release.[/color]
+
+
+[SECTION: settingsCalibration]
+[size=22][b][color=33ccff]Settings — Calibration[/color][/b][/size]
+
+The CALIBRATION tab measures the K-factor (pulses per liter) for each flow sensor. An accurate K-factor is essential for correct volume readings.
+
+[size=16][b][color=ffffff]How to Calibrate[/color][/b][/size]
+1. Go to the CALIBRATION tab. The Pico starts listening.
+2. Open a tap and pour a measured volume into a container.
+3. Close the tap. The detected pulse count appears.
+4. Adjust the [b]Measured Vol[/b] slider to match the actual volume you collected.
+5. The [b]New K[/b] field calculates automatically.
+6. Fine-tune the K value with the [b]-10 / +10[/b] buttons or type directly.
+7. Press [b]SAVE CALIBRATION[/b].
+
+[size=16][b][color=ffffff]New K Field[/color][/b][/size]
+The New K field shows the mathematically calculated K-factor but is fully editable. Use it when you want to make a small manual adjustment without running a full calibration pour — for example, nudging the value up or down by 10–20 pulses after noticing a consistent pour error.
+
+[size=16][b][color=ffffff]SET TO DEFAULT[/color][/b][/size]
+Restores the factory default K-factor (5100 pulses/L) for the active tap.
+
+[size=16][b][color=ffffff]Deduct from Inventory[/color][/b][/size]
+When checked, the volume poured during calibration is automatically deducted from the assigned keg's remaining volume so inventory stays accurate.
+
+[color=ffaa00]This section is a placeholder. Full help content will be added in a future release.[/color]
+
+
+[SECTION: settingsUpdates]
+[size=22][b][color=33ccff]Settings — Updates[/color][/b][/size]
+
+The UPDATES tab checks for and installs new versions of the KegLevel Pico app.
+
+[size=16][b][color=ffffff]CHECK[/color][/b][/size]
+Queries the update server for a newer app version. Requires an active internet connection on the machine running the app.
+
+[size=16][b][color=ffffff]INSTALL[/color][/b][/size]
+Downloads and installs the available update. The app will need to be restarted after installation.
+
+[size=16][b][color=ffffff]RESTART[/color][/b][/size]
+Restarts the app immediately. Use after installing an update.
+
+[b]Note:[/b] Pico firmware updates are handled separately via mpremote or the Pico's OTA endpoint. App updates and firmware updates are independent.
+
+[color=ffaa00]This section is a placeholder. Full help content will be added in a future release.[/color]
+
+
+[SECTION: settingsAbout]
+[size=22][b][color=33ccff]Settings — About[/color][/b][/size]
+
+The ABOUT tab displays version information for the app and the connected Pico firmware, along with license and attribution details.
+
+[b]App version[/b] is the KegLevel Pico UI application running on this machine.
+[b]Firmware version[/b] is the MicroPython firmware running on the Pico 2 W.
+
+If the Pico is offline or unreachable, the firmware version will show as unknown.
+
+[color=ffaa00]This section is a placeholder. Full help content will be added in a future release.[/color]

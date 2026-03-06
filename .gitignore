@@ -28,6 +28,7 @@ env/
 # They are located in the user's home folder ($HOME/keglevel-data), 
 # but are listed here to catch any accidental commits.
 keglevel_lite-data/
+keglevel_pico-data/
 
 # ------------------------------------
 # 3. BUILD / LOGS / DEVELOPER UTILITIES

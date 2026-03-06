@@ -964,12 +964,26 @@ class SettingsCalibrationTab(BoxLayout):
             
         if vol_liters > 0:
             k = self.current_pulses / vol_liters
-            self.calculated_k = f"{k:.2f}"
+            self.calculated_k = str(int(round(k)))
+
+    def adjust_k_factor(self, delta):
+        """Fine-tune the displayed K-factor by delta pulses (±10)."""
+        if 'new_k_input' not in self.ids:
+            return
+        try:
+            current = float(self.ids.new_k_input.text)
+            new_val = max(100, int(round(current + delta)))
+            self.calculated_k = str(new_val)
+        except ValueError:
+            pass
 
     def save_calibration(self):
         if self.locked_tap_index == -1: return
         try:
-            new_k = float(self.calculated_k)
+            k_text = self.ids.new_k_input.text if 'new_k_input' in self.ids else self.calculated_k
+            new_k = float(k_text)
+            if new_k < 100:
+                return
         except ValueError:
             return
 
@@ -1204,6 +1218,53 @@ class DashboardScreen(Screen):
             
 # --- 4. MAIN APP CLASS ---
 
+class HelpScreen(Screen):
+    help_text    = StringProperty("Loading...")
+    return_screen = StringProperty('dashboard')
+    sections     = {}
+    _pending_section = 'main'
+
+    def on_pre_enter(self, *args):
+        self.load_help()
+        self.go_to_section(self._pending_section)
+        self._pending_section = 'main'
+
+    def load_help(self):
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        help_file = os.path.join(base_path, 'assets', 'help.txt')
+        if os.path.exists(help_file):
+            try:
+                with open(help_file, 'r', encoding='utf-8') as f:
+                    raw_text = f.read()
+            except Exception as e:
+                raw_text = f"[SECTION: main]\nError reading help file: {e}"
+        else:
+            raw_text = "[SECTION: main]\nHelp file (assets/help.txt) not found."
+        self._parse_sections(raw_text)
+
+    def _parse_sections(self, text):
+        self.sections = {}
+        for part in text.split('[SECTION:'):
+            if not part.strip():
+                continue
+            try:
+                header, content = part.split(']', 1)
+                self.sections[header.strip()] = content.strip()
+            except ValueError:
+                continue
+
+    def go_to_section(self, section_name):
+        if section_name in self.sections:
+            self.help_text = self.sections[section_name]
+        else:
+            self.help_text = f"[color=ff4444]Section '{section_name}' not found.[/color]"
+
+    def go_back(self):
+        app = App.get_running_app()
+        app.root.transition.direction = 'right'
+        app.root.current = self.return_screen
+
+
 class KegLevelApp(App):
     simulated_temp    = None   # None = use sensor, float (°C) = override
     current_temp_f    = None   # Always °F; read by NotificationManager
@@ -1261,6 +1322,16 @@ class KegLevelApp(App):
         self.sm.add_widget(self.temp_screen)
         
         return self.sm
+
+    def open_help_section(self, section_name='main', return_screen=None):
+        """Navigate to the Help screen at a specific section."""
+        if not self.root:
+            return
+        help_screen = self.sm.get_screen('help')
+        help_screen._pending_section = section_name
+        help_screen.return_screen = return_screen if return_screen else self.sm.current
+        self.sm.transition = SlideTransition(direction='left')
+        self.sm.current = 'help'
 
     def navigate_to(self, target_screen):
         """
@@ -1324,11 +1395,13 @@ class KegLevelApp(App):
         self.settings_screen = SettingsScreen(name='settings')
         
         # 3. Add Screens to Manager
+        self.help_screen = HelpScreen(name='help')
         self.sm.add_widget(self.dashboard_screen)
         self.sm.add_widget(self.inventory_screen)
         self.sm.add_widget(self.keg_edit_screen)
         self.sm.add_widget(self.bev_edit_screen)
         self.sm.add_widget(self.settings_screen)
+        self.sm.add_widget(self.help_screen)
         
         # 4. Populate Dashboard Widgets
         self.tap_widgets = []
