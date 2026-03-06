@@ -23,6 +23,8 @@ DEFAULT_PICO_HOST  = "keglevel-pico.local"
 REQUEST_TIMEOUT_S  = 2.0
 POLL_INTERVAL_S    = 0.5
 OFFLINE_RETRY_S    = 5.0
+DISCOVERY_PORT     = 5005
+DISCOVERY_DEVICE   = "keglevel-pico"
 
 
 class PicoSensorLogic:
@@ -38,9 +40,11 @@ class PicoSensorLogic:
         self.ui_callbacks     = ui_callbacks
         self.settings_manager = settings_manager
 
-        raw_host      = settings_manager.get_pico_w_host()
-        self.host     = raw_host.strip() if raw_host.strip() else DEFAULT_PICO_HOST
-        self.base_url = f"http://{self.host}"
+        raw_host           = settings_manager.get_pico_w_host()
+        self._manual_host  = raw_host.strip()   # empty = use auto-discovery
+        self._discovery_mode = not bool(self._manual_host)
+        self.host          = self._manual_host if self._manual_host else None
+        self.base_url      = f"http://{self.host}" if self.host else None
 
         # Per-tap state — mirrors what SensorLogic maintains
         self.keg_ids_assigned            = [None] * self.num_sensors
@@ -129,11 +133,52 @@ class PicoSensorLogic:
 
     def start_monitoring(self):
         self._running = True
+        if self._discovery_mode:
+            disc_thread = threading.Thread(
+                target=self._discovery_listener, daemon=True
+            )
+            disc_thread.start()
+            print(f"[PicoSensor] Discovery mode — listening on UDP port {DISCOVERY_PORT}...")
+        else:
+            print(f"[PicoSensor] Using configured host: {self.host}")
         if self.sensor_thread is None or not self.sensor_thread.is_alive():
             self.sensor_thread = threading.Thread(
                 target=self._sensor_loop, daemon=True
             )
             self.sensor_thread.start()
+
+    def _discovery_listener(self):
+        """
+        Listen for UDP broadcast packets from the Pico.
+        When found, update self.host and self.base_url so the sensor loop
+        connects on its next retry cycle.
+        """
+        import socket as _socket
+        sock = _socket.socket(_socket.AF_INET, _socket.SOCK_DGRAM)
+        sock.setsockopt(_socket.SOL_SOCKET, _socket.SO_REUSEADDR, 1)
+        try:
+            sock.bind(("", DISCOVERY_PORT))
+        except Exception as e:
+            print(f"[PicoSensor] Discovery bind error: {e}")
+            return
+        sock.settimeout(2.0)
+        while self._running:
+            # Once the Pico is found, listener is no longer needed
+            if self._pico_online:
+                break
+            try:
+                data, addr = sock.recvfrom(256)
+                payload = json.loads(data.decode())
+                if payload.get("device") == DISCOVERY_DEVICE:
+                    ip = payload.get("ip") or addr[0]
+                    if ip and ip != self.host:
+                        print(f"[PicoSensor] Discovery: Pico found at {ip}")
+                        self.host     = ip
+                        self.base_url = f"http://{ip}"
+            except Exception:
+                pass
+        sock.close()
+        print("[PicoSensor] Discovery listener stopped.")
 
     def stop_monitoring(self):
         self._running = False
@@ -148,6 +193,11 @@ class PicoSensorLogic:
         while self._running:
             if self.is_paused:
                 time.sleep(POLL_INTERVAL_S)
+                continue
+
+            # Wait for discovery to find the Pico before making any requests
+            if self.base_url is None:
+                time.sleep(OFFLINE_RETRY_S)
                 continue
 
             state = self._get("/api/state")
