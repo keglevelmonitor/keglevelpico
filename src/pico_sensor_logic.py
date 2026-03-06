@@ -21,7 +21,8 @@ except ImportError:
 
 DEFAULT_PICO_HOST  = "keglevel-pico.local"
 REQUEST_TIMEOUT_S  = 2.0   # Pico can take up to ~1s during flash writes / GC
-POLL_INTERVAL_S    = 0.5
+POLL_INTERVAL_S    = 0.5   # normal idle poll rate
+POUR_POLL_INTERVAL_S = 0.1 # fast poll rate while any tap is actively pouring
 OFFLINE_RETRY_S    = 5.0   # sleep between polls once truly offline
 DISCOVERY_PORT     = 5005
 DISCOVERY_DEVICE   = "keglevel-pico"
@@ -316,7 +317,12 @@ class PicoSensorLogic:
                                     "Idle",
                                     self.last_pour_volumes[i])
 
-            time.sleep(POLL_INTERVAL_S)
+            # Use fast poll rate while any tap is actively pouring,
+            # normal rate otherwise.
+            if any(self.tap_is_active):
+                time.sleep(POUR_POLL_INTERVAL_S)
+            else:
+                time.sleep(POLL_INTERVAL_S)
 
     # ------------------------------------------------------------------
     # Calibration (auto-detect mode matching SensorLogic interface)
