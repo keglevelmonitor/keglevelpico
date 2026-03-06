@@ -20,9 +20,9 @@ except ImportError:
     _urllib_error   = None
 
 DEFAULT_PICO_HOST  = "keglevel-pico.local"
-REQUEST_TIMEOUT_S  = 2.0
+REQUEST_TIMEOUT_S  = 1.0   # local network — Pico should respond in <200 ms
 POLL_INTERVAL_S    = 0.5
-OFFLINE_RETRY_S    = 1.5
+OFFLINE_RETRY_S    = 3.0   # used only after many consecutive failures
 DISCOVERY_PORT     = 5005
 DISCOVERY_DEVICE   = "keglevel-pico"
 
@@ -203,6 +203,8 @@ class PicoSensorLogic:
     # ------------------------------------------------------------------
 
     def _sensor_loop(self):
+        _consecutive_failures = 0
+
         while self._running:
             if self.is_paused:
                 time.sleep(POLL_INTERVAL_S)
@@ -216,17 +218,24 @@ class PicoSensorLogic:
             state = self._get("/api/state")
 
             if state is None:
+                _consecutive_failures += 1
                 if self._pico_online:
                     self._pico_online = False
-                    print("[PicoSensor] Pico offline — retrying...")
+                    print(f"[PicoSensor] Pico not responding (failure #{_consecutive_failures}) — retrying...")
                 for i in range(self.num_sensors):
                     self._update_ui(i, 0.0,
                                     self.last_known_remaining_liters[i],
                                     "Offline",
                                     self.last_pour_volumes[i])
-                time.sleep(OFFLINE_RETRY_S)
+                # Transient blip: retry at normal rate for first 3 failures.
+                # Only back off after sustained outage.
+                if _consecutive_failures <= 3:
+                    time.sleep(POLL_INTERVAL_S)
+                else:
+                    time.sleep(OFFLINE_RETRY_S)
                 continue
 
+            _consecutive_failures = 0
             if not self._pico_online:
                 self._pico_online = True
                 print(f"[PicoSensor] Pico online at {self.host}")
