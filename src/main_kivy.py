@@ -21,7 +21,7 @@ if hasattr(sys.stderr, 'reconfigure'):
 import os
 
 # 1. DEV MACHINE (X11): Preserves the exact association for your development machine
-os.environ['SDL_VIDEO_X11_WMCLASS'] = "KegLevel Lite"
+os.environ['SDL_VIDEO_X11_WMCLASS'] = "KegLevel Pico"
 
 # 2. PROD MACHINE (Wayland): Forces the app_id to strictly match "keglevel.desktop"
 # os.environ['SDL_VIDEO_WAYLAND_WMCLASS'] = "keglevel"
@@ -143,14 +143,6 @@ class SettingsConfigTab(BoxLayout):
                 self.ids.btn_imperial.state = 'normal'
             taps = app.settings_manager.get_displayed_taps()
             self.ids.spin_taps.text = str(taps)
-            # Sensor backend
-            backend = app.settings_manager.get_sensor_backend()
-            if backend == 'pico_w':
-                self.ids.btn_pico_w.state = 'down'
-                self.ids.btn_gpio.state   = 'normal'
-            else:
-                self.ids.btn_gpio.state   = 'down'
-                self.ids.btn_pico_w.state = 'normal'
             self.ids.txt_pico_host.text = app.settings_manager.get_pico_w_host()
         finally:
             app._suppress_dirty = False
@@ -163,10 +155,12 @@ class SettingsConfigTab(BoxLayout):
             new_taps = int(self.ids.spin_taps.text)
             app.settings_manager.save_displayed_taps(new_taps)
         except ValueError: pass
-        # Sensor backend
-        new_backend = 'pico_w' if self.ids.btn_pico_w.state == 'down' else 'gpio'
-        pico_host   = self.ids.txt_pico_host.text.strip()
-        app.settings_manager.save_sensor_backend(new_backend, pico_host)
+        # Pico W host (KegLevel Pico is always Pico backend)
+        # Preserve existing host if field is accidentally empty
+        pico_host = self.ids.txt_pico_host.text.strip()
+        if not pico_host:
+            pico_host = app.settings_manager.get_pico_w_host()
+        app.settings_manager.save_sensor_backend('pico_w', pico_host)
         app.is_settings_dirty = False
         app.apply_config_changes()
 
@@ -175,6 +169,8 @@ class SettingsConfigTab(BoxLayout):
         if not _PICO_BACKEND_AVAILABLE:
             return
         btn = self.ids.btn_find_pico
+        if btn.disabled:
+            return  # Already scanning
         btn.disabled = True
 
         known_host = self.ids.txt_pico_host.text.strip()
@@ -225,10 +221,12 @@ class SettingsConfigTab(BoxLayout):
             self.ids.txt_pico_host.text = ip
             btn.text = "Found!"
             app = App.get_running_app()
-            if hasattr(app, 'mark_settings_dirty'):
-                app.mark_settings_dirty()
-            else:
-                app.is_settings_dirty = True
+            # Connect immediately without requiring SAVE
+            if hasattr(app, 'sensor_logic') and hasattr(app.sensor_logic, 'set_host'):
+                app.sensor_logic.set_host(ip)
+            # Persist so it survives restart
+            app.settings_manager.save_sensor_backend('pico_w', ip)
+            app.is_settings_dirty = False
         else:
             btn.text = "Not Found"
         from kivy.clock import Clock
@@ -368,6 +366,89 @@ class InventoryScreen(Screen):
         if current == 'tab_kegs': app.open_keg_edit(None)
         else: app.open_beverage_edit(None)
 
+class DiagnosticPanel(BoxLayout):
+    """
+    Content widget shown inside the 'tab_diag' screen.
+
+    Builds six TEST buttons (Tap 1-5 + DS18B20) and six result labels
+    programmatically after KV post-processing so the ScreenManager has
+    finished sizing the container before we add children.
+    """
+
+    _COLUMNS = 6   # 5 flow taps + 1 temp sensor
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._test_buttons = []
+        self._result_labels = []
+        Clock.schedule_once(self._build_buttons, 0)
+
+    def _build_buttons(self, dt):
+        from kivy.uix.button import Button as KivyButton
+        from kivy.uix.label import Label as KivyLabel
+
+        btn_row = self.ids.btn_row
+        lbl_row = self.ids.lbl_row
+        btn_row.clear_widgets()
+        lbl_row.clear_widgets()
+        self._test_buttons = []
+        self._result_labels = []
+
+        for col in range(self._COLUMNS):
+            idx = col   # captured for callback
+
+            btn = KivyButton(
+                text="TEST",
+                font_size='14sp',
+                bold=True,
+                background_normal='',
+                background_color=(0.2, 0.4, 0.8, 1),
+            )
+            btn.bind(on_release=lambda inst, i=idx: self._on_test(i))
+            btn_row.add_widget(btn)
+            self._test_buttons.append(btn)
+
+            lbl = KivyLabel(
+                text="",
+                font_size='11sp',
+                color=(0.85, 0.85, 0.85, 1),
+                halign='center',
+                valign='top',
+                text_size=(lbl_row.width / self._COLUMNS, None),
+            )
+            lbl.bind(width=lambda inst, w: setattr(inst, 'text_size', (w, None)))
+            lbl_row.add_widget(lbl)
+            self._result_labels.append(lbl)
+
+    def _on_test(self, col_index):
+        """Delegate sensor test execution to SettingsScreen."""
+        app = App.get_running_app()
+        settings = app.root.get_screen('settings')
+        if hasattr(settings, 'run_diagnostic_test'):
+            settings.run_diagnostic_test(col_index)
+
+    def _on_board_test(self):
+        """Delegate board short-circuit test to SettingsScreen (col_index 6)."""
+        app = App.get_running_app()
+        settings = app.root.get_screen('settings')
+        if hasattr(settings, 'run_diagnostic_test'):
+            settings.run_diagnostic_test(6)
+
+    def get_test_button(self, col_index):
+        if col_index == 6:
+            return self.ids.get('btn_board')
+        if 0 <= col_index < len(self._test_buttons):
+            return self._test_buttons[col_index]
+        return None
+
+    def get_result_label(self, col_index):
+        if col_index == 6:
+            return self.ids.get('lbl_board')
+        if 0 <= col_index < len(self._result_labels):
+            return self._result_labels[col_index]
+        return None
+
+
 class SettingsScreen(Screen):
     """
     Manages the Settings Tabs and the corresponding dynamic Footer.
@@ -380,6 +461,7 @@ class SettingsScreen(Screen):
         self.last_click_time = 0
         self.click_count = 0
         self.mimic_mode_active = False
+        self._diag_mode_active = False
 
     def on_pre_enter(self, *args):
         """Always reset to the System tab when opening Settings."""
@@ -387,6 +469,7 @@ class SettingsScreen(Screen):
         app.is_settings_dirty = False   # fresh entry — discard any stale flag
         self._cal_mode_active = False
         self.mimic_mode_active = False
+        self._diag_mode_active = False
         self.set_active_tab('conf')
 
     def on_leave(self, *args):
@@ -395,7 +478,11 @@ class SettingsScreen(Screen):
         app.is_settings_dirty = False   # safety net
         self._cal_mode_active = False
         self.mimic_mode_active = False
-        
+        if self._diag_mode_active:
+            self._diag_mode_active = False
+            if hasattr(app, 'sensor_logic') and app.sensor_logic:
+                app.sensor_logic.exit_diagnostic_mode()
+
         # Force backend to stop calibration mode immediately
         if hasattr(app, 'sensor_logic') and app.sensor_logic:
             app.sensor_logic.stop_auto_calibration_mode()
@@ -404,26 +491,34 @@ class SettingsScreen(Screen):
                 app.sensor_logic._cal_target_tap = -1
 
     def handle_secret_click(self):
-        """Handles clicks on the invisible top-right header button."""
-        # 1. Only activate if we are on the Calibration Tab
-        if self.ids.settings_manager.current != 'tab_cal':
+        """
+        Handles clicks on the transparent header button.
+        5 rapid clicks on the CALIBRATION tab  → toggle mimic (sim) mode.
+        5 rapid clicks on the SYSTEM tab       → enter / exit diagnostic mode.
+        """
+        current_tab = self.ids.settings_manager.current
+        if current_tab not in ('tab_cal', 'tab_conf'):
             return
 
-        # 2. Check Timing (5 Rapid Clicks)
         import time
         current_time = time.time()
-        
-        # 500ms threshold between clicks
-        if current_time - self.last_click_time < 0.5: 
+
+        if current_time - self.last_click_time < 0.5:
             self.click_count += 1
         else:
             self.click_count = 1
-        
+
         self.last_click_time = current_time
 
         if self.click_count >= 5:
             self.click_count = 0
-            self.toggle_mimic_mode()
+            if current_tab == 'tab_cal':
+                self.toggle_mimic_mode()
+            elif current_tab == 'tab_conf':
+                if self._diag_mode_active:
+                    self.exit_diagnostic_mode()
+                else:
+                    self.enter_diagnostic_mode()
 
     def set_active_tab(self, tab_code):
         """
@@ -521,7 +616,125 @@ class SettingsScreen(Screen):
             widget = Factory.SimControlWidget()
             widget.tap_index = i
             container.add_widget(widget)
-                    
+
+    # ------------------------------------------------------------------
+    # Diagnostic mode
+    # ------------------------------------------------------------------
+
+    def enter_diagnostic_mode(self):
+        """
+        Enter diagnostic mode: tell the Pico to suspend flow IRQs, then
+        switch the settings content and footer to the diagnostic screens.
+        Keg volumes are unaffected — the Pico's sensor loop skips processing.
+        """
+        app = App.get_running_app()
+        if not hasattr(app, 'sensor_logic') or not app.sensor_logic:
+            return
+        ok = app.sensor_logic.enter_diagnostic_mode()
+        if not ok:
+            return
+        self._diag_mode_active = True
+        self.ids.settings_manager.current = 'tab_diag'
+        self.ids.footer_manager.current   = 'footer_diag'
+
+    def exit_diagnostic_mode(self):
+        """
+        Exit diagnostic mode: restore Pico flow IRQs, return to the SYSTEM tab.
+        """
+        app = App.get_running_app()
+        self._diag_mode_active = False
+        if hasattr(app, 'sensor_logic') and app.sensor_logic:
+            app.sensor_logic.exit_diagnostic_mode()
+        self.ids.settings_manager.current = 'tab_conf'
+        self.ids.footer_manager.current   = 'footer_conf'
+
+    def run_diagnostic_test(self, column_index):
+        """
+        Run a diagnostic wiring test for the given column.
+        column_index 0-4 → flow tap (Tap 1-5); column_index 5 → DS18B20.
+        Called from the KV TEST button.  Runs in a background thread so the
+        UI stays responsive during the test (~300 ms).
+        """
+        import threading
+
+        panel = self.ids.diag_panel
+        btn   = panel.get_test_button(column_index)
+        lbl   = panel.get_result_label(column_index)
+
+        if btn is None:
+            return
+
+        btn.text              = "TESTING"
+        btn.background_color  = (0.8, 0.6, 0.0, 1)
+        btn.disabled          = True
+        if lbl:
+            lbl.text = ""
+
+        app = App.get_running_app()
+
+        def _run():
+            sl = app.sensor_logic if hasattr(app, 'sensor_logic') else None
+            if sl is None:
+                result = {"passed": False,
+                          "message": "No Pico connection.",
+                          "details": []}
+            elif column_index < 5:
+                result = sl.run_tap_diagnostic_test(column_index)
+                if result is None:
+                    result = {"passed": False,
+                              "message": "No response from Pico.",
+                              "details": []}
+            elif column_index == 5:
+                result = sl.run_temp_diagnostic_test()
+                if result is None:
+                    result = {"passed": False,
+                              "message": "No response from Pico.",
+                              "details": []}
+            else:   # column_index == 6 — board short-circuit test
+                result = sl.run_board_diagnostic_test()
+                if result is None:
+                    result = {"passed": False,
+                              "message": "No response from Pico.",
+                              "details": []}
+
+            from kivy.clock import Clock
+
+            def _update(dt):
+                passed  = result.get("passed", False)
+                message = result.get("message", "")
+                details = result.get("details", [])
+                btn.text             = "PASSED" if passed else "FAILED"
+                btn.background_color = (0.1, 0.7, 0.2, 1) if passed else (0.8, 0.1, 0.1, 1)
+                btn.disabled         = False
+                if lbl:
+                    lbl.text = message
+                    if not passed and details:
+                        # Board test: show all fault lines; sensor tests: show failure lines only
+                        if column_index == 6:
+                            lbl.text += "\n" + "\n".join(f"  • {d}" for d in details)
+                        else:
+                            lbl.text += "\n" + "\n".join(
+                                f"  • {d}" for d in details
+                                if any(k in d for k in ("FAIL", "OPEN", "LOW", "short", "stuck"))
+                            )
+
+            Clock.schedule_once(_update, 0)
+
+        threading.Thread(target=_run, daemon=True).start()
+
+    def reset_diagnostic_button(self, column_index):
+        """Reset a TEST/BOARD TEST button back to its idle state."""
+        panel = self.ids.diag_panel
+        btn   = panel.get_test_button(column_index)
+        lbl   = panel.get_result_label(column_index)
+        if btn:
+            btn.text             = "BOARD SHORT TEST" if column_index == 6 else "TEST"
+            btn.background_color = (0.4, 0.2, 0.6, 1) if column_index == 6 else (0.2, 0.4, 0.8, 1)
+            btn.disabled         = False
+        if lbl:
+            lbl.text = "Disconnect test harness before running" if column_index == 6 else ""
+
+
 class SimulationPopup(Popup):
     def on_open(self):
         app = App.get_running_app()
@@ -1004,8 +1217,13 @@ class SettingsCalibrationTab(BoxLayout):
             else: vol_liters = self.measured_volume * 0.0295735
             if app.sensor_logic:
                 app.sensor_logic.deduct_volume_from_keg(self.locked_tap_index, vol_liters)
-                
-        # 4. Feedback & Reset
+
+        # 4. Push new K-factor to Pico so it takes effect immediately
+        if hasattr(app, 'sensor_logic') and app.sensor_logic and \
+                hasattr(app.sensor_logic, 'push_k_factors_to_pico'):
+            app.sensor_logic.push_k_factors_to_pico(factors)
+
+        # 5. Feedback & Reset
         self.instruction_text = f"Saved! Tap {self.locked_tap_index+1} calibrated. Ready for next tap."
         self.reset_form_soft()
 
@@ -1274,6 +1492,12 @@ class KegLevelApp(App):
     _suppress_dirty   = False
     version           = StringProperty(APP_VERSION)
 
+    # Pico connection state — drives the dashboard title text and colour.
+    # 'searching' : not yet found (initial state or app just launched)
+    # 'connected' : Pico is online and responding
+    # 'lost'      : was connected but went offline unexpectedly
+    pico_status = StringProperty('searching')
+
     # ------------------------------------------------------------------
     # Dirty-settings helpers
     # ------------------------------------------------------------------
@@ -1311,7 +1535,7 @@ class KegLevelApp(App):
         self.navigate_to('dashboard')
 
     def build(self):
-        self.title = "KegLevel Lite"
+        self.title = "KegLevel Pico"
         Builder.load_file('keglevel_ui.kv')
         
         self.sm = ScreenManager(transition=SlideTransition())
@@ -1422,21 +1646,28 @@ class KegLevelApp(App):
              if cal_tab:
                  Clock.schedule_once(lambda dt: cal_tab.update_pulse_data(idx, pulses))
 
+        def pico_online_bridge(is_online):
+            def _update(dt):
+                if is_online:
+                    self.pico_status = 'connected'
+                else:
+                    if self.pico_status == 'connected':
+                        self.pico_status = 'lost'
+            Clock.schedule_once(_update, 0)
+
         callbacks = {
             "update_sensor_data_cb": bridge_callback,
-            "update_cal_data_cb": lambda x, y: None, 
-            "auto_cal_pulse_cb": cal_bridge_callback 
+            "update_cal_data_cb": lambda x, y: None,
+            "auto_cal_pulse_cb": cal_bridge_callback,
+            "pico_online_cb": pico_online_bridge,
         }
 
-        # 6. Initialize Sensor Logic (GPIO or Pico W backend)
-        sensor_backend = self.settings_manager.get_sensor_backend()
-        if sensor_backend == 'pico_w' and _PICO_BACKEND_AVAILABLE:
+        # 6. Initialize Sensor Logic (KegLevel Pico is always Pico W backend)
+        if _PICO_BACKEND_AVAILABLE:
             print(f"[App] Using Pico W sensor backend.")
             self.sensor_logic = PicoSensorLogic(self.num_sensors, callbacks, self.settings_manager)
         else:
-            if sensor_backend == 'pico_w':
-                print("[App] Pico W backend requested but pico_sensor_logic.py not found — falling back to GPIO.")
-            self.sensor_logic = SensorLogic(self.num_sensors, callbacks, self.settings_manager)
+            raise RuntimeError("KegLevel Pico requires pico_sensor_logic — not found.")
         
         # 7. Refresh UI & Start Hardware
         self.refresh_dashboard_metadata()
@@ -1473,9 +1704,9 @@ class KegLevelApp(App):
             self.sm.remove_widget(self.temp_screen)
 
     def init_temp_sensor(self):
-        """Finds 1-wire temp sensor and starts update loop. Non-Pi platforms use a default temp."""
-        # Pico W backend — temperature comes from the Pico API, no local 1-wire setup needed
-        if self.settings_manager.get_sensor_backend() == 'pico_w':
+        """Finds 1-wire temp sensor and starts update loop. KegLevel Pico always gets temp from Pico API."""
+        # KegLevel Pico — temperature always comes from the Pico API
+        if hasattr(self, 'sensor_logic') and hasattr(self.sensor_logic, 'get_pico_temperature'):
             self.temp_device_file = None
             Clock.schedule_interval(self.update_kegerator_temp, 5.0)
             return
@@ -1516,8 +1747,8 @@ class KegLevelApp(App):
                 self.dashboard_screen.kegerator_temp = f"{self.simulated_temp:.1f} °C (Sim)"
             return
 
-        # 2. Pico W backend — read from cached /api/state temperature field
-        if self.settings_manager.get_sensor_backend() == 'pico_w':
+        # 2. KegLevel Pico — read from cached /api/state temperature field
+        if hasattr(self, 'sensor_logic') and hasattr(self.sensor_logic, 'get_pico_temperature'):
             if hasattr(self, 'sensor_logic') and hasattr(self.sensor_logic, 'get_pico_temperature'):
                 temp_data = self.sensor_logic.get_pico_temperature()
                 if temp_data and temp_data.get('sensor_available'):
@@ -1598,6 +1829,18 @@ class KegLevelApp(App):
         pulses = int(volume_liters * k)
         if self.sensor_logic:
             self.sensor_logic.simulate_pulse_increment(tap_index, pulses)
+            # End the simulated pour after a brief display window.
+            # Skip if this tap is also running in continuous mode.
+            if tap_index not in self._active_sim_taps:
+                Clock.schedule_once(
+                    lambda dt, idx=tap_index: self._end_one_shot_sim_pour(idx),
+                    0.8
+                )
+
+    def _end_one_shot_sim_pour(self, tap_index):
+        """Finalise a one-shot (PINT) simulated pour if continuous is not running."""
+        if tap_index not in self._active_sim_taps and self.sensor_logic:
+            self.sensor_logic.end_sim_pour(tap_index)
 
     def sim_toggle_flow(self, tap_index, is_flowing):
         """Add/Remove tap from continuous flow loop."""
@@ -1608,6 +1851,8 @@ class KegLevelApp(App):
                 self._sim_flow_event = Clock.schedule_interval(self._sim_flow_loop, 0.05)
         else:
             self._active_sim_taps.discard(tap_index)
+            if self.sensor_logic:
+                self.sensor_logic.end_sim_pour(tap_index)
             if not self._active_sim_taps and self._sim_flow_event:
                 self._sim_flow_event.cancel()
                 self._sim_flow_event = None
@@ -1630,6 +1875,9 @@ class KegLevelApp(App):
         if self._sim_flow_event:
             self._sim_flow_event.cancel()
             self._sim_flow_event = None
+        if self.sensor_logic:
+            for tap_idx in list(self._active_sim_taps):
+                self.sensor_logic.end_sim_pour(tap_idx)
         self._active_sim_taps.clear()
         print("Simulation: All flows stopped.")
 
@@ -1638,10 +1886,17 @@ class KegLevelApp(App):
         if idx >= len(self.tap_widgets): return
         widget = self.tap_widgets[idx]
         keg_id = self.sensor_logic.keg_ids_assigned[idx]
-        is_offline = (not keg_id) or (keg_id == UNASSIGNED_KEG_ID)
+        no_keg_assigned = (not keg_id) or (keg_id == UNASSIGNED_KEG_ID)
         
-        if is_offline:
-            widget.status_text = "OFFLINE"
+        # Always show status (Idle/Pouring/Offline) so user sees flow activity even before assigning kegs
+        if status == "Offline":
+            widget.status_text = "Offline"
+        elif rate > 0:
+            widget.status_text = "Pouring"
+        else:
+            widget.status_text = status if status else "Idle"
+        
+        if no_keg_assigned:
             widget.remaining_text = "--"
             widget.percent_full = 0
             return
@@ -1649,9 +1904,6 @@ class KegLevelApp(App):
         units = self.settings_manager.get_display_units()
         if units == "metric": widget.remaining_text = f"{rem:.2f} L"
         else: widget.remaining_text = f"{(rem * LITERS_TO_GAL):.2f} Gal"
-        
-        if rate > 0: widget.status_text = "Pouring"
-        else: widget.status_text = "Idle"
 
         keg = self.settings_manager.get_keg_by_id(keg_id)
         max_vol = keg.get('maximum_full_volume_liters', 19.0) if keg else 19.0
@@ -1856,6 +2108,12 @@ class KegLevelApp(App):
         factors = self.settings_manager.get_flow_calibration_factors()
         factors[tap_index] = new_k
         self.settings_manager.save_flow_calibration_factors(factors)
+
+        # 1b. Push new K-factor to Pico so it takes effect immediately
+        app = App.get_running_app()
+        if hasattr(app, 'sensor_logic') and app.sensor_logic and \
+                hasattr(app.sensor_logic, 'push_k_factors_to_pico'):
+            app.sensor_logic.push_k_factors_to_pico(factors)
 
         # 2. Unassign Keg from Tap
         self.settings_manager.save_sensor_keg_assignment(tap_index, UNASSIGNED_KEG_ID)
@@ -2165,25 +2423,39 @@ class KegLevelApp(App):
             
         def bridge_callback(idx, rate, rem, status, pour_vol):
             Clock.schedule_once(lambda dt: self.update_tap_ui(idx, rate, rem, status, pour_vol))
-            
+        
+        def cal_bridge_callback(idx, pulses):
+            cal_tab = self.settings_screen.ids.get('tab_cal_content')
+            if cal_tab:
+                Clock.schedule_once(lambda dt: cal_tab.update_pulse_data(idx, pulses))
+
+        def pico_online_bridge(is_online):
+            def _update(dt):
+                if is_online:
+                    self.pico_status = 'connected'
+                else:
+                    # Only downgrade to 'lost' if we were previously connected;
+                    # stay 'searching' if the Pico was never found this session.
+                    if self.pico_status == 'connected':
+                        self.pico_status = 'lost'
+            Clock.schedule_once(_update, 0)
+
         callbacks = {
             "update_sensor_data_cb": bridge_callback,
-            "update_cal_data_cb": lambda x, y: None 
+            "update_cal_data_cb": lambda x, y: None,
+            "auto_cal_pulse_cb": cal_bridge_callback,
+            "pico_online_cb": pico_online_bridge,
         }
 
-        sensor_backend = self.settings_manager.get_sensor_backend()
-        if sensor_backend == 'pico_w' and _PICO_BACKEND_AVAILABLE:
+        # KegLevel Pico is always Pico W backend
+        if _PICO_BACKEND_AVAILABLE:
             self.sensor_logic = PicoSensorLogic(
                 num_sensors_from_config=self.num_sensors,
                 ui_callbacks=callbacks,
                 settings_manager=self.settings_manager
             )
         else:
-            self.sensor_logic = SensorLogic(
-                num_sensors_from_config=self.num_sensors,
-                ui_callbacks=callbacks,
-                settings_manager=self.settings_manager
-            )
+            raise RuntimeError("KegLevel Pico requires pico_sensor_logic — not found.")
         
         self.refresh_dashboard_metadata()
         self.sensor_logic.start_monitoring()
@@ -2241,7 +2513,7 @@ def run_splash_screen(queue):
         frame.pack(fill='both', expand=True)
         
         # Add Text (UPDATED)
-        lbl = tk.Label(frame, text="KegLevel Lite loading...", font=("Arial", 16, "bold"), fg="#FFC107", bg="#222222")
+        lbl = tk.Label(frame, text="KegLevel Pico loading...", font=("Arial", 16, "bold"), fg="#FFC107", bg="#222222")
         lbl.pack(expand=True)
         
         # Force a draw immediately
@@ -2281,7 +2553,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         if hasattr(app, 'sensor_logic') and app.sensor_logic:
             app.sensor_logic.cleanup_gpio()
-        print("\nKegLevel Lite App interrupted by user.")
+        print("\nKegLevel Pico App interrupted by user.")
 
     finally:
         if USE_SPLASH and splash_process.is_alive():

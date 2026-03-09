@@ -247,14 +247,14 @@ class NotificationManager:
                     vol_str, thresh_str = self._format_volume_strings(
                         remaining, threshold_liters
                     )
-                    subject = "KegLevel Lite: Low Keg Volume Alert"
+                    subject = "KegLevel Pico: Low Keg Volume Alert"
                     body = (
                         f"LOW KEG VOLUME ALERT\n"
                         f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
                         f"Tap {i + 1} ({tap_label}) is running low.\n"
                         f"Remaining:       {vol_str}\n"
                         f"Alert Threshold: {thresh_str}\n\n"
-                        f"--\nKegLevel Lite Monitoring"
+                        f"--\nKegLevel Pico Monitoring"
                     )
                     if self._send_email(subject, body, recipient, push):
                         self.settings_manager.update_conditional_sent_status(i, True)
@@ -294,13 +294,13 @@ class NotificationManager:
                 if alert_reason and cooldown_ok:
                     low_str  = f"{low_temp_f:.0f}°F"  if low_enabled  else "OFF"
                     high_str = f"{high_temp_f:.0f}°F" if high_enabled else "OFF"
-                    subject = "KegLevel Lite: Kegerator Temperature Alert"
+                    subject = "KegLevel Pico: Kegerator Temperature Alert"
                     body = (
                         f"TEMPERATURE ALERT\n"
                         f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
                         f"{alert_reason}\n\n"
                         f"Configured Range: Low {low_str} — High {high_str}\n\n"
-                        f"--\nKegLevel Lite Monitoring"
+                        f"--\nKegLevel Pico Monitoring"
                     )
                     if self._send_email(subject, body, recipient, push):
                         self.settings_manager.update_temp_sent_timestamp(now)
@@ -320,7 +320,7 @@ class NotificationManager:
         labels      = self.settings_manager.get_sensor_labels()
 
         lines = [
-            "KegLevel Lite Status Report",
+            "KegLevel Pico Status Report",
             f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
             "",
             "--- Tap Status ---",
@@ -368,7 +368,7 @@ class NotificationManager:
         else:
             lines.append("Temperature: Not available")
 
-        lines += ["", "--", "KegLevel Lite Monitoring"]
+        lines += ["", "--", "KegLevel Pico Monitoring"]
         return "\n".join(lines)
 
     def _send_push_notification(self, is_scheduled=True):
@@ -389,9 +389,12 @@ class NotificationManager:
             self._report_error("push", "No recipient email address configured.")
             return False
 
-        tag     = "Scheduled" if is_scheduled else "Test"
+        if is_scheduled:
+            tag = freq if freq != "None" else "Scheduled"
+        else:
+            tag = "Test"
         subject = (
-            f"KegLevel Lite {tag} Report — "
+            f"KegLevel Pico {tag} Report — "
             f"{datetime.now().strftime('%Y-%m-%d %H:%M')}"
         )
         body = self._build_status_body()

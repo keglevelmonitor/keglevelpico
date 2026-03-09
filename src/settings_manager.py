@@ -123,8 +123,8 @@ class SettingsManager:
             "window_y": -1,
             "window_width": 800,
             "window_height": 417,
-            # --- Sensor Backend ---
-            "sensor_backend": "gpio",
+            # --- Sensor Backend (KegLevel Pico is always Pico W) ---
+            "sensor_backend": "pico_w",
             "pico_w_host": "",
             # --- Pico dispensed-liter baselines (saved on app close / pour end) ---
             "pico_tap_last_dispensed": [0.0, 0.0, 0.0, 0.0, 0.0]
@@ -1062,7 +1062,7 @@ class SettingsManager:
 
     def get_sensor_backend(self):
         """Return 'gpio' or 'pico_w'."""
-        return self.settings.get('system_settings', {}).get('sensor_backend', 'gpio')
+        return self.settings.get('system_settings', {}).get('sensor_backend', 'pico_w')
 
     def get_pico_w_host(self):
         """Return the user-overridden Pico W hostname/IP, or '' to use mDNS default."""
@@ -1074,7 +1074,8 @@ class SettingsManager:
         sys_settings['pico_w_host']    = pico_host.strip()
         self.settings['system_settings'] = sys_settings
         self._save_all_settings()
-        print(f"SettingsManager: Sensor backend saved: {backend}, host: '{pico_host.strip()or 'keglevel-pico.local'}'.")
+        host_disp = pico_host.strip() or '(empty — discovery mode)'
+        print(f"SettingsManager: Sensor backend saved: {backend}, host: '{host_disp}'.")
 
     def get_pico_tap_last_dispensed(self):
         """Return the saved Pico dispensed-liter values from the last session."""
