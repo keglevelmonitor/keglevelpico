@@ -1,5 +1,5 @@
 # pico_sensor_logic.py
-# Pico W sensor backend for KegLevel Lite.
+# Pico W sensor backend for KegLevel Pico.
 #
 # Implements the same interface as SensorLogic (sensor_logic.py) but polls
 # the Pico W REST API instead of reading GPIO pins directly.
@@ -318,6 +318,14 @@ class PicoSensorLogic:
             if not self._pico_online:
                 self._pico_online = True
                 print(f"[PicoSensor] Pico online at {self.host}")
+                # Push the app's stored k_factors so that a reflashed Pico
+                # (which resets to firmware defaults) immediately uses the
+                # calibrated values without requiring a manual recalibration.
+                try:
+                    k_factors = self.settings_manager.get_flow_calibration_factors()
+                    self.push_k_factors_to_pico(k_factors)
+                except Exception as _kf_err:
+                    print(f"[PicoSensor] Could not push k_factors on connect: {_kf_err}")
                 cb = self.ui_callbacks.get("pico_online_cb")
                 if cb:
                     cb(True)
