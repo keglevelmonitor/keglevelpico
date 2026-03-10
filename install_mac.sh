@@ -1,25 +1,25 @@
 #!/bin/bash
 # install_mac.sh
-# Installation script for KegLevel Lite on macOS.
+# Installation script for KegLevel Pico on macOS.
 
 # Stop on any error to prevent broken installs
 set -e
 
 echo "=========================================="
-echo "   KegLevel Lite Installer (macOS)"
+echo "   KegLevel Pico Installer (macOS)"
 echo "=========================================="
 
 # --- 1. Define Variables ---
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VENV_DIR="$PROJECT_DIR/venv"
 VENV_PYTHON_EXEC="$VENV_DIR/bin/python"
-DATA_DIR="$HOME/keglevel_lite-data"
+DATA_DIR="$HOME/keglevel_pico-data"
 
 # macOS app launcher paths
 APPS_DIR="$HOME/Applications"
-LAUNCHER_APP="$APPS_DIR/KegLevel Lite.app"
+LAUNCHER_APP="$APPS_DIR/KegLevel Pico.app"
 LAUNCHER_MACOS="$LAUNCHER_APP/Contents/MacOS"
-LAUNCHER_EXEC="$LAUNCHER_MACOS/KegLevel Lite"
+LAUNCHER_EXEC="$LAUNCHER_MACOS/KegLevel Pico"
 
 echo "Project path: $PROJECT_DIR"
 
@@ -130,7 +130,7 @@ mkdir -p "$LAUNCHER_RESOURCES"
 # Write the executable shell script inside the bundle
 cat > "$LAUNCHER_EXEC" << APPSCRIPT
 #!/bin/bash
-# KegLevel Lite macOS launcher
+# KegLevel Pico macOS launcher
 "$VENV_PYTHON_EXEC" "$PROJECT_DIR/src/main_kivy.py"
 APPSCRIPT
 
@@ -161,17 +161,17 @@ cat > "$LAUNCHER_APP/Contents/Info.plist" << PLIST
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>KegLevel Lite</string>
+    <string>KegLevel Pico</string>
     <key>CFBundleDisplayName</key>
-    <string>KegLevel Lite</string>
+    <string>KegLevel Pico</string>
     <key>CFBundleIdentifier</key>
-    <string>com.keglevelmonitor.keglevel-lite</string>
+    <string>com.keglevelmonitor.keglevel-pico</string>
     <key>CFBundleVersion</key>
     <string>1.0</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleExecutable</key>
-    <string>KegLevel Lite</string>
+    <string>KegLevel Pico</string>
 ${ICON_PLIST}    <key>LSUIElement</key>
     <false/>
 </dict>
@@ -185,10 +185,10 @@ echo "================================================="
 echo ""
 echo "Installation complete!"
 echo ""
-echo "To launch KegLevel Lite:"
+echo "To launch KegLevel Pico:"
 echo "   Finder → Go → Home (Cmd+Shift+H) → open the Applications folder"
 echo "   (This is your home Applications folder, not the main /Applications)"
-echo "   Double-click 'KegLevel Lite'"
+echo "   Double-click 'KegLevel Pico'"
 echo ""
 echo "Or run from Terminal:"
 echo "   open \"$LAUNCHER_APP\""
@@ -199,7 +199,7 @@ echo ""
 read -p "Enter Y to launch the app now, or any other key to exit: " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "Launching KegLevel Lite..."
+    echo "Launching KegLevel Pico..."
     open "$LAUNCHER_APP"
 
     # Give the app a moment to start, then close this Terminal window

@@ -1,12 +1,12 @@
 #!/bin/bash
 # install.sh
-# Installation script for KegLevel Lite application.
+# Installation script for KegLevel Pico application.
 
 # Stop on any error to prevent broken installs
 set -e
 
 echo "=========================================="
-echo "   KegLevel Lite Installer"
+echo "   KegLevel Pico Installer"
 echo "=========================================="
 
 # --- 1. Define Variables ---
@@ -16,11 +16,11 @@ VENV_DIR="$PROJECT_DIR/venv"
 VENV_PYTHON_EXEC="$VENV_DIR/bin/python"
 
 # Desktop Entry Paths
-DESKTOP_FILE_TEMPLATE="$PROJECT_DIR/keglevel_lite.desktop"
-INSTALL_LOCATION="$HOME/.local/share/applications/keglevel_lite.desktop"
-DATA_DIR="$HOME/keglevel_lite-data"
+DESKTOP_FILE_TEMPLATE="$PROJECT_DIR/keglevel_pico.desktop"
+INSTALL_LOCATION="$HOME/.local/share/applications/keglevel_pico.desktop"
+DATA_DIR="$HOME/keglevel_pico-data"
 # Temp file for modification
-TEMP_DESKTOP_FILE="/tmp/keglevel_lite_temp.desktop"
+TEMP_DESKTOP_FILE="/tmp/keglevel_pico_temp.desktop"
 
 echo "Project path: $PROJECT_DIR"
 
@@ -126,7 +126,7 @@ if [ -f "$DESKTOP_FILE_TEMPLATE" ]; then
     echo "Shortcut installed to Application Menu: $INSTALL_LOCATION"
 
 else
-    echo "[WARNING] keglevel_lite.desktop template not found. Skipping shortcut."
+    echo "[WARNING] keglevel_pico.desktop template not found. Skipping shortcut."
 fi
 
 echo ""
@@ -135,7 +135,7 @@ echo ""
 echo "Installation complete!"
 echo ""
 echo "At the Applications menu:"
-echo "   select Other, KegLevel Lite to run the app."
+echo "   select Other, KegLevel Pico to run the app."
 echo ""
 echo "================================================="
 echo ""
@@ -143,7 +143,7 @@ echo ""
 read -p "Enter Y to launch the app, or any other key to exit: " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "Launching KegLevel Lite..."
+    echo "Launching KegLevel Pico..."
     # Launch in background, detached from terminal
     nohup "$VENV_PYTHON_EXEC" "$PROJECT_DIR/src/main_kivy.py" >/dev/null 2>&1 &
     disown

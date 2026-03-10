@@ -1,7 +1,7 @@
 @echo off
 SETLOCAL
 
-:: update.bat - KegLevel Lite update (run from project directory)
+:: update.bat - KegLevel Pico update (run from project directory)
 :: Supports --check to only check for updates (no install)
 
 SET "PROJECT_DIR=%~dp0"
@@ -11,7 +11,7 @@ SET "MODE=%~1"
 
 cd /d "%PROJECT_DIR%"
 
-echo --- KegLevel Lite Update ---
+echo --- KegLevel Pico Update ---
 echo Project: %PROJECT_DIR%
 
 :: Check for Git

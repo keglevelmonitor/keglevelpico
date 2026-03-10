@@ -1,6 +1,6 @@
 #!/bin/bash
 # update.sh
-# Handles checking, pulling code, and dependency updates for KegLevel Lite.
+# Handles checking, pulling code, and dependency updates for KegLevel Pico.
 
 # --- 1. Setup ---
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -11,7 +11,7 @@ MODE=$1
 # Detect Branch (main or master)
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-echo "--- KegLevel Lite Update Manager ---"
+echo "--- KegLevel Pico Update Manager ---"
 echo "Root: $PROJECT_DIR"
 echo "Branch: $BRANCH"
 
@@ -65,7 +65,6 @@ chmod +x "$PROJECT_DIR/install.sh" "$PROJECT_DIR/update.sh" 2>/dev/null || true
 
 # --- 5. System Dependencies (Kivy Specific) ---
 echo "Checking system dependencies (sudo)..."
-# Replaced python3-tk with Kivy SDL2 deps
 sudo apt-get install -y python3-dev python3-venv liblgpio-dev numlockx libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
 
 if [ $? -ne 0 ]; then
@@ -90,7 +89,7 @@ fi
 # --- 7. Refresh App Icon (ensures taskbar icon works after update) ---
 ICON_SOURCE="$PROJECT_DIR/src/assets/beer-keg.png"
 SYSTEM_ICON_NAME="keglevel"
-DESKTOP_FILE="$HOME/.local/share/applications/keglevel_lite.desktop"
+DESKTOP_FILE="$HOME/.local/share/applications/keglevel_pico.desktop"
 if [ -f "$ICON_SOURCE" ]; then
     echo "Updating app icon..."
     sudo cp "$ICON_SOURCE" "/usr/share/icons/${SYSTEM_ICON_NAME}.png"
@@ -105,7 +104,7 @@ if [ -f "$ICON_SOURCE" ]; then
     if [ -f "$DESKTOP_FILE" ]; then
         sed -i "s|^Icon=.*|Icon=$SYSTEM_ICON_NAME|" "$DESKTOP_FILE"
         if ! grep -q "^StartupWMClass=" "$DESKTOP_FILE"; then
-            echo "StartupWMClass=KegLevel Lite" >> "$DESKTOP_FILE"
+            echo "StartupWMClass=KegLevel Pico" >> "$DESKTOP_FILE"
         fi
     fi
 fi

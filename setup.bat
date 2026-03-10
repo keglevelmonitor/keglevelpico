@@ -1,20 +1,20 @@
 @echo off
 SETLOCAL EnableDelayedExpansion
 
-:: setup.bat - Bootstrap installer for KegLevel Lite (Windows)
+:: setup.bat - Bootstrap installer for KegLevel Pico (Windows)
 :: Can be run from anywhere (e.g. after: curl -sL ... -o setup.bat ^&^& setup.bat)
-:: Clones repo to %USERPROFILE%\keglevel_lite and runs install.bat
+:: Clones repo to %USERPROFILE%\keglevel_pico and runs install.bat
 
-SET "INSTALL_DIR=%USERPROFILE%\keglevel_lite"
-SET "DATA_DIR=%USERPROFILE%\keglevel_lite-data"
-SET "SHORTCUT_PATH=%USERPROFILE%\Desktop\KegLevel Lite.lnk"
-SET "REPO_URL=https://github.com/keglevelmonitor/keglevel_lite.git"
+SET "INSTALL_DIR=%USERPROFILE%\keglevel_pico"
+SET "DATA_DIR=%USERPROFILE%\keglevel_pico-data"
+SET "SHORTCUT_PATH=%USERPROFILE%\Desktop\KegLevel Pico.lnk"
+SET "REPO_URL=https://github.com/keglevelmonitor/keglevelpico.git"
 
-TITLE KegLevel Lite Auto-Installer
+TITLE KegLevel Pico Auto-Installer
 
 echo.
 echo ========================================
-echo    KegLevel Lite Windows Installer
+echo    KegLevel Pico Windows Installer
 echo ========================================
 echo.
 
@@ -35,7 +35,7 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 :: 2. Check for existing install - show menu if found
-SET "WHAT_TO_INSTALL=KegLevel Lite Application and Data Directory"
+SET "WHAT_TO_INSTALL=KegLevel Pico Application and Data Directory"
 SET "CLEANUP_MODE=NONE"
 IF EXIST "%INSTALL_DIR%" goto :menu
 IF EXIST "%DATA_DIR%" goto :menu
@@ -56,17 +56,17 @@ echo.
 set /p "choice=Enter selection: "
 
 IF /i "%choice%"=="UPDATE" (
-    SET "WHAT_TO_INSTALL=KegLevel Lite Update"
+    SET "WHAT_TO_INSTALL=KegLevel Pico Update"
     SET "CLEANUP_MODE=NONE"
     goto :confirm_proceed
 )
 IF /i "%choice%"=="APP" (
-    SET "WHAT_TO_INSTALL=KegLevel Lite Application (Fresh App, Keep Data)"
+    SET "WHAT_TO_INSTALL=KegLevel Pico Application (Fresh App, Keep Data)"
     SET "CLEANUP_MODE=APP"
     goto :confirm_proceed
 )
 IF /i "%choice%"=="ALL" (
-    SET "WHAT_TO_INSTALL=KegLevel Lite Application and Data Directory (Fresh Install)"
+    SET "WHAT_TO_INSTALL=KegLevel Pico Application and Data Directory (Fresh Install)"
     SET "CLEANUP_MODE=ALL"
     goto :confirm_proceed
 )
@@ -106,7 +106,7 @@ goto :clone
 echo.
 echo ------------------------------------------
 echo YOU ARE ABOUT TO DELETE:
-echo The KegLevel Lite application AND all user data/settings.
+echo The KegLevel Pico application AND all user data/settings.
 echo ------------------------------------------
 echo.
 set /p "confirm=Type YES to UNINSTALL, or any other key to return: "

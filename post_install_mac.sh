@@ -3,27 +3,27 @@
 # Bundled inside KegLevelSuite_Setup.pkg by build_installer_mac.sh.
 # Runs as root after the PKG wizard completes on the end user's Mac.
 # Installs BOTH apps (all-or-nothing):
-#   App 1: KegLevel Lite  -> ~/keglevel_lite   + ~/Applications/KegLevel Lite.app
+#   App 1: KegLevel Pico  -> ~/keglevel_pico   + ~/Applications/KegLevel Pico.app
 #   App 2: BatchFlow      -> ~/batchflow        + ~/Applications/BatchFlow.app
 # If either app fails the whole install script exits non-zero (PKG reports failure).
 
 # --- Setup ---
-KL_REPO="https://github.com/keglevelmonitor/keglevel_lite.git"
+KL_REPO="https://github.com/keglevelmonitor/keglevelpico.git"
 BF_REPO="https://github.com/keglevelmonitor/batchflow.git"
 
 # Detect the real logged-in user (not root) and their home directory
 REAL_USER=$(stat -f "%Su" /dev/console)
 USER_HOME=$(eval echo "~$REAL_USER")
 
-KL_DIR="$USER_HOME/keglevel_lite"
-KL_DATA="$USER_HOME/keglevel_lite-data"
+KL_DIR="$USER_HOME/keglevel_pico"
+KL_DATA="$USER_HOME/keglevel_pico-data"
 BF_DIR="$USER_HOME/batchflow"
 
 APPS_DIR="$USER_HOME/Applications"
 
-KL_APP="$APPS_DIR/KegLevel Lite.app"
+KL_APP="$APPS_DIR/KegLevel Pico.app"
 KL_APP_MACOS="$KL_APP/Contents/MacOS"
-KL_APP_EXEC="$KL_APP_MACOS/KegLevel Lite"
+KL_APP_EXEC="$KL_APP_MACOS/KegLevel Pico"
 KL_APP_RESOURCES="$KL_APP/Contents/Resources"
 KL_VENV="$KL_DIR/venv"
 KL_VENV_PYTHON="$KL_VENV/bin/python"
@@ -45,7 +45,7 @@ log() { echo "$1" | tee -a "$LOG"; }
 
 echo "" > "$LOG"
 log "[$(date)] === KegLevel Suite PKG Installer Started ==="
-log "[INFO] Installing KegLevel Lite + BatchFlow (all-or-nothing)"
+log "[INFO] Installing KegLevel Pico + BatchFlow (all-or-nothing)"
 log "[INFO] Installing for user: $REAL_USER"
 log "[INFO] Home directory: $USER_HOME"
 
@@ -111,73 +111,73 @@ fi
 log "[INFO] Python: $PYTHON_EXEC ($($PYTHON_EXEC --version 2>&1))"
 
 # ===================================================================
-# APP 1: KEGLEVEL LITE
+# APP 1: KEGLEVEL PICO
 # ===================================================================
 log ""
-log "[$(date)] --- [App 1/2] Installing KegLevel Lite ---"
+log "[$(date)] --- [App 1/2] Installing KegLevel Pico ---"
 
 # -------------------------------------------------------------------
-# STEP 3: Clone or update KegLevel Lite repository
+# STEP 3: Clone or update KegLevel Pico repository
 # -------------------------------------------------------------------
 log ""
-log "[Step 3/8] Cloning/updating KegLevel Lite..."
+log "[Step 3/8] Cloning/updating KegLevel Pico..."
 
 if [ -d "$KL_DIR/.git" ]; then
-    log "[INFO] KegLevel Lite: existing installation found. Updating via git pull..."
+    log "[INFO] KegLevel Pico: existing installation found. Updating via git pull..."
     run_as_user git -C "$KL_DIR" reset --hard >> "$LOG" 2>&1
     run_as_user git -C "$KL_DIR" pull --rebase origin main >> "$LOG" 2>&1
     if [ $? -ne 0 ]; then
-        log "[ERROR] KegLevel Lite: git pull failed. Check internet connection and try again."
+        log "[ERROR] KegLevel Pico: git pull failed. Check internet connection and try again."
         exit 1
     fi
 else
     if [ -d "$KL_DIR" ]; then
-        log "[INFO] KegLevel Lite: removing old directory..."
+        log "[INFO] KegLevel Pico: removing old directory..."
         rm -rf "$KL_DIR"
     fi
-    log "[INFO] KegLevel Lite: cloning repository to $KL_DIR..."
+    log "[INFO] KegLevel Pico: cloning repository to $KL_DIR..."
     run_as_user git clone "$KL_REPO" "$KL_DIR" >> "$LOG" 2>&1
     if [ $? -ne 0 ]; then
-        log "[ERROR] KegLevel Lite: git clone failed. Check internet connection and try again."
+        log "[ERROR] KegLevel Pico: git clone failed. Check internet connection and try again."
         exit 1
     fi
 fi
-log "[INFO] KegLevel Lite: repository ready."
+log "[INFO] KegLevel Pico: repository ready."
 
 # -------------------------------------------------------------------
-# STEP 4: KegLevel Lite virtual environment and dependencies
+# STEP 4: KegLevel Pico virtual environment and dependencies
 # -------------------------------------------------------------------
 log ""
-log "[Step 4/8] Setting up KegLevel Lite Python environment..."
+log "[Step 4/8] Setting up KegLevel Pico Python environment..."
 
 if [ -d "$KL_VENV" ]; then
-    log "[INFO] KegLevel Lite: removing old virtual environment..."
+    log "[INFO] KegLevel Pico: removing old virtual environment..."
     rm -rf "$KL_VENV"
 fi
 
-log "[INFO] KegLevel Lite: creating virtual environment at $KL_VENV..."
+log "[INFO] KegLevel Pico: creating virtual environment at $KL_VENV..."
 run_as_user "$PYTHON_EXEC" -m venv "$KL_VENV" >> "$LOG" 2>&1
 if [ $? -ne 0 ]; then
-    log "[ERROR] KegLevel Lite: failed to create virtual environment."
+    log "[ERROR] KegLevel Pico: failed to create virtual environment."
     exit 1
 fi
 
-log "[INFO] KegLevel Lite: upgrading pip..."
+log "[INFO] KegLevel Pico: upgrading pip..."
 run_as_user "$KL_VENV_PYTHON" -m pip install --upgrade pip >> "$LOG" 2>&1
 
-log "[INFO] KegLevel Lite: installing dependencies (Kivy - this may take a few minutes)..."
+log "[INFO] KegLevel Pico: installing dependencies (Kivy - this may take a few minutes)..."
 run_as_user "$KL_VENV_PYTHON" -m pip install -r "$KL_DIR/requirements.txt" >> "$LOG" 2>&1
 if [ $? -ne 0 ]; then
-    log "[ERROR] KegLevel Lite: dependency installation failed. See $LOG for details."
+    log "[ERROR] KegLevel Pico: dependency installation failed. See $LOG for details."
     exit 1
 fi
-log "[INFO] KegLevel Lite: dependencies installed."
+log "[INFO] KegLevel Pico: dependencies installed."
 
 # -------------------------------------------------------------------
-# STEP 5: Create KegLevel Lite .app launcher
+# STEP 5: Create KegLevel Pico .app launcher
 # -------------------------------------------------------------------
 log ""
-log "[Step 5/8] Creating KegLevel Lite app launcher..."
+log "[Step 5/8] Creating KegLevel Pico app launcher..."
 
 run_as_user mkdir -p "$KL_APP_MACOS"
 run_as_user mkdir -p "$KL_APP_RESOURCES"
@@ -195,10 +195,10 @@ if [ -f "$KL_ICON_SOURCE" ]; then
     run_as_user cp "$KL_ICON_SOURCE" "$KL_APP_RESOURCES/beer-keg.icns"
     KL_ICON_PLIST='    <key>CFBundleIconFile</key>
     <string>beer-keg</string>'
-    log "[INFO] KegLevel Lite: app icon installed."
+    log "[INFO] KegLevel Pico: app icon installed."
 else
     KL_ICON_PLIST=""
-    log "[WARN] KegLevel Lite: beer-keg.icns not found - app will use default icon."
+    log "[WARN] KegLevel Pico: beer-keg.icns not found - app will use default icon."
 fi
 
 cat > "$KL_APP/Contents/Info.plist" << PLIST
@@ -207,17 +207,17 @@ cat > "$KL_APP/Contents/Info.plist" << PLIST
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>KegLevel Lite</string>
+    <string>KegLevel Pico</string>
     <key>CFBundleDisplayName</key>
-    <string>KegLevel Lite</string>
+    <string>KegLevel Pico</string>
     <key>CFBundleIdentifier</key>
-    <string>com.keglevelmonitor.keglevel-lite</string>
+    <string>com.keglevelmonitor.keglevel-pico</string>
     <key>CFBundleVersion</key>
     <string>1.0</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleExecutable</key>
-    <string>KegLevel Lite</string>
+    <string>KegLevel Pico</string>
 ${KL_ICON_PLIST}
     <key>LSUIElement</key>
     <false/>
@@ -226,8 +226,8 @@ ${KL_ICON_PLIST}
 PLIST
 
 chown -R "$REAL_USER" "$KL_APP"
-log "[INFO] KegLevel Lite: app launcher created at $KL_APP"
-log "[INFO] KegLevel Lite installation complete."
+log "[INFO] KegLevel Pico: app launcher created at $KL_APP"
+log "[INFO] KegLevel Pico installation complete."
 
 # ===================================================================
 # APP 2: BATCHFLOW
@@ -357,6 +357,6 @@ log "[INFO] Install log saved to: $LOG"
 log ""
 log "To launch the apps:"
 log "   Finder -> Go -> Home (Cmd+Shift+H) -> Applications"
-log "   Then open 'KegLevel Lite' or 'BatchFlow'"
+log "   Then open 'KegLevel Pico' or 'BatchFlow'"
 
 exit 0

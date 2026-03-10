@@ -1,6 +1,6 @@
 #!/bin/bash
 # update_mac.sh
-# Handles checking, pulling code, and dependency updates for KegLevel Lite on macOS.
+# Handles checking, pulling code, and dependency updates for KegLevel Pico on macOS.
 
 # --- 1. Setup ---
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -11,7 +11,7 @@ MODE=$1
 # Detect Branch (main or master)
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-echo "--- KegLevel Lite Update Manager (macOS) ---"
+echo "--- KegLevel Pico Update Manager (macOS) ---"
 echo "Root: $PROJECT_DIR"
 echo "Branch: $BRANCH"
 
@@ -68,7 +68,7 @@ echo "Updating Python environment..."
 
 if [ ! -f "$VENV_PYTHON_EXEC" ]; then
     echo "[ERROR] Virtual environment missing. Please re-run the installer:"
-    echo "  bash <(curl -sL bit.ly/keglevel-lite-mac)"
+    echo "  bash <(curl -sL bit.ly/keglevel-pico-mac)"
     exit 1
 fi
 
@@ -80,8 +80,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # --- 6. Refresh App Launcher (ensures paths are correct after update) ---
-LAUNCHER_APP="$HOME/Applications/KegLevel Lite.app"
-LAUNCHER_EXEC="$LAUNCHER_APP/Contents/MacOS/KegLevel Lite"
+LAUNCHER_APP="$HOME/Applications/KegLevel Pico.app"
+LAUNCHER_EXEC="$LAUNCHER_APP/Contents/MacOS/KegLevel Pico"
 LAUNCHER_RESOURCES="$LAUNCHER_APP/Contents/Resources"
 ICON_SOURCE="$PROJECT_DIR/src/assets/beer-keg.icns"
 ICON_ICNS="$LAUNCHER_RESOURCES/beer-keg.icns"

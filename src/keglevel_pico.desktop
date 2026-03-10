@@ -1,12 +1,12 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=KegLevel Lite
-Comment=Keg Level Lite Monitoring
+Name=KegLevel Pico
+Comment=KegLevel Pico Monitoring
 Path=PLACEHOLDER_PATH
 Exec=PLACEHOLDER_EXEC_PATH
 Icon=keglevel
-StartupWMClass=KegLevel Lite
+StartupWMClass=KegLevel Pico
 Terminal=false
 Autostart=false
 Categories=X-Other;

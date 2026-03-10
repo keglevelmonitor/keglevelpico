@@ -1,11 +1,11 @@
 #!/bin/bash
 # setup.sh
-# Single-line installer wrapper for KegLevel Lite
+# Single-line installer wrapper for KegLevel Pico
 
 # 1. Define the Install Directories
-INSTALL_DIR="$HOME/keglevel_lite"
-DATA_DIR="$HOME/keglevel_lite-data"
-WHAT_TO_INSTALL="KegLevel Lite Application and Data Directory"
+INSTALL_DIR="$HOME/keglevel_pico"
+DATA_DIR="$HOME/keglevel_pico-data"
+WHAT_TO_INSTALL="KegLevel Pico Application and Data Directory"
 CLEANUP_MODE="NONE"
 
 # SAFETY CHECK: Ensure we are not running from inside the install dir
@@ -17,7 +17,7 @@ if [[ "$CURRENT_DIR" == "$INSTALL_DIR"* ]]; then
 fi
 
 echo "========================================"
-echo "   KegLevel Lite Auto-Installer"
+echo "   KegLevel Pico Auto-Installer"
 echo "========================================"
 
 # 2. Logic to handle existing installs
@@ -38,21 +38,21 @@ if [ -d "$INSTALL_DIR" ] || [ -d "$DATA_DIR" ]; then
         read -p "Enter selection: " choice
         
         if [ "$choice" == "UPDATE" ]; then
-            WHAT_TO_INSTALL="KegLevel Lite Update"
+            WHAT_TO_INSTALL="KegLevel Pico Update"
             CLEANUP_MODE="NONE"
             break
         elif [ "$choice" == "APP" ]; then
-            WHAT_TO_INSTALL="KegLevel Lite Application (Fresh App, Keep Data)"
+            WHAT_TO_INSTALL="KegLevel Pico Application (Fresh App, Keep Data)"
             CLEANUP_MODE="APP"
             break
         elif [ "$choice" == "ALL" ]; then
-            WHAT_TO_INSTALL="KegLevel Lite Application and Data Directory (Fresh Install)"
+            WHAT_TO_INSTALL="KegLevel Pico Application and Data Directory (Fresh Install)"
             CLEANUP_MODE="ALL"
             break
         elif [ "$choice" == "UNINSTALL" ]; then
             echo "------------------------------------------"
             echo "YOU ARE ABOUT TO DELETE:"
-            echo "The KegLevel Lite application AND all user data/settings."
+            echo "The KegLevel Pico application AND all user data/settings."
             echo "------------------------------------------"
             echo ""
             read -p "Type YES to UNINSTALL, or any other key to return: " confirm
@@ -61,7 +61,7 @@ if [ -d "$INSTALL_DIR" ] || [ -d "$DATA_DIR" ]; then
                 echo ""
                 echo "Removing files..."
                 
-                DESKTOP_FILE="$HOME/.local/share/applications/keglevel_lite.desktop"
+                DESKTOP_FILE="$HOME/.local/share/applications/keglevel_pico.desktop"
                 if [ -f "$DESKTOP_FILE" ]; then
                     rm "$DESKTOP_FILE"
                     echo " - Removed desktop shortcut"
@@ -145,7 +145,7 @@ if [ -d "$INSTALL_DIR" ]; then
     git pull --rebase
 else
     echo "Cloning repository to $INSTALL_DIR..."
-    git clone https://github.com/keglevelmonitor/keglevel_lite.git "$INSTALL_DIR"
+    git clone https://github.com/keglevelmonitor/keglevelpico.git "$INSTALL_DIR"
     cd "$INSTALL_DIR" || exit 1
 fi
 

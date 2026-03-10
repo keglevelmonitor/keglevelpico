@@ -1,11 +1,11 @@
 #!/bin/bash
 # build_installer_mac.sh
 # Builds KegLevelSuite_Setup.dmg for distribution via GitHub Releases.
-# Installs BOTH apps: KegLevel Lite + BatchFlow.
+# Installs BOTH apps: KegLevel Pico + BatchFlow.
 #
 # Usage:
-#   Run from within the keglevel_lite repo folder on your Mac:
-#     cd ~/keglevel_lite
+#   Run from within the keglevelpico repo folder on your Mac:
+#     cd ~/keglevel_pico
 #     chmod +x build_installer_mac.sh
 #     ./build_installer_mac.sh
 #
@@ -36,7 +36,7 @@ APP_VERSION=$(python3 -c "exec(open('$APP_DIR/src/version.py').read()); print(AP
 
 echo "========================================"
 echo "   KegLevel Suite macOS DMG Builder"
-echo "   KegLevel Lite + BatchFlow"
+echo "   KegLevel Pico + BatchFlow"
 echo "========================================"
 echo "Version:  $APP_VERSION"
 echo "Repo dir: $APP_DIR"
@@ -118,11 +118,11 @@ cat > "$BUILD_DIR/welcome.html" << WELCOMEHTML
 <body style="font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #e0e0e0;">
     <h2 style="color: #FFC107;">Welcome to KegLevel Suite</h2>
     <p>Version ${APP_VERSION}</p>
-    <p>This installer will set up <strong>KegLevel Lite</strong> and <strong>BatchFlow</strong> on your Mac.</p>
+    <p>This installer will set up <strong>KegLevel Pico</strong> and <strong>BatchFlow</strong> on your Mac.</p>
     <p>Both apps are installed together &mdash; this is an all-or-nothing install. If either app fails to install, the whole installation is considered failed.</p>
     <p><strong>The installer will:</strong></p>
     <ul>
-        <li>Download KegLevel Lite from GitHub (~10 MB)</li>
+        <li>Download KegLevel Pico from GitHub (~10 MB)</li>
         <li>Download BatchFlow from GitHub (~10 MB)</li>
         <li>Set up Python environments with required dependencies for each app</li>
         <li>Create launchers in your home Applications folder</li>
@@ -151,18 +151,18 @@ cat > "$BUILD_DIR/conclusion.html" << CONCLUSIONHTML
 <html>
 <body style="font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #e0e0e0;">
     <h2 style="color: #FFC107;">Installation Complete!</h2>
-    <p><strong>KegLevel Lite</strong> and <strong>BatchFlow</strong> have been installed successfully.</p>
+    <p><strong>KegLevel Pico</strong> and <strong>BatchFlow</strong> have been installed successfully.</p>
     <p><strong>To launch the apps:</strong></p>
     <ol>
         <li>Open <strong>Finder</strong></li>
         <li>Press <strong>Cmd + Shift + H</strong> to go to your Home folder</li>
         <li>Open the <strong>Applications</strong> folder</li>
-        <li>Double-click <strong>KegLevel Lite</strong> or <strong>BatchFlow</strong></li>
+        <li>Double-click <strong>KegLevel Pico</strong> or <strong>BatchFlow</strong></li>
     </ol>
     <p>You can drag either app from that folder to your Dock for easy access.</p>
     <p style="color: #aaa; font-size: 12px;">
-        To update the apps in the future, use <strong>Settings &rarr; Updates</strong> inside KegLevel Lite.<br>
-        Install log saved to: ~/keglevel_lite-data/install_log.txt
+        To update the apps in the future, use <strong>Settings &rarr; Updates</strong> inside KegLevel Pico.<br>
+        Install log saved to: ~/keglevel_pico-data/install_log.txt
     </p>
 </body>
 </html>
@@ -203,7 +203,7 @@ cp "$PKG_FINAL" "$DMG_STAGING/KegLevel Suite Installer.pkg"
 cat > "$DMG_STAGING/README.txt" << README
 KegLevel Suite - macOS Installer
 =================================
-Installs: KegLevel Lite + BatchFlow
+Installs: KegLevel Pico + BatchFlow
 
 1. Double-click "KegLevel Suite Installer.pkg" to install.
 
@@ -217,13 +217,13 @@ Installs: KegLevel Lite + BatchFlow
 
 4. After installation, find the apps at:
       Finder -> Go -> Home (Cmd+Shift+H) -> Applications
-      -> KegLevel Lite
+      -> KegLevel Pico
       -> BatchFlow
 
 5. To update the apps in the future:
-      Use Settings -> Updates inside KegLevel Lite.
+      Use Settings -> Updates inside KegLevel Pico.
 
-Installation log: ~/keglevel_lite-data/install_log.txt
+Installation log: ~/keglevel_pico-data/install_log.txt
 README
 
 echo "[OK]   DMG contents staged."

@@ -1,21 +1,21 @@
 @echo off
 SETLOCAL EnableDelayedExpansion
 
-:: install.bat - KegLevel Lite installation (run from project directory)
+:: install.bat - KegLevel Pico installation (run from project directory)
 
 :: --- Variables ---
 SET "PROJECT_DIR=%~dp0"
 IF %PROJECT_DIR:~-1%==\ SET "PROJECT_DIR=%PROJECT_DIR:~0,-1%"
 
 SET "VENV_DIR=%PROJECT_DIR%\venv"
-SET "DATA_DIR=%USERPROFILE%\keglevel_lite-data"
-SET "SHORTCUT_PATH=%USERPROFILE%\Desktop\KegLevel Lite.lnk"
+SET "DATA_DIR=%USERPROFILE%\keglevel_pico-data"
+SET "SHORTCUT_PATH=%USERPROFILE%\Desktop\KegLevel Pico.lnk"
 SET "ICON_PATH=%PROJECT_DIR%\src\assets\beer-keg.ico"
 SET "SCRIPT_PATH=%PROJECT_DIR%\src\main_kivy.py"
 
 echo.
 echo ==========================================
-echo    KegLevel Lite Installer
+echo    KegLevel Pico Installer
 echo ==========================================
 echo Project: %PROJECT_DIR%
 echo.
@@ -65,14 +65,14 @@ SET "ARGS=\"%SCRIPT_PATH%\""
 
 powershell -Command "$s=(New-Object -COM WScript.Shell).CreateShortcut('%SHORTCUT_PATH%');$s.TargetPath='%TARGET%';$s.Arguments='%ARGS%';$s.WorkingDirectory='%PROJECT_DIR%\src';$s.IconLocation='!SHORTCUT_ICON!';$s.Save()"
 
-echo Shortcut created on Desktop: KegLevel Lite.lnk
+echo Shortcut created on Desktop: KegLevel Pico.lnk
 
 echo.
 echo ==========================================
 echo    Installation complete!
 echo ==========================================
 echo.
-echo Run KegLevel Lite from the Desktop shortcut or:
+echo Run KegLevel Pico from the Desktop shortcut or:
 echo   %VENV_DIR%\Scripts\pythonw.exe "%SCRIPT_PATH%"
 echo.
 pause
