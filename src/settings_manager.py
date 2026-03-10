@@ -302,8 +302,7 @@ class SettingsManager:
         print(f"SettingsManager: Using script path: {base_dir}")
         self.base_dir = base_dir 
         
-        # --- PATH CHANGE FOR LITE VERSION ---
-        self.data_dir = os.path.abspath(os.path.join(self.base_dir, "..", "..", "keglevel_lite-data"))
+        self.data_dir = os.path.abspath(os.path.join(self.base_dir, "..", "..", "keglevel_pico-data"))
         print(f"SettingsManager: Using data path: {self.data_dir}")
         
         if not os.path.exists(self.data_dir):
@@ -1061,8 +1060,8 @@ class SettingsManager:
         return max(1, min(displayed_taps, self.num_sensors))
 
     def get_sensor_backend(self):
-        """Return 'gpio' or 'pico_w'."""
-        return self.settings.get('system_settings', {}).get('sensor_backend', 'pico_w')
+        """KegLevel Pico always uses the Pico W backend."""
+        return 'pico_w'
 
     def get_pico_w_host(self):
         """Return the user-overridden Pico W hostname/IP, or '' to use mDNS default."""

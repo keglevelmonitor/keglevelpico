@@ -20,9 +20,9 @@ except ImportError:
     _urllib_error   = None
 
 DEFAULT_PICO_HOST  = "keglevel-pico.local"
-REQUEST_TIMEOUT_S    = 2.0   # Pico can take up to ~1s during flash writes / GC
-POLL_INTERVAL_S      = 0.5   # normal idle poll rate
-POUR_POLL_INTERVAL_S = 0.1   # fast poll rate while any tap is actively pouring
+REQUEST_TIMEOUT_S    = 6.0   # MicroPython GC pauses can exceed 3 s on Pico 2 W
+POLL_INTERVAL_S      = 1.5   # idle poll rate — gives Pico breathing room between GC
+POUR_POLL_INTERVAL_S = 0.3   # fast poll rate while any tap is actively pouring
 OFFLINE_RETRY_S      = 5.0   # sleep between polls once truly offline
 DISCOVERY_PORT     = 5005
 DISCOVERY_DEVICE   = "keglevel-pico"
@@ -151,6 +151,13 @@ class PicoSensorLogic:
                 target=self._discovery_listener, daemon=True
             )
             disc_thread.start()
+            # UDP broadcast is blocked by Windows Firewall on many machines and
+            # mDNS .local resolution is unreliable on Windows without Bonjour.
+            # Fall back to an active subnet scan after 10 s if still not found.
+            scan_thread = threading.Thread(
+                target=self._auto_scan_fallback, daemon=True
+            )
+            scan_thread.start()
             print(f"[PicoSensor] Discovery mode — listening on UDP port {DISCOVERY_PORT}...")
         else:
             print(f"[PicoSensor] Using configured host: {self.host}")
@@ -159,6 +166,26 @@ class PicoSensorLogic:
                 target=self._sensor_loop, daemon=True
             )
             self.sensor_thread.start()
+
+    def _auto_scan_fallback(self):
+        """
+        If UDP broadcast and mDNS haven't resolved the Pico within 10 seconds,
+        run a one-shot subnet scan — the same reliable approach used by FIND PICO.
+        Uses a generous probe timeout (2 s) to handle Picos with high latency.
+        Exits silently if discovery already succeeded before the scan finishes.
+        """
+        time.sleep(10.0)
+        if not self._running or self.base_url is not None:
+            return  # Already found via UDP or mDNS
+        prefix = get_local_subnet_prefix()
+        print(f"[PicoSensor] Auto-scan fallback: scanning subnet {prefix}.0/24 ...")
+        ip = scan_for_pico(prefix, timeout=2.0) if prefix else None
+        if ip and self.base_url is None:
+            print(f"[PicoSensor] Auto-scan: Pico found at {ip}")
+            self.host     = ip
+            self.base_url = f"http://{ip}"
+        elif not ip:
+            print("[PicoSensor] Auto-scan: Pico not found on subnet.")
 
     def _discovery_listener(self):
         """
@@ -239,9 +266,24 @@ class PicoSensorLogic:
                 time.sleep(POLL_INTERVAL_S)
                 continue
 
-            # Wait for discovery to find the Pico before making any requests
+            # Wait for discovery to find the Pico before making any requests.
+            # While UDP broadcast discovery hasn't resolved a host yet, try the
+            # well-known mDNS name as a fallback.  This handles the common case
+            # where the Pico was already running before the app started (its boot
+            # broadcast was missed) — mDNS resolves regardless of boot timing.
             if self.base_url is None:
-                time.sleep(OFFLINE_RETRY_S)
+                try:
+                    req = _urllib_request.Request(
+                        f"http://{DEFAULT_PICO_HOST}/api/state",
+                        headers={"Accept": "application/json"}
+                    )
+                    with _urllib_request.urlopen(req, timeout=REQUEST_TIMEOUT_S) as resp:
+                        json.loads(resp.read().decode())
+                    self.host     = DEFAULT_PICO_HOST
+                    self.base_url = f"http://{DEFAULT_PICO_HOST}"
+                    print(f"[PicoSensor] mDNS fallback: connected via {DEFAULT_PICO_HOST}")
+                except Exception:
+                    time.sleep(OFFLINE_RETRY_S)
                 continue
 
             state = self._get("/api/state")
@@ -715,8 +757,8 @@ def scan_for_pico(subnet_prefix, timeout=0.5):
     for t in threads:
         t.start()
 
-    # Join with enough time for 254 probes at 25 concurrent (need ~6–8 seconds)
-    deadline = time.time() + 12.0
+    # Deadline scales with timeout: ceil(254/25) batches × timeout, plus headroom.
+    deadline = time.time() + max(12.0, (254 / MAX_CONCURRENT + 1) * timeout * 1.3)
     for t in threads:
         remaining = deadline - time.time()
         if remaining <= 0 or found[0]:
