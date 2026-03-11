@@ -55,9 +55,9 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-:: --- Step 3: Desktop Shortcut ---
+:: --- Step 3: Desktop Shortcuts ---
 echo.
-echo --- [Step 3/3] Creating Desktop Shortcut ---
+echo --- [Step 3/3] Creating Desktop Shortcuts ---
 SET "SHORTCUT_ICON=%ICON_PATH%"
 
 SET "TARGET=%VENV_DIR%\Scripts\pythonw.exe"
@@ -67,6 +67,12 @@ powershell -Command "$s=(New-Object -COM WScript.Shell).CreateShortcut('%SHORTCU
 
 echo Shortcut created on Desktop: KegLevel Pico.lnk
 
+SET "DEMO_SHORTCUT_PATH=%USERPROFILE%\Desktop\KegLevel Pico (Demo).lnk"
+SET "DEMO_ARGS=\"%SCRIPT_PATH%\" -- --demo"
+powershell -Command "$s=(New-Object -COM WScript.Shell).CreateShortcut('%DEMO_SHORTCUT_PATH%');$s.TargetPath='%TARGET%';$s.Arguments='%DEMO_ARGS%';$s.WorkingDirectory='%PROJECT_DIR%\src';$s.IconLocation='!SHORTCUT_ICON!';$s.Save()"
+
+echo Shortcut created on Desktop: KegLevel Pico (Demo).lnk
+
 echo.
 echo ==========================================
 echo    Installation complete!
@@ -74,5 +80,8 @@ echo ==========================================
 echo.
 echo Run KegLevel Pico from the Desktop shortcut or:
 echo   %VENV_DIR%\Scripts\pythonw.exe "%SCRIPT_PATH%"
+echo.
+echo For Demo mode (no Pico hardware):
+echo   %VENV_DIR%\Scripts\pythonw.exe "%SCRIPT_PATH%" --demo
 echo.
 pause

@@ -4,9 +4,12 @@
 # Implements the same interface as SensorLogic (sensor_logic.py) but polls
 # the Pico W REST API instead of reading GPIO pins directly.
 #
-# The host app (Pi / Windows / Mac) remains the source of truth for the keg
-# and beverage library. The Pico is the source of truth for raw dispensed
-# volumes (pulse counts converted to liters) and temperature.
+# Architecture: the Pico is the single source of truth for the keg/beverage
+# library and for dispensed volumes.  The app maintains an in-memory cache
+# populated from the Pico on every connect, and writes a local backup
+# (keg_library.json / beverages_library.json) so a freshly reflashed Pico
+# can be automatically restored.  All keg/beverage edits are pushed to the
+# Pico first; the local cache is updated afterwards.
 
 import threading
 import time
@@ -22,7 +25,7 @@ except ImportError:
 DEFAULT_PICO_HOST  = "keglevel-pico.local"
 REQUEST_TIMEOUT_S    = 6.0   # MicroPython GC pauses can exceed 3 s on Pico 2 W
 POLL_INTERVAL_S      = 1.5   # idle poll rate — gives Pico breathing room between GC
-POUR_POLL_INTERVAL_S = 0.3   # fast poll rate while any tap is actively pouring
+POUR_POLL_INTERVAL_S = 0.15  # fast poll rate during pour — matches Pico 250ms updates
 OFFLINE_RETRY_S      = 5.0   # sleep between polls once truly offline
 DISCOVERY_PORT     = 5005
 DISCOVERY_DEVICE   = "keglevel-pico"
@@ -65,6 +68,9 @@ class PicoSensorLogic:
         # Temperature dict from last /api/state poll
         self._pico_temperature = None
 
+        # Firmware version from last /api/state poll (for Updates tab)
+        self._pico_version = None
+
         # Calibration state
         self._auto_cal_mode           = False
         self._auto_cal_locked_tap     = -1
@@ -80,11 +86,17 @@ class PicoSensorLogic:
         # record so that Keg-Kicked calibration has accurate pulse data.
         self._last_lifetime_pulses = [None] * self.num_sensors
 
+        # Per-tap pulse accumulator for keg-kick calibration.
+        # Counts pulses since the current keg was assigned; flushed to the
+        # Pico keg record when the keg is removed or the app closes.
+        self._session_pulses_by_tap: dict = {}
+
         # Threading
         self._running      = False
         self.is_paused     = False
         self.sensor_thread = None
         self._pico_online  = False
+        self._use_fast_poll = False  # True when pouring or saw flow delta (optimistic)
 
         self._load_initial_volumes()
 
@@ -134,6 +146,35 @@ class PicoSensorLogic:
                 data=body,
                 headers={"Content-Type": "application/json",
                          "Accept":       "application/json"}
+            )
+            with _urllib_request.urlopen(req, timeout=REQUEST_TIMEOUT_S) as resp:
+                return json.loads(resp.read().decode())
+        except Exception:
+            return None
+
+    def _put(self, path, data=None):
+        """HTTP PUT with JSON body → parsed JSON dict, or None on any error."""
+        try:
+            body = json.dumps(data or {}).encode()
+            req  = _urllib_request.Request(
+                self.base_url + path,
+                data=body,
+                method="PUT",
+                headers={"Content-Type": "application/json",
+                         "Accept":       "application/json"}
+            )
+            with _urllib_request.urlopen(req, timeout=REQUEST_TIMEOUT_S) as resp:
+                return json.loads(resp.read().decode())
+        except Exception:
+            return None
+
+    def _delete(self, path):
+        """HTTP DELETE → parsed JSON dict, or None on any error."""
+        try:
+            req = _urllib_request.Request(
+                self.base_url + path,
+                method="DELETE",
+                headers={"Accept": "application/json"}
             )
             with _urllib_request.urlopen(req, timeout=REQUEST_TIMEOUT_S) as resp:
                 return json.loads(resp.read().decode())
@@ -286,10 +327,11 @@ class PicoSensorLogic:
                     time.sleep(OFFLINE_RETRY_S)
                 continue
 
-            state = self._get("/api/state")
+            endpoint = "/api/state/fast" if self._use_fast_poll else "/api/state"
+            state = self._get(endpoint)
             if state is None:
                 time.sleep(0.3)
-                state = self._get("/api/state")  # one retry for transient failures
+                state = self._get(endpoint)  # one retry for transient failures
 
             if state is None:
                 _consecutive_failures += 1
@@ -318,20 +360,36 @@ class PicoSensorLogic:
             if not self._pico_online:
                 self._pico_online = True
                 print(f"[PicoSensor] Pico online at {self.host}")
-                # Push the app's stored k_factors so that a reflashed Pico
-                # (which resets to firmware defaults) immediately uses the
-                # calibrated values without requiring a manual recalibration.
+
+                # 1. Push calibrated k_factors — a reflashed Pico resets to
+                #    firmware defaults; pushing immediately avoids bad readings.
                 try:
                     k_factors = self.settings_manager.get_flow_calibration_factors()
                     self.push_k_factors_to_pico(k_factors)
                 except Exception as _kf_err:
                     print(f"[PicoSensor] Could not push k_factors on connect: {_kf_err}")
+
+                # 2. If Pico just had its flash wiped, restore the local backup.
+                try:
+                    self._restore_backup_if_pico_empty()
+                except Exception as _rb_err:
+                    print(f"[PicoSensor] Backup restore error: {_rb_err}")
+
+                # 3. Pull the authoritative library from the Pico and update the
+                #    in-memory cache so any screen that opens sees fresh data.
+                try:
+                    self._refresh_library_from_pico()
+                    self._load_initial_volumes()
+                except Exception as _rl_err:
+                    print(f"[PicoSensor] Library refresh error: {_rl_err}")
+
                 cb = self.ui_callbacks.get("pico_online_cb")
                 if cb:
                     cb(True)
 
-            # Cache temperature for main_kivy to read
+            # Cache temperature and version for main_kivy to read
             self._pico_temperature = state.get("temperature")
+            self._pico_version = state.get("version")
 
             taps          = state.get("taps", [])
             displayed     = self.settings_manager.get_displayed_taps()
@@ -339,99 +397,89 @@ class PicoSensorLogic:
 
             if self._auto_cal_mode:
                 self._process_calibration(taps, displayed)
+                self._use_fast_poll = False
                 time.sleep(POLL_INTERVAL_S)
                 continue
 
+            any_delta_this_round = False
             for i in range(displayed):
                 tap            = taps[i]
                 pico_dispensed = float(tap.get("dispensed_liters", 0.0))
                 pico_pulses    = int(tap.get("lifetime_pulses", 0))
+                # Pico computes remaining_liters = starting_volume - dispensed.
+                # This is the single source of truth — no local re-computation.
+                pico_remaining = float(tap.get("remaining_liters", 0.0))
                 pouring        = bool(tap.get("pouring", False))
                 flow_rate      = float(tap.get("flow_rate_lpm", 0.0))
 
-                # Simulation mode active for this tap — advance baselines silently
-                # so the delta calculation stays correct when sim ends, but let
-                # simulate_pulse_increment drive the UI exclusively.
+                # Simulation mode — advance baselines silently so the delta
+                # stays correct when sim ends; UI driven by simulate_pulse_increment.
                 if self._sim_is_pouring[i]:
                     self._last_dispensed[i]       = pico_dispensed
                     self._last_lifetime_pulses[i] = pico_pulses
                     continue
 
-                # First poll: check for volume dispensed while app was offline
+                # First poll for this tap — use Pico's remaining directly.
+                # Any volume dispensed while the app was offline is already
+                # reflected in pico_remaining, so no offline-delta needed.
                 if self._last_dispensed[i] is None:
-                    saved = self._saved_pico_dispensed[i] if i < len(self._saved_pico_dispensed) else 0.0
-                    offline_delta = max(0.0, pico_dispensed - saved)
-                    if offline_delta > 0.001:
-                        print(f"[PicoSensor] Tap {i+1}: {offline_delta:.3f} L poured while app was offline — applying.")
-                        keg_id = self.keg_ids_assigned[i]
-                        if keg_id:
-                            new_total = self.keg_dispensed_liters[i] + offline_delta
-                            self.keg_dispensed_liters[i] = new_total
-                            self.settings_manager.update_keg_dispensed_volume(
-                                keg_id, new_total, pulses=0
-                            )
-                        self.last_known_remaining_liters[i] -= offline_delta
                     self._last_dispensed[i]       = pico_dispensed
                     self._last_lifetime_pulses[i] = pico_pulses
-                    self._update_ui(i, 0.0,
-                                    self.last_known_remaining_liters[i],
-                                    "Idle",
+                    self.last_known_remaining_liters[i] = pico_remaining
+                    self._update_ui(i, 0.0, pico_remaining, "Idle",
                                     self.last_pour_volumes[i])
                     continue
 
-                # If Pico dispensed went backwards (reset / keg change), re-baseline
+                # If Pico dispensed went backwards (keg change / tap reset), re-baseline.
                 if pico_dispensed < self._last_dispensed[i]:
-                    print(f"[PicoSensor] Tap {i+1}: Pico dispensed reset detected — re-baselining.")
+                    print(f"[PicoSensor] Tap {i+1}: Pico dispensed reset — re-baselining.")
                     self._last_dispensed[i]       = pico_dispensed
                     self._last_lifetime_pulses[i] = pico_pulses
 
                 delta = max(0.0, pico_dispensed - self._last_dispensed[i])
                 self._last_dispensed[i] = pico_dispensed
 
-                # Track lifetime pulse delta so the keg record gets real pulse
-                # counts — required for Keg-Kicked calibration to work correctly.
+                # Accumulate pulse delta for keg-kick calibration.
                 if self._last_lifetime_pulses[i] is None:
                     self._last_lifetime_pulses[i] = pico_pulses
                 pulse_delta = max(0, pico_pulses - self._last_lifetime_pulses[i])
                 self._last_lifetime_pulses[i] = pico_pulses
 
                 if delta > 0:
-                    keg_id = self.keg_ids_assigned[i]
-                    if keg_id:
-                        new_total = self.keg_dispensed_liters[i] + delta
-                        self.keg_dispensed_liters[i] = new_total
-                        self.settings_manager.update_keg_dispensed_volume(
-                            keg_id, new_total, pulses=pulse_delta
-                        )
-                    self.last_known_remaining_liters[i] -= delta
-                    self.current_pour_volume[i]         += delta
+                    any_delta_this_round = True
+                    self.current_pour_volume[i] += delta
+                    self.keg_dispensed_liters[i] += delta
+                    # Accumulate pulses; flushed to Pico on pour end.
+                    self._session_pulses_by_tap[i] = (
+                        self._session_pulses_by_tap.get(i, 0) + pulse_delta
+                    )
+
+                # Pico is the source of truth for remaining volume.
+                self.last_known_remaining_liters[i] = pico_remaining
 
                 if pouring:
                     self.tap_is_active[i] = True
-                    self._update_ui(i, flow_rate,
-                                    self.last_known_remaining_liters[i],
-                                    "Pouring",
-                                    self.current_pour_volume[i])
+                    self._update_ui(i, flow_rate, pico_remaining,
+                                    "Pouring", self.current_pour_volume[i])
                 elif self.tap_is_active[i]:
-                    # Pour just stopped
-                    self.tap_is_active[i]     = False
+                    # Pour just stopped — save UI state and flush keg stats to Pico.
+                    self.tap_is_active[i]      = False
                     self.last_pour_volumes[i]  = self.current_pour_volume[i]
                     self.current_pour_volume[i] = 0.0
                     self.settings_manager.save_last_pour_volumes(self.last_pour_volumes)
-                    self.settings_manager.save_all_keg_dispensed_volumes()
-                    self._update_ui(i, 0.0,
-                                    self.last_known_remaining_liters[i],
-                                    "Idle",
+                    keg_id = self.keg_ids_assigned[i]
+                    if keg_id and keg_id != "unassigned_keg_id":
+                        self._flush_keg_stats_to_pico(i, keg_id)
+                    self._update_ui(i, 0.0, pico_remaining, "Idle",
                                     self.last_pour_volumes[i])
                 else:
-                    self._update_ui(i, 0.0,
-                                    self.last_known_remaining_liters[i],
-                                    "Idle",
+                    self._update_ui(i, 0.0, pico_remaining, "Idle",
                                     self.last_pour_volumes[i])
 
-            # Use fast poll rate while any tap is actively pouring,
-            # normal rate otherwise.
-            if any(self.tap_is_active):
+            # Use fast poll + lightweight endpoint when pouring or saw flow delta
+            # (optimistic: switch to fast mode on dispensed increase, before Pico flags pouring).
+            self._use_fast_poll = any(self.tap_is_active) or any_delta_this_round
+            if self._use_fast_poll:
                 time.sleep(POUR_POLL_INTERVAL_S)
             else:
                 time.sleep(POLL_INTERVAL_S)
@@ -479,6 +527,7 @@ class PicoSensorLogic:
         print("[PicoSensor] Auto-Calibration Mode STARTED")
 
     def stop_auto_calibration_mode(self):
+        was_active = self._auto_cal_mode
         if self._auto_cal_locked_tap >= 0 and self._cal_started_on_pico:
             self._post(f"/api/taps/{self._auto_cal_locked_tap}/calibrate/stop")
         self._auto_cal_mode           = False
@@ -486,7 +535,8 @@ class PicoSensorLogic:
         self._auto_cal_session_pulses = 0
         self._cal_started_on_pico     = False
         self._sim_cal_active          = False
-        print("[PicoSensor] Auto-Calibration Mode STOPPED")
+        if was_active:
+            print("[PicoSensor] Auto-Calibration Mode STOPPED")
 
     def reset_auto_calibration_state(self):
         if self._auto_cal_locked_tap >= 0 and self._cal_started_on_pico:
@@ -528,30 +578,240 @@ class PicoSensorLogic:
         """Return the temperature dict from the last /api/state poll, or None."""
         return self._pico_temperature
 
+    def get_pico_version(self):
+        """Return the firmware version from the last /api/state poll, or empty string."""
+        return self._pico_version or ""
+
     def is_pico_online(self):
         return self._pico_online
 
     def notify_keg_change(self, tap_index):
         """
-        Call when the user assigns a new keg to a tap.
-        Resets the Pico's dispensed accumulator for that tap so the new keg
-        starts at zero, and re-baselines the local tracking accordingly.
+        Called when the user assigns a new keg to a tap via the UI.
+        Flushes any accumulated pour stats for the outgoing keg, then
+        resets local tracking so the new keg starts from zero.
+        The actual Pico tap-assignment is handled by assign_keg_to_tap_on_pico()
+        which is called from main_kivy before this method.
         """
-        result = self._post(f"/api/taps/{tap_index}/reset")
-        if result:
-            print(f"[PicoSensor] Tap {tap_index+1} reset on Pico.")
-        else:
-            print(f"[PicoSensor] Warning: could not reset tap {tap_index+1} on Pico.")
-        self._last_dispensed[tap_index]       = 0.0
-        self._last_lifetime_pulses[tap_index] = 0
+        old_keg_id = self.keg_ids_assigned[tap_index] if tap_index < len(self.keg_ids_assigned) else None
+        if old_keg_id and old_keg_id != "unassigned_keg_id" and self._pico_online:
+            try:
+                self._flush_keg_stats_to_pico(tap_index, old_keg_id)
+            except Exception:
+                pass
+        self._last_dispensed[tap_index]        = 0.0
+        self._last_lifetime_pulses[tap_index]  = 0
+        self._session_pulses_by_tap[tap_index] = 0
+        print(f"[PicoSensor] Tap {tap_index+1} local tracking reset.")
 
     def push_k_factors_to_pico(self, k_factors):
         """Push updated K-factors to the Pico after calibration."""
-        result = self._post("/api/config", {"k_factors": k_factors})
+        result = self._put("/api/config", {"k_factors": k_factors})
         if result:
             print(f"[PicoSensor] K-factors pushed to Pico: {k_factors}")
         else:
             print("[PicoSensor] Warning: could not push K-factors to Pico.")
+
+    # ------------------------------------------------------------------
+    # Pico library management  (Pico is the single source of truth)
+    # ------------------------------------------------------------------
+
+    def create_keg_on_pico(self, data: dict):
+        """POST /api/kegs — create a keg on the Pico and return the record."""
+        result = self._post("/api/kegs", data)
+        if result:
+            print(f"[PicoSensor] Keg created on Pico: {result.get('id')} '{result.get('name')}'")
+        else:
+            print("[PicoSensor] Warning: could not create keg on Pico.")
+        return result
+
+    def update_keg_on_pico(self, keg_id: str, data: dict):
+        """PUT /api/kegs/<keg_id> — update keg fields on the Pico."""
+        result = self._put(f"/api/kegs/{keg_id}", data)
+        if not result:
+            print(f"[PicoSensor] Warning: could not update keg {keg_id} on Pico.")
+        return result
+
+    def delete_keg_on_pico(self, keg_id: str):
+        """DELETE /api/kegs/<keg_id> — remove a keg from the Pico."""
+        result = self._delete(f"/api/kegs/{keg_id}")
+        if result:
+            print(f"[PicoSensor] Keg {keg_id} deleted from Pico.")
+        else:
+            print(f"[PicoSensor] Warning: could not delete keg {keg_id} from Pico.")
+        return result
+
+    def create_bev_on_pico(self, data: dict):
+        """POST /api/beverages — create a beverage on the Pico and return the record."""
+        result = self._post("/api/beverages", data)
+        if result:
+            print(f"[PicoSensor] Beverage created on Pico: {result.get('id')} '{result.get('name')}'")
+        else:
+            print("[PicoSensor] Warning: could not create beverage on Pico.")
+        return result
+
+    def update_bev_on_pico(self, bev_id: str, data: dict):
+        """PUT /api/beverages/<bev_id> — update beverage fields on the Pico."""
+        result = self._put(f"/api/beverages/{bev_id}", data)
+        if not result:
+            print(f"[PicoSensor] Warning: could not update beverage {bev_id} on Pico.")
+        return result
+
+    def delete_bev_on_pico(self, bev_id: str):
+        """DELETE /api/beverages/<bev_id> — remove a beverage from the Pico."""
+        result = self._delete(f"/api/beverages/{bev_id}")
+        if result:
+            print(f"[PicoSensor] Beverage {bev_id} deleted from Pico.")
+        else:
+            print(f"[PicoSensor] Warning: could not delete beverage {bev_id} from Pico.")
+        return result
+
+    def assign_keg_to_tap_on_pico(self, tap_index: int, keg_id: str):
+        """
+        PUT /api/taps/<tap_n> — tell the Pico which keg is on a tap.
+        Passing keg_id="" unassigns the tap.  The Pico resets the tap's
+        dispensed counter automatically when a new keg is assigned.
+        """
+        result = self._put(f"/api/taps/{tap_index}", {"keg_id": keg_id})
+        if result:
+            print(f"[PicoSensor] Tap {tap_index+1} assignment updated on Pico → '{keg_id}'")
+            # Re-baseline local tracking so the sensor loop doesn't compute a
+            # false pour-delta against the previous keg's counters.
+            self._last_dispensed[tap_index]       = 0.0
+            self._last_lifetime_pulses[tap_index] = 0
+            self._session_pulses_by_tap[tap_index] = 0
+        else:
+            print(f"[PicoSensor] Warning: could not update tap {tap_index+1} assignment on Pico.")
+        return result
+
+    def _flush_keg_stats_to_pico(self, tap_index: int, keg_id: str):
+        """
+        Persist pour-session stats (dispensed volume + pulse count) back to the
+        keg record on the Pico.  Called when a pour ends or when a keg is
+        unassigned.  Uses the Pico's own remaining_liters as the source of truth
+        for computing current_dispensed_liters.
+        """
+        keg = self.settings_manager.get_keg_by_id(keg_id)
+        if not keg:
+            return
+        starting = (keg.get("calculated_starting_volume_liters")
+                    or keg.get("starting_volume_liters", 0.0))
+        remaining   = self.last_known_remaining_liters[tap_index]
+        dispensed   = max(0.0, starting - remaining)
+
+        prev_pulses    = int(keg.get("total_dispensed_pulses", 0))
+        session_pulses = self._session_pulses_by_tap.get(tap_index, 0)
+        new_pulses     = prev_pulses + session_pulses
+        self._session_pulses_by_tap[tap_index] = 0
+
+        payload = {
+            "current_dispensed_liters": round(dispensed, 4),
+            "total_dispensed_pulses":   new_pulses,
+        }
+        self.update_keg_on_pico(keg_id, payload)
+        self.settings_manager.update_keg_in_cache(keg_id, payload)
+
+    def _refresh_library_from_pico(self):
+        """
+        Pull the full keg and beverage library from the Pico and replace the
+        app's in-memory cache.  Also derives tap and beverage assignments from
+        each keg's tap_index field.  Called every time the Pico comes online.
+        """
+        kegs = self._get("/api/kegs")
+        bevs = self._get("/api/beverages")
+        if kegs is None or bevs is None:
+            print("[PicoSensor] Warning: could not refresh library from Pico.")
+            return
+
+        self.settings_manager.populate_keg_cache(kegs)
+        self.settings_manager.populate_beverage_cache(bevs)
+
+        # Derive tap→keg assignments from each keg's tap_index field
+        assignments = ["unassigned_keg_id"] * self.num_sensors
+        bev_assigns = ["unassigned_beverage_id"] * self.num_sensors
+        for keg in kegs:
+            ti = int(keg.get("tap_index", -1))
+            if 0 <= ti < self.num_sensors:
+                assignments[ti] = keg["id"]
+                bev_assigns[ti] = keg.get("beverage_id", "unassigned_beverage_id") or "unassigned_beverage_id"
+
+        self.settings_manager.populate_keg_assignments(assignments)
+        self.settings_manager.populate_bev_assignments(bev_assigns)
+
+        # Write backup so a freshly reflashed Pico can be restored
+        self._write_pico_backup(kegs, bevs)
+        print(f"[PicoSensor] Library refreshed: {len(kegs)} kegs, {len(bevs)} beverages.")
+
+    def _write_pico_backup(self, kegs: list, beverages: list):
+        """Persist a snapshot of the Pico library to the local data directory."""
+        try:
+            self.settings_manager.save_pico_library_backup(kegs, beverages)
+        except Exception as e:
+            print(f"[PicoSensor] Warning: could not write Pico backup: {e}")
+
+    def _restore_backup_if_pico_empty(self):
+        """
+        If the Pico has an empty library (freshly reflashed) but the local
+        backup has data, push the backup to the Pico to restore the user's
+        keg and beverage library automatically.
+        """
+        pico_kegs = self._get("/api/kegs") or []
+        if pico_kegs:
+            return  # Pico already has data — nothing to restore
+
+        backup_kegs, backup_bevs = self.settings_manager.load_pico_library_backup()
+        if not backup_kegs and not backup_bevs:
+            return  # No backup either — fresh install
+
+        print("[PicoSensor] Pico library empty — restoring from local backup...")
+
+        # Push beverages first; kegs reference beverage IDs
+        bev_id_map: dict = {}
+        for bev in backup_bevs:
+            result = self.create_bev_on_pico({
+                "id":          bev.get("id", ""),
+                "name":        bev.get("name", ""),
+                "style":       bev.get("style", ""),
+                "bjcp":        bev.get("bjcp", ""),
+                "abv":         bev.get("abv", ""),
+                "ibu":         bev.get("ibu", ""),
+                "srm":         bev.get("srm"),
+                "description": bev.get("description", ""),
+            })
+            if result:
+                bev_id_map[bev.get("id", "")] = result["id"]
+
+        # Retrieve tap assignments from the local settings (may be stale but
+        # better than nothing; will be corrected by _refresh_library_from_pico)
+        local_assignments = self.settings_manager.get_sensor_keg_assignments()
+
+        for keg in backup_kegs:
+            old_bev_id = keg.get("beverage_id", "")
+            new_bev_id = bev_id_map.get(old_bev_id, old_bev_id)
+
+            tap_idx = -1
+            for j, k_id in enumerate(local_assignments):
+                if k_id == keg.get("id"):
+                    tap_idx = j
+                    break
+
+            self.create_keg_on_pico({
+                "id":                         keg.get("id", ""),
+                "name":                       keg.get("title", keg.get("name", "Keg")),
+                "title":                      keg.get("title", keg.get("name", "Keg")),
+                "beverage_id":                new_bev_id,
+                "starting_volume_liters":     keg.get("calculated_starting_volume_liters",
+                                              keg.get("starting_volume_liters", 0.0)),
+                "tap_index":                  tap_idx,
+                "tare_weight_kg":             keg.get("tare_weight_kg", 0.0),
+                "starting_total_weight_kg":   keg.get("starting_total_weight_kg", 0.0),
+                "maximum_full_volume_liters": keg.get("maximum_full_volume_liters", 0.0),
+                "current_dispensed_liters":   keg.get("current_dispensed_liters", 0.0),
+                "total_dispensed_pulses":     keg.get("total_dispensed_pulses", 0),
+                "fill_date":                  keg.get("fill_date", ""),
+            })
+
+        print("[PicoSensor] Backup restore complete.")
 
     # ------------------------------------------------------------------
     # Compatibility stubs (match SensorLogic interface)
@@ -567,8 +827,15 @@ class PicoSensorLogic:
         self.settings_manager.save_pico_tap_last_dispensed(baselines)
 
     def cleanup_gpio(self):
-        """Called by on_stop — save Pico baselines then halt the polling thread."""
-        self._save_pico_baselines()
+        """Called by on_stop — flush keg stats to Pico then halt the polling thread."""
+        if self._pico_online and self.base_url:
+            for i in range(self.num_sensors):
+                keg_id = self.keg_ids_assigned[i]
+                if keg_id and keg_id != "unassigned_keg_id":
+                    try:
+                        self._flush_keg_stats_to_pico(i, keg_id)
+                    except Exception:
+                        pass
         self._running = False
         print("[PicoSensor] Monitoring stopped.")
 

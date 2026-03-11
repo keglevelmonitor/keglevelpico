@@ -123,8 +123,8 @@ class SettingsManager:
             "window_y": -1,
             "window_width": 800,
             "window_height": 417,
-            # --- Sensor Backend (KegLevel Pico is always Pico W) ---
-            "sensor_backend": "pico_w",
+            # --- Sensor Backend: DEMO by default; user switches to PICO during setup ---
+            "sensor_backend": "gpio",
             "pico_w_host": "",
             # --- Pico dispensed-liter baselines (saved on app close / pour end) ---
             "pico_tap_last_dispensed": [0.0, 0.0, 0.0, 0.0, 0.0]
@@ -1060,8 +1060,8 @@ class SettingsManager:
         return max(1, min(displayed_taps, self.num_sensors))
 
     def get_sensor_backend(self):
-        """KegLevel Pico always uses the Pico W backend."""
-        return 'pico_w'
+        """Return the configured sensor backend: 'pico_w' or 'gpio'."""
+        return self.settings.get('system_settings', {}).get('sensor_backend', 'gpio')
 
     def get_pico_w_host(self):
         """Return the user-overridden Pico W hostname/IP, or '' to use mDNS default."""
@@ -1239,6 +1239,64 @@ class SettingsManager:
         return {
             'ambient': system_settings.get('ds18b20_ambient_sensor', 'unassigned') 
         }
+
+    # ------------------------------------------------------------------
+    # Pico-library cache population
+    # Called by pico_sensor_logic when fresh data is pulled from the Pico.
+    # Replaces the in-memory keg/beverage/assignment state without touching
+    # the backup files — backup writes are handled separately.
+    # ------------------------------------------------------------------
+
+    def populate_keg_cache(self, kegs_list: list):
+        """Replace in-memory keg library with data fetched from the Pico."""
+        # Normalize Pico field names: Pico uses starting_volume_liters, app uses calculated_starting_volume_liters
+        normalized = []
+        for k in kegs_list:
+            k = dict(k)
+            if 'calculated_starting_volume_liters' not in k and 'starting_volume_liters' in k:
+                k['calculated_starting_volume_liters'] = float(k.get('starting_volume_liters', 0.0))
+            normalized.append(k)
+        self.keg_library = {"kegs": normalized}
+        self.keg_map = {k["id"]: k for k in normalized if "id" in k}
+        print(f"SettingsManager: Keg cache populated from Pico ({len(normalized)} kegs).")
+
+    def populate_beverage_cache(self, bevs_list: list):
+        """Replace in-memory beverage library with data fetched from the Pico."""
+        self.beverage_library = {"beverages": list(bevs_list)}
+        print(f"SettingsManager: Beverage cache populated from Pico ({len(bevs_list)} beverages).")
+
+    def populate_keg_assignments(self, assignments_list: list):
+        """Replace in-memory tap→keg and tap→bev assignment arrays."""
+        if len(assignments_list) == self.num_sensors:
+            self.settings["sensor_keg_assignments"] = list(assignments_list)
+
+    def populate_bev_assignments(self, assignments_list: list):
+        if len(assignments_list) == self.num_sensors:
+            self.settings["sensor_beverage_assignments"] = list(assignments_list)
+
+    def update_keg_in_cache(self, keg_id: str, updates: dict):
+        """Apply a partial update to a keg already in the in-memory cache."""
+        if keg_id in self.keg_map:
+            self.keg_map[keg_id].update(updates)
+            for k in self.keg_library.get("kegs", []):
+                if k.get("id") == keg_id:
+                    k.update(updates)
+                    break
+
+    def save_pico_library_backup(self, kegs: list, beverages: list):
+        """Write a snapshot of the Pico's keg/beverage library to the local backup
+        file (keg_library.json / beverages_library.json).  This file is read on
+        startup before the Pico connects, and is pushed back to a freshly
+        reflashed Pico that has an empty library."""
+        self._save_keg_library({"kegs": kegs})
+        self._save_beverage_library({"beverages": beverages})
+        print("SettingsManager: Pico library backup written to disk.")
+
+    def load_pico_library_backup(self) -> tuple:
+        """Return (kegs_list, beverages_list) from the local backup files."""
+        kegs = self.keg_library.get("kegs", [])
+        bevs = self.beverage_library.get("beverages", [])
+        return kegs, bevs
 
     def _save_all_settings(self, current_settings=None):
         settings_to_save = current_settings if current_settings is not None else self.settings

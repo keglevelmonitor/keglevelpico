@@ -65,6 +65,17 @@ try:
     _PICO_BACKEND_AVAILABLE = True
 except ImportError:
     _PICO_BACKEND_AVAILABLE = False
+try:
+    from pico_ota import (
+        check_pico_firmware_update,
+        fetch_pico_version,
+        fetch_latest_firmware_info,
+        download_and_verify_zip,
+        install_firmware_to_pico,
+    )
+    _PICO_OTA_AVAILABLE = True
+except ImportError:
+    _PICO_OTA_AVAILABLE = False
 from notification_manager import NotificationManager
 from version import APP_VERSION
 
@@ -143,26 +154,45 @@ class SettingsConfigTab(BoxLayout):
                 self.ids.btn_imperial.state = 'normal'
             taps = app.settings_manager.get_displayed_taps()
             self.ids.spin_taps.text = str(taps)
+            # Sensor backend (GPIO vs Pico W)
+            backend = app.settings_manager.get_sensor_backend()
+            if backend == 'pico_w':
+                self.ids.btn_pico_w.state = 'down'
+                self.ids.btn_gpio.state = 'normal'
+            else:
+                self.ids.btn_gpio.state = 'down'
+                self.ids.btn_pico_w.state = 'normal'
             self.ids.txt_pico_host.text = app.settings_manager.get_pico_w_host()
         finally:
             app._suppress_dirty = False
 
-    def save_config(self):
+    def save_config(self, on_complete=None):
+        """Save system config. If on_complete is given, call it after the switch finishes (e.g. for save-and-exit)."""
         app = App.get_running_app()
-        new_units = 'imperial' if self.ids.btn_imperial.state == 'down' else 'metric'
-        app.settings_manager.save_display_units(new_units)
-        try:
-            new_taps = int(self.ids.spin_taps.text)
-            app.settings_manager.save_displayed_taps(new_taps)
-        except ValueError: pass
-        # Pico W host (KegLevel Pico is always Pico backend)
-        # Preserve existing host if field is accidentally empty
-        pico_host = self.ids.txt_pico_host.text.strip()
-        if not pico_host:
-            pico_host = app.settings_manager.get_pico_w_host()
-        app.settings_manager.save_sensor_backend('pico_w', pico_host)
-        app.is_settings_dirty = False
-        app.apply_config_changes()
+        app.is_switching_modes = True
+
+        def _do_save(dt):
+            try:
+                new_units = 'imperial' if self.ids.btn_imperial.state == 'down' else 'metric'
+                app.settings_manager.save_display_units(new_units)
+                try:
+                    new_taps = int(self.ids.spin_taps.text)
+                    app.settings_manager.save_displayed_taps(new_taps)
+                except ValueError:
+                    pass
+                new_backend = 'pico_w' if self.ids.btn_pico_w.state == 'down' else 'gpio'
+                pico_host = self.ids.txt_pico_host.text.strip()
+                if not pico_host:
+                    pico_host = app.settings_manager.get_pico_w_host()
+                app.settings_manager.save_sensor_backend(new_backend, pico_host)
+                app.is_settings_dirty = False
+                app.apply_config_changes()
+            finally:
+                app.is_switching_modes = False
+                if on_complete:
+                    on_complete()
+
+        Clock.schedule_once(_do_save, 0.15)
 
     def find_pico(self):
         """Verify a known Pico IP, or scan the subnet if none is configured."""
@@ -249,9 +279,24 @@ class ConfirmPopup(Popup):
 
 class SettingsUpdatesTab(BoxLayout):
     """Logic for System Updates."""
-    log_text = StringProperty(f"Version: {APP_VERSION}\nReady to check for updates.\n")
+    version_header = StringProperty("")
+    log_text = StringProperty("Ready to check for updates.\n")
     is_working = BooleanProperty(False)
     install_enabled = BooleanProperty(False)
+
+    def on_kv_post(self, base_widget):
+        super().on_kv_post(base_widget)
+        self.refresh_version_display()
+
+    def refresh_version_display(self):
+        """Update version header with App and Pico versions (when in Pico mode and connected)."""
+        app = App.get_running_app()
+        parts = [f"App: {APP_VERSION}"]
+        if hasattr(app, "sensor_logic"):
+            pv = app.sensor_logic.get_pico_version()
+            if pv:
+                parts.append(f"Pico: {pv}")
+        self.version_header = " | ".join(parts)
 
     def check_updates(self):
         self.log_text = "Checking for updates...\n"
@@ -283,10 +328,61 @@ class SettingsUpdatesTab(BoxLayout):
         args = sys.argv[1:]
         os.execv(python, [python, script] + args)
 
+    def _check_pico_update(self):
+        """Check for Pico firmware update. Returns (update_available, latest_version or None)."""
+        if not _PICO_OTA_AVAILABLE:
+            return False, None
+        app = App.get_running_app()
+        if not hasattr(app, "sensor_logic") or not hasattr(app.sensor_logic, "base_url"):
+            return False, None
+        base_url = app.sensor_logic.base_url
+        if not base_url:
+            return False, None
+        pico_ver = fetch_pico_version(base_url)
+        if not pico_ver:
+            return False, None
+        avail, latest, err = check_pico_firmware_update(pico_ver)
+        return avail, latest
+
+    def _install_pico_update(self):
+        """Download firmware and push to Pico. Returns True on success."""
+        if not _PICO_OTA_AVAILABLE:
+            return False
+        app = App.get_running_app()
+        if not hasattr(app, "sensor_logic") or not hasattr(app.sensor_logic, "base_url"):
+            return False
+        base_url = app.sensor_logic.base_url
+        if not base_url:
+            return False
+        manifest, zip_url = fetch_latest_firmware_info()
+        if not manifest or not zip_url:
+            return False
+        pico_ver = fetch_pico_version(base_url)
+        if not pico_ver or not check_pico_firmware_update(pico_ver)[0]:
+            return False
+        try:
+            zip_bytes = download_and_verify_zip(zip_url, manifest["firmware_sha256"])
+        except Exception as e:
+            self._append_log(f"[Pico OTA] Download failed: {e}\n")
+            return False
+        def log_cb(msg):
+            self._append_log(msg + "\n")
+        return install_firmware_to_pico(base_url, manifest, zip_bytes, log_cb=log_cb)
+
     def _run_update_process(self, flags, is_check_mode):
-        """Runs the platform-appropriate update script."""
+        """Runs app update script and optionally Pico OTA."""
         src_dir = os.path.dirname(os.path.abspath(__file__))
         project_root = os.path.dirname(src_dir)
+
+        try:
+            pico_update_available, pico_latest = self._check_pico_update()
+        except Exception:
+            pico_update_available, pico_latest = False, None
+        if pico_latest is not None:
+            if pico_update_available:
+                self._append_log(f"[Pico] Firmware update available: {pico_latest}\n")
+            else:
+                self._append_log("[Pico] Firmware up to date.\n")
 
         if sys.platform == "win32":
             script_path = os.path.join(project_root, "update.bat")
@@ -299,14 +395,18 @@ class SettingsUpdatesTab(BoxLayout):
             cmd = ["bash", script_path] + flags
 
         if not os.path.exists(script_path):
-            self._append_log(f"Error: Script not found at {script_path}\n")
-            self._finish_work(False)
+            self._append_log(f"Error: App script not found at {script_path}\n")
+            self._finish_work(pico_update_available)
             return
 
         try:
-            # Run process and capture output line-by-line
-            # FIX: Explicitly set cwd to project_root so git commands work from autostart
-            # On Windows, use CREATE_NO_WINDOW to avoid flashing a console window
+            if not is_check_mode and pico_update_available:
+                self._append_log("\n--- Pico firmware update ---\n")
+                if self._install_pico_update():
+                    self._append_log("\n[Pico] Firmware updated. Pico rebooting...\n")
+                else:
+                    self._append_log("\n[Pico] Firmware update failed.\n")
+
             popen_kw = dict(
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -317,19 +417,22 @@ class SettingsUpdatesTab(BoxLayout):
             if sys.platform == "win32":
                 popen_kw["creationflags"] = subprocess.CREATE_NO_WINDOW
             process = subprocess.Popen(cmd, **popen_kw)
-            
-            update_available = False
+
+            app_update_available = False
             while True:
                 line = process.stdout.readline()
-                if not line and process.poll() is not None: break
+                if not line and process.poll() is not None:
+                    break
                 if line:
                     self._append_log(line)
-                    if "Update Available!" in line: update_available = True
+                    if "Update Available!" in line:
+                        app_update_available = True
 
             return_code = process.poll()
+            any_update = app_update_available or pico_update_available
 
             if is_check_mode:
-                if update_available:
+                if any_update:
                     self._append_log("\n[Result] Update Available! Click Install.")
                     self._finish_work(True)
                 else:
@@ -337,9 +440,12 @@ class SettingsUpdatesTab(BoxLayout):
                     self._finish_work(False)
             else:
                 if return_code == 0:
-                    self._append_log("\n[Complete] Update Installed. Please Restart.")
+                    if app_update_available:
+                        self._append_log("\n[Complete] Update Installed. Please Restart.")
+                    else:
+                        self._append_log("\n[Complete] Done.")
                 else:
-                    self._append_log(f"\n[Error] Update failed with code {return_code}.")
+                    self._append_log(f"\n[Error] App update failed with code {return_code}.")
                 self._finish_work(False)
 
         except Exception as e:
@@ -353,6 +459,7 @@ class SettingsUpdatesTab(BoxLayout):
         def _reset(dt):
             self.is_working = False
             self.install_enabled = enable_install
+            self.refresh_version_display()
         Clock.schedule_once(_reset)
 
 class InventoryScreen(Screen):
@@ -640,11 +747,15 @@ class SettingsScreen(Screen):
     def exit_diagnostic_mode(self):
         """
         Exit diagnostic mode: restore Pico flow IRQs, return to the SYSTEM tab.
+        Clears all diagnostic results so re-entry shows a fresh panel.
         """
         app = App.get_running_app()
         self._diag_mode_active = False
         if hasattr(app, 'sensor_logic') and app.sensor_logic:
             app.sensor_logic.exit_diagnostic_mode()
+        # Clear all diagnostic buttons and labels for next entry
+        for col in range(7):
+            self.reset_diagnostic_button(col)
         self.ids.settings_manager.current = 'tab_conf'
         self.ids.footer_manager.current   = 'footer_conf'
 
@@ -1005,7 +1116,41 @@ class KegEditScreen(Screen):
             keg_data['fill_date'] = datetime.now().strftime("%Y-%m-%d")
         # ------------------------------
 
-        # 6. Save
+        # 6. Save — push to Pico first (source of truth), then update local cache
+        sl = getattr(app, 'sensor_logic', None)
+        if sl and sl.is_pico_online():
+            if is_new:
+                pico_result = sl.create_keg_on_pico({
+                    "id":                         new_keg_id,
+                    "name":                       keg_data.get('title', keg_data.get('id')),
+                    "title":                      keg_data.get('title', ''),
+                    "beverage_id":                keg_data.get('beverage_id', ''),
+                    "starting_volume_liters":     float(keg_data.get('calculated_starting_volume_liters', 0.0)),
+                    "tare_weight_kg":             float(keg_data.get('tare_weight_kg', 0.0)),
+                    "starting_total_weight_kg":   float(keg_data.get('starting_total_weight_kg', 0.0)),
+                    "maximum_full_volume_liters":  float(keg_data.get('maximum_full_volume_liters', 0.0)),
+                    "current_dispensed_liters":   float(keg_data.get('current_dispensed_liters', 0.0)),
+                    "total_dispensed_pulses":     int(keg_data.get('total_dispensed_pulses', 0)),
+                    "fill_date":                  keg_data.get('fill_date', ''),
+                    "tap_index":                  -1,
+                })
+                if not pico_result:
+                    print("[KegEdit] Warning: keg not saved to Pico — Pico may be offline.")
+            else:
+                sl.update_keg_on_pico(new_keg_id, {
+                    "name":                       keg_data.get('title', ''),
+                    "title":                      keg_data.get('title', ''),
+                    "beverage_id":                keg_data.get('beverage_id', ''),
+                    "starting_volume_liters":     float(keg_data.get('calculated_starting_volume_liters', 0.0)),
+                    "tare_weight_kg":             float(keg_data.get('tare_weight_kg', 0.0)),
+                    "starting_total_weight_kg":   float(keg_data.get('starting_total_weight_kg', 0.0)),
+                    "maximum_full_volume_liters":  float(keg_data.get('maximum_full_volume_liters', 0.0)),
+                    "fill_date":                  keg_data.get('fill_date', ''),
+                })
+        else:
+            print("[KegEdit] Pico offline — keg saved locally only.")
+
+        # Update local cache regardless
         all_kegs = app.settings_manager.get_keg_definitions()
         if is_new:
             all_kegs.append(keg_data)
@@ -1014,9 +1159,8 @@ class KegEditScreen(Screen):
                 if k['id'] == new_keg_id:
                     all_kegs[i] = keg_data
                     break
-        
         app.settings_manager.save_keg_definitions(all_kegs)
-        
+
         # 7. Refresh
         app.refresh_keg_list()
         app.refresh_dashboard_metadata()
@@ -1489,6 +1633,7 @@ class KegLevelApp(App):
     _sim_flow_event   = None
     _active_sim_taps  = set()
     is_settings_dirty = BooleanProperty(False)
+    is_switching_modes = BooleanProperty(False)
     _suppress_dirty   = False
     version           = StringProperty(APP_VERSION)
 
@@ -1497,6 +1642,24 @@ class KegLevelApp(App):
     # 'connected' : Pico is online and responding
     # 'lost'      : was connected but went offline unexpectedly
     pico_status = StringProperty('searching')
+    # Header brand: "KegLevel Pico", "KegLevel Demo", or "KegLevel" (Pico mode, searching)
+    header_brand = StringProperty("KegLevel Pico")
+
+    # ------------------------------------------------------------------
+    # Header brand (KegLevel Pico / KegLevel Demo / KegLevel)
+    # ------------------------------------------------------------------
+
+    def _update_header_brand(self):
+        """Set header_brand based on sensor backend and Pico connection status."""
+        backend = self.settings_manager.get_sensor_backend()
+        if backend == 'gpio':
+            self.header_brand = "KegLevel Demo"
+        elif self.pico_status == 'connected':
+            self.header_brand = "KegLevel Pico"
+        elif self.pico_status == 'searching':
+            self.header_brand = "KegLevel — Searching for Pico..."
+        else:
+            self.header_brand = "KegLevel — Connection lost"
 
     # ------------------------------------------------------------------
     # Dirty-settings helpers
@@ -1526,7 +1689,11 @@ class KegLevelApp(App):
             settings_screen = self.root.get_screen('settings')
             current_tab = settings_screen.ids.settings_manager.current
             if current_tab == 'tab_conf':
-                settings_screen.ids.tab_conf_content.save_config()
+                def after_save():
+                    self.is_settings_dirty = False
+                    self.navigate_to('dashboard')
+                settings_screen.ids.tab_conf_content.save_config(on_complete=after_save)
+                return  # navigate happens in callback after switch completes
             elif current_tab == 'tab_alerts':
                 settings_screen.ids.tab_alerts_content._save_to_backend()
         except Exception as e:
@@ -1653,6 +1820,9 @@ class KegLevelApp(App):
                 else:
                     if self.pico_status == 'connected':
                         self.pico_status = 'lost'
+                self._update_header_brand()
+                if not is_online:
+                    self.refresh_dashboard_metadata()
             Clock.schedule_once(_update, 0)
 
         callbacks = {
@@ -1662,12 +1832,16 @@ class KegLevelApp(App):
             "pico_online_cb": pico_online_bridge,
         }
 
-        # 6. Initialize Sensor Logic (KegLevel Pico is always Pico W backend)
-        if _PICO_BACKEND_AVAILABLE:
+        # 6. Initialize Sensor Logic (GPIO/DEMO or Pico W backend)
+        sensor_backend = self.settings_manager.get_sensor_backend()
+        if sensor_backend == 'pico_w' and _PICO_BACKEND_AVAILABLE:
             print(f"[App] Using Pico W sensor backend.")
             self.sensor_logic = PicoSensorLogic(self.num_sensors, callbacks, self.settings_manager)
         else:
-            raise RuntimeError("KegLevel Pico requires pico_sensor_logic — not found.")
+            if sensor_backend == 'pico_w':
+                print("[App] Pico W backend requested but pico_sensor_logic not found — falling back to GPIO.")
+            print(f"[App] Using GPIO sensor backend (live on Pi, demo on Windows/Mac).")
+            self.sensor_logic = SensorLogic(self.num_sensors, callbacks, self.settings_manager)
         
         # 7. Refresh UI & Start Hardware
         self.refresh_dashboard_metadata()
@@ -1684,10 +1858,12 @@ class KegLevelApp(App):
         self.notification_manager.start_scheduler()
 
         # 9. Switch to Dashboard
-        # The Dashboard is now "Active" logically, but not yet rendered.
+        self._update_header_brand()
+
+        # 10. The Dashboard is now "Active" logically, but not yet rendered.
         self.sm.current = 'dashboard'
 
-        # 10. Schedule Splash Dismissal (DELAYED)
+        # 11. Schedule Splash Dismissal (DELAYED)
         # We wait 0.5 seconds to allow the Main Thread to finish this function,
         # return to the Kivy Loop, and render the Dashboard frame *under* the splash window.
         Clock.schedule_once(self.dismiss_splash, 0.5)
@@ -1704,8 +1880,10 @@ class KegLevelApp(App):
             self.sm.remove_widget(self.temp_screen)
 
     def init_temp_sensor(self):
-        """Finds 1-wire temp sensor and starts update loop. KegLevel Pico always gets temp from Pico API."""
-        # KegLevel Pico — temperature always comes from the Pico API
+        """Finds 1-wire temp sensor and starts update loop. Pico mode: temp from API. GPIO mode: DS18B20 on Pi, default on Win/Mac."""
+        # Cancel any existing temp update schedule (needed when switching backends)
+        Clock.unschedule(self.update_kegerator_temp)
+        # Pico mode — temperature from Pico API
         if hasattr(self, 'sensor_logic') and hasattr(self.sensor_logic, 'get_pico_temperature'):
             self.temp_device_file = None
             Clock.schedule_interval(self.update_kegerator_temp, 5.0)
@@ -1883,31 +2061,41 @@ class KegLevelApp(App):
 
     
     def update_tap_ui(self, idx, rate, rem, status, pour_vol):
-        if idx >= len(self.tap_widgets): return
+        if idx >= len(self.tap_widgets):
+            return
         widget = self.tap_widgets[idx]
         keg_id = self.sensor_logic.keg_ids_assigned[idx]
         no_keg_assigned = (not keg_id) or (keg_id == UNASSIGNED_KEG_ID)
-        
-        # Always show status (Idle/Pouring/Offline) so user sees flow activity even before assigning kegs
-        if status == "Offline":
+        backend = self.settings_manager.get_sensor_backend()
+        pico_offline = backend == 'pico_w' and self.pico_status != 'connected'
+
+        # Status: Offline / Pouring / Idle
+        # Offline: no keg OR (keg assigned but Pico not found)
+        # Pouring: any active pour
+        # Idle: keg assigned + (Pico connected or Demo mode) + not pouring
+        if no_keg_assigned or pico_offline:
             widget.status_text = "Offline"
         elif rate > 0:
             widget.status_text = "Pouring"
         else:
-            widget.status_text = status if status else "Idle"
-        
-        if no_keg_assigned:
+            widget.status_text = "Idle"
+
+        # When Offline, hide volumes; otherwise show them
+        if no_keg_assigned or pico_offline:
             widget.remaining_text = "--"
             widget.percent_full = 0
             return
-            
+
         units = self.settings_manager.get_display_units()
-        if units == "metric": widget.remaining_text = f"{rem:.2f} L"
-        else: widget.remaining_text = f"{(rem * LITERS_TO_GAL):.2f} Gal"
+        if units == "metric":
+            widget.remaining_text = f"{rem:.2f} L"
+        else:
+            widget.remaining_text = f"{(rem * LITERS_TO_GAL):.2f} Gal"
 
         keg = self.settings_manager.get_keg_by_id(keg_id)
         max_vol = keg.get('maximum_full_volume_liters', 19.0) if keg else 19.0
-        if max_vol <= 0: max_vol = 19.0
+        if max_vol <= 0:
+            max_vol = 19.0
         percent = (rem / max_vol) * 100.0
         widget.percent_full = max(0, min(100, percent))
 
@@ -1915,11 +2103,20 @@ class KegLevelApp(App):
         assignments = self.settings_manager.get_sensor_keg_assignments()
         bev_assigns = self.settings_manager.get_sensor_beverage_assignments()
         bev_lib = self.settings_manager.get_beverage_library().get('beverages', [])
-        
+        backend = self.settings_manager.get_sensor_backend()
+        pico_offline = backend == 'pico_w' and self.pico_status != 'connected'
+
         for i, widget in enumerate(self.tap_widgets):
             widget.tap_title = f"Tap {i+1}"
             k_id = assignments[i] if i < len(assignments) else None
-            
+            no_keg = not k_id or k_id == UNASSIGNED_KEG_ID
+
+            # When Pico offline or no keg: Offline, hide volumes
+            if no_keg or pico_offline:
+                widget.status_text = "Offline"
+                widget.remaining_text = "--"
+                widget.percent_full = 0
+
             if not k_id or k_id == UNASSIGNED_KEG_ID:
                 widget.beverage_name = "No Keg"
                 widget.stats_text = ""
@@ -2036,7 +2233,18 @@ class KegLevelApp(App):
         # -----------------------------------
 
         popup_instance.dismiss()
-        
+
+        # Flush stats for the outgoing keg and reset local tracking
+        self.sensor_logic.notify_keg_change(tap_index)
+
+        # Tell the Pico about the new assignment (this also resets the tap counter)
+        pico_keg_id = keg_id if keg_id != UNASSIGNED_KEG_ID else ""
+        if self.sensor_logic.is_pico_online():
+            self.sensor_logic.assign_keg_to_tap_on_pico(tap_index, pico_keg_id)
+        else:
+            print(f"[TapAssign] Pico offline — tap {tap_index+1} assignment saved locally only.")
+
+        # Update local cache
         self.settings_manager.save_sensor_keg_assignment(tap_index, keg_id)
         if keg_id == UNASSIGNED_KEG_ID:
             self.settings_manager.save_sensor_beverage_assignment(tap_index, UNASSIGNED_BEVERAGE_ID)
@@ -2044,7 +2252,7 @@ class KegLevelApp(App):
             keg = self.settings_manager.get_keg_by_id(keg_id)
             b_id = keg.get('beverage_id', UNASSIGNED_BEVERAGE_ID)
             self.settings_manager.save_sensor_beverage_assignment(tap_index, b_id)
-            
+
         self.sensor_logic.force_recalculation()
         self.refresh_dashboard_metadata()
         self.update_tap_ui(tap_index, 0, 0, "Idle", 0)
@@ -2115,27 +2323,36 @@ class KegLevelApp(App):
                 hasattr(app.sensor_logic, 'push_k_factors_to_pico'):
             app.sensor_logic.push_k_factors_to_pico(factors)
 
-        # 2. Unassign Keg from Tap
+        # 2. Unassign Keg from Tap — tell Pico first, then update local cache
+        if self.sensor_logic.is_pico_online():
+            self.sensor_logic.assign_keg_to_tap_on_pico(tap_index, "")
         self.settings_manager.save_sensor_keg_assignment(tap_index, UNASSIGNED_KEG_ID)
         self.settings_manager.save_sensor_beverage_assignment(tap_index, UNASSIGNED_BEVERAGE_ID)
 
         # 3. Reset Keg Data
+        keg_reset_payload = {
+            "beverage_id":                    "",
+            "fill_date":                      "",
+            "current_dispensed_liters":       0.0,
+            "total_dispensed_pulses":         0,
+            "starting_total_weight_kg":       0.0,
+            "starting_volume_liters":         0.0,
+            "calculated_starting_volume_liters": 0.0,
+        }
+        if self.sensor_logic.is_pico_online():
+            self.sensor_logic.update_keg_on_pico(keg_id, keg_reset_payload)
+
         all_kegs = self.settings_manager.get_keg_definitions()
         for keg in all_kegs:
             if keg.get('id') == keg_id:
-                # Clear contents and counters
                 keg['beverage_id'] = UNASSIGNED_BEVERAGE_ID
                 keg['fill_date'] = ""
                 keg['current_dispensed_liters'] = 0.0
                 keg['total_dispensed_pulses'] = 0
-                
-                # CRITICAL: Reset the physical weight to empty (Tare)
-                # This ensures the "Starting Volume" becomes 0.0L
                 tare = keg.get('tare_weight_kg', 0.0)
                 keg['starting_total_weight_kg'] = tare
                 keg['calculated_starting_volume_liters'] = 0.0
                 break
-                
         self.settings_manager.save_keg_definitions(all_kegs)
 
         # 4. Refresh System
@@ -2209,6 +2426,10 @@ class KegLevelApp(App):
         popup.open()
 
     def perform_delete_keg(self, keg_id):
+        if self.sensor_logic and self.sensor_logic.is_pico_online():
+            self.sensor_logic.delete_keg_on_pico(keg_id)
+        else:
+            print("[KegDelete] Pico offline — keg deleted locally only.")
         self.settings_manager.delete_keg_definition(keg_id)
         self.refresh_keg_list()
         self.refresh_dashboard_metadata()
@@ -2320,11 +2541,30 @@ class KegLevelApp(App):
                     lib[i] = new_data; 
                     break
         
+        # Push to Pico (source of truth), then update local cache
+        sl = getattr(self, 'sensor_logic', None)
+        if sl and sl.is_pico_online():
+            pico_payload = {
+                "id":          new_id,
+                "name":        scr.bev_name,
+                "bjcp":        scr.bev_bjcp,
+                "abv":         final_abv,
+                "ibu":         final_ibu,
+                "srm":         int(scr.bev_srm),
+                "description": new_data.get('description', ''),
+            }
+            if is_new:
+                sl.create_bev_on_pico(pico_payload)
+            else:
+                sl.update_bev_on_pico(new_id, pico_payload)
+        else:
+            print("[BevEdit] Pico offline — beverage saved locally only.")
+
         self.settings_manager.save_beverage_library(lib)
         self.refresh_beverage_list()
         self.refresh_dashboard_metadata()
         self.navigate_to('inventory')
-    
+
     def request_delete_beverage(self, bev_id):
         lib = self.settings_manager.get_beverage_library().get('beverages', [])
         found = next((b for b in lib if b['id'] == bev_id), None)
@@ -2336,7 +2576,11 @@ class KegLevelApp(App):
         popup.open()
 
     def perform_delete_beverage(self, bev_id):
-        # 1. Remove Beverage from Library
+        # 1. Remove Beverage from Library — Pico first, then local cache
+        if self.sensor_logic and self.sensor_logic.is_pico_online():
+            self.sensor_logic.delete_bev_on_pico(bev_id)
+        else:
+            print("[BevDelete] Pico offline — beverage deleted locally only.")
         lib = self.settings_manager.get_beverage_library().get('beverages', [])
         new_lib = [b for b in lib if b['id'] != bev_id]
         self.settings_manager.save_beverage_library(new_lib)
@@ -2375,7 +2619,19 @@ class KegLevelApp(App):
                 k['fill_date'] = ""
                 
         self.settings_manager.save_keg_definitions(kegs)
-        
+
+        # Sync affected keg resets to Pico
+        if self.sensor_logic and self.sensor_logic.is_pico_online():
+            for k in kegs:
+                if k.get('id') in affected_keg_ids:
+                    self.sensor_logic.update_keg_on_pico(k['id'], {
+                        "beverage_id":                    "",
+                        "starting_volume_liters":         0.0,
+                        "current_dispensed_liters":       0.0,
+                        "total_dispensed_pulses":         0,
+                        "fill_date":                      "",
+                    })
+
         # 4. Set Taps to Offline if they were assigned an affected Keg
         tap_keg_assigns = self.settings_manager.get_sensor_keg_assignments()
         tap_bev_assigns = self.settings_manager.get_sensor_beverage_assignments()
@@ -2389,8 +2645,10 @@ class KegLevelApp(App):
             # Rule: If tap assigned to a keg that had the deleted beverage -> Offline
             if k_id in affected_keg_ids:
                 should_offline_tap = True
+                if self.sensor_logic and self.sensor_logic.is_pico_online():
+                    self.sensor_logic.assign_keg_to_tap_on_pico(i, "")
                 self.settings_manager.save_sensor_keg_assignment(i, UNASSIGNED_KEG_ID)
-            
+
             # Cleanup: If tap thinks it has this beverage (or we offlined it) -> Clear Bev
             if b_id == bev_id or should_offline_tap:
                 self.settings_manager.save_sensor_beverage_assignment(i, UNASSIGNED_BEVERAGE_ID)
@@ -2434,10 +2692,11 @@ class KegLevelApp(App):
                 if is_online:
                     self.pico_status = 'connected'
                 else:
-                    # Only downgrade to 'lost' if we were previously connected;
-                    # stay 'searching' if the Pico was never found this session.
                     if self.pico_status == 'connected':
                         self.pico_status = 'lost'
+                self._update_header_brand()
+                if not is_online:
+                    self.refresh_dashboard_metadata()
             Clock.schedule_once(_update, 0)
 
         callbacks = {
@@ -2447,18 +2706,25 @@ class KegLevelApp(App):
             "pico_online_cb": pico_online_bridge,
         }
 
-        # KegLevel Pico is always Pico W backend
-        if _PICO_BACKEND_AVAILABLE:
+        # Branch on sensor backend (GPIO/DEMO or Pico W)
+        sensor_backend = self.settings_manager.get_sensor_backend()
+        if sensor_backend == 'pico_w' and _PICO_BACKEND_AVAILABLE:
             self.sensor_logic = PicoSensorLogic(
                 num_sensors_from_config=self.num_sensors,
                 ui_callbacks=callbacks,
                 settings_manager=self.settings_manager
             )
         else:
-            raise RuntimeError("KegLevel Pico requires pico_sensor_logic — not found.")
+            self.sensor_logic = SensorLogic(
+                num_sensors_from_config=self.num_sensors,
+                ui_callbacks=callbacks,
+                settings_manager=self.settings_manager
+            )
         
         self.refresh_dashboard_metadata()
         self.sensor_logic.start_monitoring()
+        self.init_temp_sensor()
+        self._update_header_brand()
 
     def on_stop(self):
         if hasattr(self, 'settings_manager'):

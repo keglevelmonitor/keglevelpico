@@ -97,7 +97,9 @@ class SensorLogic:
              self.keg_ids_assigned[i] = keg_id
              if keg:
                  dispensed = keg.get('current_dispensed_liters', 0.0)
-                 starting_vol = keg.get('calculated_starting_volume_liters', 0.0)
+                 # Pico uses starting_volume_liters; app uses calculated_starting_volume_liters
+                 starting_vol = (keg.get('calculated_starting_volume_liters') or
+                                keg.get('starting_volume_liters', 0.0))
                  self.keg_dispensed_liters[i] = dispensed
                  
                  # CHANGED: Allow negative values (Removed max(0.0, ...))
@@ -137,10 +139,12 @@ class SensorLogic:
 
     def stop_auto_calibration_mode(self):
         """Disables calibration mode and resumes normal operation."""
+        was_active = self._auto_cal_mode
         self._auto_cal_mode = False
         self._auto_cal_locked_tap = -1
         self._auto_cal_session_pulses = 0
-        print("SensorLogic: Auto-Calibration Mode STOPPED")
+        if was_active:
+            print("SensorLogic: Auto-Calibration Mode STOPPED")
 
     def reset_auto_calibration_state(self):
         """Resets the lock without exiting mode (for 'Reset/Cancel' button)."""
@@ -309,3 +313,43 @@ class SensorLogic:
         global global_pulse_counts
         if 0 <= tap_index < len(global_pulse_counts):
             global_pulse_counts[tap_index] += pulse_amount
+
+    def end_sim_pour(self, tap_index):
+        """
+        Finalise a simulated pour. Called by app after one-shot (PINT) delay
+        or when continuous flow is toggled off. SensorLogic's loop handles
+        pour-end naturally via pulse deltas; this is a no-op for compatibility.
+        """
+        pass
+
+    # --- Pico-compat stubs (GPIO backend has no Pico; these are no-ops) ---
+    def is_pico_online(self):
+        return False
+
+    def notify_keg_change(self, tap_index):
+        pass
+
+    def assign_keg_to_tap_on_pico(self, tap_index, keg_id):
+        pass
+
+    def push_k_factors_to_pico(self, k_factors):
+        pass
+
+    def update_keg_on_pico(self, keg_id, data):
+        pass
+
+    def delete_keg_on_pico(self, keg_id):
+        pass
+
+    def create_bev_on_pico(self, payload):
+        pass
+
+    def update_bev_on_pico(self, bev_id, payload):
+        pass
+
+    def delete_bev_on_pico(self, bev_id):
+        pass
+
+    def get_pico_version(self):
+        """Stub for GPIO/DEMO mode; PicoSensorLogic overrides with real value."""
+        return ""
