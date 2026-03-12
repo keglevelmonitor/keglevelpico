@@ -1196,6 +1196,7 @@ class SettingsCalibrationTab(BoxLayout):
     calculated_k = StringProperty("----")
     # --- NEW PROPERTY ---
     current_k_display = StringProperty("----")
+    viewing_tap_index = NumericProperty(-1)  # Which tap's K-factor is shown when idle (no pour)
     
     instruction_text = StringProperty("Open any tap to begin calibration.")
     deduct_inventory = BooleanProperty(True)
@@ -1253,6 +1254,7 @@ class SettingsCalibrationTab(BoxLayout):
                 size_hint_x=None,
                 width=dp(150)
             )
+            btn.bind(on_release=lambda inst, idx=i: self._on_tap_button_click(idx))
             container.add_widget(btn)
             self.tap_buttons.append(btn)
             
@@ -1270,13 +1272,28 @@ class SettingsCalibrationTab(BoxLayout):
         # 5. Defaults
         self.reset_form()
 
+    def _on_tap_button_click(self, tap_index):
+        """When idle, clicking a tap shows its K-factor (display only)."""
+        if self.locked_tap_index >= 0:
+            return  # Pour in progress, ignore click
+        self.viewing_tap_index = tap_index
+        app = App.get_running_app()
+        factors = app.settings_manager.get_flow_calibration_factors()
+        if 0 <= tap_index < len(factors):
+            self.current_k_display = f"{factors[tap_index]:.2f}"
+        else:
+            self.current_k_display = "----"
+        self.instruction_text = f"Viewing Tap {tap_index+1} K-factor. Pour from a tap to calibrate."
+        self._update_tap_buttons()
+
     def update_pulse_data(self, tap_index, pulses):
         """Callback from SensorLogic."""
         # 1. Lock In Logic
         if self.locked_tap_index == -1:
+            self.viewing_tap_index = -1  # Clear view selection when pour starts
             self.locked_tap_index = tap_index
             self.instruction_text = f"Tap {tap_index+1} Detected! Close tap when done, then adjust volume."
-            self._update_tap_buttons(tap_index)
+            self._update_tap_buttons()
             
             # --- NEW: Fetch Current K-Factor for Comparison ---
             app = App.get_running_app()
@@ -1290,13 +1307,17 @@ class SettingsCalibrationTab(BoxLayout):
             self.current_pulses = pulses
             self.recalculate_k()
 
-    def _update_tap_buttons(self, active_index):
+    def _update_tap_buttons(self):
+        """Update tap button styling: blue when pouring, subtle highlight when viewing, dim otherwise."""
         for i, btn in enumerate(self.tap_buttons):
-            if i == active_index:
-                btn.background_color = (0.2, 0.6, 1, 1) # Blue
+            if self.locked_tap_index >= 0 and i == self.locked_tap_index:
+                btn.background_color = (0.2, 0.6, 1, 1)  # Blue (pour mode)
                 btn.color = (1, 1, 1, 1)
+            elif self.viewing_tap_index >= 0 and i == self.viewing_tap_index:
+                btn.background_color = (0.35, 0.35, 0.45, 1)  # Subtle highlight (view mode)
+                btn.color = (0.9, 0.9, 0.9, 1)
             else:
-                btn.background_color = (0.2, 0.2, 0.2, 1) # Dark Grey
+                btn.background_color = (0.2, 0.2, 0.2, 1)  # Dark Grey
                 btn.color = (0.5, 0.5, 0.5, 1)
 
     def adjust_volume(self, delta):
@@ -1400,12 +1421,11 @@ class SettingsCalibrationTab(BoxLayout):
         self.calculated_k = "----"
         # --- NEW: Reset Display ---
         self.current_k_display = "----"
+        self.viewing_tap_index = -1
         
         # Reset Buttons
         if hasattr(self, 'tap_buttons'):
-            for btn in self.tap_buttons:
-                btn.background_color = (0.2, 0.2, 0.2, 1)
-                btn.color = (0.5, 0.5, 0.5, 1)
+            self._update_tap_buttons()
 
     def reset_form(self):
         """Full reset including volume defaults."""

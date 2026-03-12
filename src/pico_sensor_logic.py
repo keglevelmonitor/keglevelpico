@@ -71,11 +71,11 @@ class PicoSensorLogic:
         # Firmware version from last /api/state poll (for Updates tab)
         self._pico_version = None
 
-        # Calibration state
+        # Calibration state (standby flow: Pico auto-detects flow like runtime)
         self._auto_cal_mode           = False
         self._auto_cal_locked_tap     = -1
         self._auto_cal_session_pulses = 0
-        self._cal_started_on_pico     = False
+        self._pending_cal_standby     = False   # POST standby when base_url available
         self._is_calibrating          = False   # compatibility stub checked by screen on_leave
         self._sim_cal_active          = False   # True when sim is driving the cal session
 
@@ -186,6 +186,13 @@ class PicoSensorLogic:
     # ------------------------------------------------------------------
 
     def start_monitoring(self):
+        # Clear any residual Pi GPIO config from a previous GPIO-mode run
+        try:
+            import RPi.GPIO as _gpio
+            _gpio.cleanup()
+        except (ImportError, RuntimeError):
+            pass
+
         self._running = True
         if self._discovery_mode:
             disc_thread = threading.Thread(
@@ -396,9 +403,14 @@ class PicoSensorLogic:
             displayed     = min(displayed, self.num_sensors, len(taps))
 
             if self._auto_cal_mode:
-                self._process_calibration(taps, displayed)
-                self._use_fast_poll = False
-                time.sleep(POLL_INTERVAL_S)
+                # Defer standby POST until we have base_url
+                if self._pending_cal_standby:
+                    r = self._post("/api/calibration/standby", {"active": True})
+                    if r:
+                        self._pending_cal_standby = False
+                self._process_calibration(taps, displayed, state)
+                self._use_fast_poll = True  # Fast poll during calibration
+                time.sleep(POUR_POLL_INTERVAL_S)
                 continue
 
             any_delta_this_round = False
@@ -488,62 +500,55 @@ class PicoSensorLogic:
     # Calibration (auto-detect mode matching SensorLogic interface)
     # ------------------------------------------------------------------
 
-    def _process_calibration(self, taps, displayed):
-        for i in range(displayed):
-            tap       = taps[i]
-            flow_rate = float(tap.get("flow_rate_lpm", 0.0))
-            pouring   = bool(tap.get("pouring", False))
+    def _process_calibration(self, taps, displayed, state):
+        # Sim drives the session locally — no Pico API calls
+        if self._sim_cal_active:
+            cb = self.ui_callbacks.get("auto_cal_pulse_cb")
+            if cb and self._auto_cal_locked_tap >= 0:
+                cb(self._auto_cal_locked_tap, self._auto_cal_session_pulses)
+            return
 
-            if self._auto_cal_locked_tap == -1:
-                # Accept either a meaningful flow rate OR the Pico's pour flag
-                # so we catch mid-pour states where flow_rate can momentarily dip.
-                if flow_rate > 0.02 or pouring:
-                    self._auto_cal_locked_tap = i
-                    self._cal_started_on_pico = False
-                    print(f"[PicoSensor] Cal: locking to tap {i+1}")
+        # Use Pico's calibration status (standby flow: Pico auto-detects flow)
+        cal = state.get("calibration") or {}
+        locked_tap = cal.get("locked_tap", -1)
+        pulses = cal.get("pulses", 0)
 
-            if i == self._auto_cal_locked_tap:
-                # Sim is driving this session — don't POST or GET, just watch.
-                if self._sim_cal_active:
-                    continue
-                if not self._cal_started_on_pico:
-                    result = self._post(f"/api/taps/{i}/calibrate/start")
-                    if result:
-                        self._cal_started_on_pico     = True
-                        self._auto_cal_session_pulses = result.get("pulses", 0)
-                else:
-                    result = self._get(f"/api/taps/{i}/calibrate")
-                    if result:
-                        self._auto_cal_session_pulses = result.get("pulses", 0)
-                        cb = self.ui_callbacks.get("auto_cal_pulse_cb")
-                        if cb:
-                            cb(i, self._auto_cal_session_pulses)
+        self._auto_cal_locked_tap = locked_tap if isinstance(locked_tap, int) else -1
+        self._auto_cal_session_pulses = int(pulses) if pulses is not None else 0
+
+        if self._auto_cal_locked_tap >= 0:
+            cb = self.ui_callbacks.get("auto_cal_pulse_cb")
+            if cb:
+                cb(self._auto_cal_locked_tap, self._auto_cal_session_pulses)
 
     def start_auto_calibration_mode(self):
         self._auto_cal_mode           = True
         self._auto_cal_locked_tap     = -1
         self._auto_cal_session_pulses = 0
-        self._cal_started_on_pico     = False
-        print("[PicoSensor] Auto-Calibration Mode STARTED")
+        self._pending_cal_standby     = True
+        print("[PicoSensor] Auto-Calibration Mode STARTED (standby flow)")
+        if self.base_url:
+            r = self._post("/api/calibration/standby", {"active": True})
+            if r:
+                self._pending_cal_standby = False
 
     def stop_auto_calibration_mode(self):
         was_active = self._auto_cal_mode
-        if self._auto_cal_locked_tap >= 0 and self._cal_started_on_pico:
-            self._post(f"/api/taps/{self._auto_cal_locked_tap}/calibrate/stop")
+        if self.base_url:
+            self._post("/api/calibration/standby", {"active": False})
         self._auto_cal_mode           = False
         self._auto_cal_locked_tap     = -1
         self._auto_cal_session_pulses = 0
-        self._cal_started_on_pico     = False
+        self._pending_cal_standby     = False
         self._sim_cal_active          = False
         if was_active:
             print("[PicoSensor] Auto-Calibration Mode STOPPED")
 
     def reset_auto_calibration_state(self):
-        if self._auto_cal_locked_tap >= 0 and self._cal_started_on_pico:
-            self._post(f"/api/taps/{self._auto_cal_locked_tap}/calibrate/stop")
+        if self.base_url:
+            self._post("/api/calibration/reset")
         self._auto_cal_locked_tap     = -1
         self._auto_cal_session_pulses = 0
-        self._cal_started_on_pico     = False
         self._sim_cal_active          = False
         print("[PicoSensor] Auto-Calibration RESET")
 
