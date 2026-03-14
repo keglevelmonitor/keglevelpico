@@ -2054,6 +2054,234 @@
 
 
 # ─────────────────────────────────────────────────────────────
+# ALERTS — PICO MODE  (Mailgun credentials, settings via Pico HTTP)
+# ─────────────────────────────────────────────────────────────
+<SettingsAlertsPicoTab>:
+    ScrollView:
+        do_scroll_x: False
+        bar_width: dp(50)
+        bar_color: 1, 0.75, 0, 0.9
+        bar_inactive_color: 0.35, 0.35, 0.35, 0.9
+        BoxLayout:
+            orientation: 'vertical'
+            padding: [dp(10), dp(10), dp(50), dp(10)]
+            spacing: dp(6)
+            size_hint_y: None
+            height: self.minimum_height
+
+            # ── PUSH NOTIFICATIONS ──────────────────────────────────────
+            Label:
+                text: "PUSH NOTIFICATIONS"
+                font_size: '15sp'
+                bold: True
+                color: 1, 0.75, 0, 1
+                halign: 'left'
+                text_size: self.size
+                size_hint_y: None
+                height: dp(26)
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(36)
+                spacing: dp(8)
+                Label:
+                    text: "Alert Frequency:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                Spinner:
+                    id: spin_frequency_pico
+                    values: ['None', 'Hourly', 'Daily', 'Weekly']
+                    text: 'None'
+                    background_normal: ''
+                    background_color: 0.25, 0.25, 0.25, 1
+                    color: 1, 1, 1, 1
+                    font_size: '14sp'
+                    size_hint_x: 0.62
+                    on_text: app.mark_settings_dirty()
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(36)
+                spacing: dp(8)
+                Label:
+                    text: "Mailgun API Key:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                TextInput:
+                    id: txt_mailgun_api_key
+                    multiline: False
+                    font_size: '14sp'
+                    password: True
+                    background_color: 0.2, 0.2, 0.2, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 1, 0.75, 0, 1
+                    size_hint_x: 0.62
+                    on_text: app.mark_settings_dirty()
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(36)
+                spacing: dp(8)
+                Label:
+                    text: "Sandbox or Custom Domain:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                TextInput:
+                    id: txt_mailgun_domain
+                    multiline: False
+                    font_size: '14sp'
+                    background_color: 0.2, 0.2, 0.2, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 1, 0.75, 0, 1
+                    size_hint_x: 0.62
+                    on_text: app.mark_settings_dirty()
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(36)
+                spacing: dp(8)
+                Label:
+                    text: "From Email:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                TextInput:
+                    id: txt_from_email
+                    multiline: False
+                    font_size: '14sp'
+                    background_color: 0.2, 0.2, 0.2, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 1, 0.75, 0, 1
+                    size_hint_x: 0.62
+                    on_text: app.mark_settings_dirty()
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(36)
+                spacing: dp(8)
+                Label:
+                    text: "Recipient Email:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                TextInput:
+                    id: txt_to_email
+                    multiline: False
+                    font_size: '14sp'
+                    background_color: 0.2, 0.2, 0.2, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 1, 0.75, 0, 1
+                    size_hint_x: 0.62
+                    on_text: app.mark_settings_dirty()
+
+            # ── CONDITIONAL ALERTS ──────────────────────────────────────
+            Label:
+                text: "CONDITIONAL ALERTS"
+                font_size: '15sp'
+                bold: True
+                color: 1, 0.75, 0, 1
+                halign: 'left'
+                text_size: self.size
+                size_hint_y: None
+                height: dp(26)
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(48)
+                spacing: dp(8)
+                Label:
+                    text: "Low Volume Alert:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                Slider:
+                    id: slider_volume_pico
+                    min: 0.0
+                    max: 5.0
+                    step: 0.25
+                    value: 0.0
+                    size_hint_x: 0.47
+                    on_value: root.on_volume_slider(self.value)
+                Label:
+                    id: lbl_volume_pico
+                    text: "OFF"
+                    halign: 'center'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.15
+                    color: 0.6, 0.8, 1, 1
+                    font_size: '13sp'
+                    bold: True
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(48)
+                spacing: dp(8)
+                Label:
+                    text: "Low Temp Alert:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                Slider:
+                    id: slider_low_temp_pico
+                    min: 27
+                    max: 45
+                    step: 1
+                    value: 27
+                    size_hint_x: 0.47
+                    on_value: root.on_low_temp_slider(self.value)
+                Label:
+                    id: lbl_low_temp_pico
+                    text: "OFF"
+                    halign: 'center'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.15
+                    color: 0.6, 0.8, 1, 1
+                    font_size: '13sp'
+                    bold: True
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(48)
+                spacing: dp(8)
+                Label:
+                    text: "High Temp Alert:"
+                    halign: 'right'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.38
+                Slider:
+                    id: slider_high_temp_pico
+                    min: 35
+                    max: 61
+                    step: 1
+                    value: 61
+                    size_hint_x: 0.47
+                    on_value: root.on_high_temp_slider(self.value)
+                Label:
+                    id: lbl_high_temp_pico
+                    text: "OFF"
+                    halign: 'center'
+                    valign: 'middle'
+                    text_size: self.size
+                    size_hint_x: 0.15
+                    color: 0.6, 0.8, 1, 1
+                    font_size: '13sp'
+                    bold: True
+
+
+# ─────────────────────────────────────────────────────────────
 # DIAGNOSTIC PANEL  (shown inside tab_diag screen)
 # ─────────────────────────────────────────────────────────────
 <DiagnosticPanel>:
@@ -2296,6 +2524,10 @@
                 SettingsAlertsTab:
                     id: tab_alerts_content
             Screen:
+                name: 'tab_alerts_pico'
+                SettingsAlertsPicoTab:
+                    id: tab_alerts_pico_content
+            Screen:
                 name: 'tab_diag'
                 DiagnosticPanel:
                     id: diag_panel
@@ -2497,14 +2729,14 @@
                         bold: True
                         background_normal: ''
                         background_color: 0.2, 0.4, 0.8, 1
-                        on_release: root.ids.tab_alerts_content.test_send()
+                        on_release: app.alerts_test_send()
                     Button:
                         text: "SAVE"
                         font_size: '16sp'
                         bold: True
                         background_normal: ''
                         background_color: 0.2, 0.6, 0.2, 1
-                        on_release: root.ids.tab_alerts_content.save_all_settings()
+                        on_release: app.alerts_save()
                     HelpButton:
                         on_release: app.open_help_section('settingsAlerts', return_screen='settings')
 

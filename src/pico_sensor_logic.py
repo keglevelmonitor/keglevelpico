@@ -1130,15 +1130,20 @@ class PicoSensorLogic:
             return
         self._sim_is_pouring[tap_index]    = False
         self.tap_is_active[tap_index]      = False
-        self.last_pour_volumes[tap_index]  = self.current_pour_volume[tap_index]
+        sim_liters = self.current_pour_volume[tap_index]
+        self.last_pour_volumes[tap_index]  = sim_liters
         self.current_pour_volume[tap_index] = 0.0
         self.settings_manager.save_last_pour_volumes(self.last_pour_volumes)
         self.settings_manager.save_all_keg_dispensed_volumes()
-        # Pico never saw the sim — ignore its stale remaining for next polls
         self._sim_ignore_pico_remaining.add(tap_index)
         keg_id = self.keg_ids_assigned[tap_index]
         if keg_id and keg_id != "unassigned_keg_id":
             self._flush_keg_stats_to_pico(tap_index, keg_id)
+        if sim_liters > 0 and self.base_url:
+            def _adjust():
+                self._post(f"/api/taps/{tap_index}/adjust",
+                           {"liters": round(sim_liters, 4)})
+            threading.Thread(target=_adjust, daemon=True).start()
         self._update_ui(tap_index, 0.0,
                         self.last_known_remaining_liters[tap_index],
                         "Idle",

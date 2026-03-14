@@ -680,12 +680,14 @@ class SettingsScreen(Screen):
             return
 
         # Map codes to UI IDs and Screen Names
+        is_pico = app.settings_manager.get_sensor_backend() == 'pico_w'
+        alerts_screen = 'tab_alerts_pico' if is_pico else 'tab_alerts'
         tab_map = {
-            'conf':   ('btn_sys',    'tab_conf',   'footer_conf'),
-            'upd':    ('btn_upd',    'tab_upd',    'footer_upd'),
-            'about':  ('btn_about',  'tab_about',  'footer_about'),
-            'cal':    ('btn_cal',    'tab_cal',    'footer_cal'),
-            'alerts': ('btn_alerts', 'tab_alerts', 'footer_alerts'),
+            'conf':   ('btn_sys',    'tab_conf',      'footer_conf'),
+            'upd':    ('btn_upd',    'tab_upd',        'footer_upd'),
+            'about':  ('btn_about',  'tab_about',      'footer_about'),
+            'cal':    ('btn_cal',    'tab_cal',        'footer_cal'),
+            'alerts': ('btn_alerts', alerts_screen,    'footer_alerts'),
         }
 
         if tab_code not in tab_map: return
@@ -719,7 +721,10 @@ class SettingsScreen(Screen):
         elif tab_code == 'alerts':
             app._suppress_dirty = True
             try:
-                self.ids.tab_alerts_content.init_ui()
+                if is_pico:
+                    self.ids.tab_alerts_pico_content.init_ui()
+                else:
+                    self.ids.tab_alerts_content.init_ui()
             finally:
                 app._suppress_dirty = False
 
@@ -1593,6 +1598,155 @@ class SettingsAlertsTab(BoxLayout):
             app.notification_manager.send_manual_status()
 
 
+class SettingsAlertsPicoTab(BoxLayout):
+    """Alerts tab shown in PICO mode — credentials go to the Pico via HTTP."""
+
+    VOLUME_OFF    = 0.0
+    LOW_TEMP_OFF  = 27.0
+    HIGH_TEMP_OFF = 61.0
+
+    _FREQ_TO_PICO = {"None": "", "Hourly": "hourly", "Daily": "daily", "Weekly": "weekly"}
+    _PICO_TO_FREQ = {"hourly": "Hourly", "daily": "Daily", "weekly": "Weekly"}
+
+    def init_ui(self):
+        app = App.get_running_app()
+        app._suppress_dirty = True
+        try:
+            cfg = {}
+            if hasattr(app, 'sensor_logic') and app.sensor_logic:
+                cfg = app.sensor_logic._get("/api/alerts/config") or {}
+
+            pico_interval = cfg.get("push_interval", "")
+            freq = self._PICO_TO_FREQ.get(pico_interval, "None")
+            if not cfg.get("push_enabled", False):
+                freq = "None"
+            self.ids.spin_frequency_pico.text = freq
+
+            self.ids.txt_mailgun_api_key.text = str(cfg.get("mailgun_api_key", ""))
+            self.ids.txt_mailgun_domain.text  = str(cfg.get("mailgun_domain", ""))
+            self.ids.txt_from_email.text      = str(cfg.get("from_email", ""))
+            self.ids.txt_to_email.text        = str(cfg.get("to_email", ""))
+
+            low_vol = float(cfg.get("low_volume_threshold_liters", self.VOLUME_OFF))
+            cond_enabled = cfg.get("conditional_enabled", False)
+            low_t  = float(cfg.get("low_temp_threshold_f", self.LOW_TEMP_OFF))
+            high_t = float(cfg.get("high_temp_threshold_f", self.HIGH_TEMP_OFF))
+
+            if not cond_enabled:
+                low_vol = self.VOLUME_OFF
+                low_t   = self.LOW_TEMP_OFF
+                high_t  = self.HIGH_TEMP_OFF
+
+            self.ids.slider_volume_pico.value   = max(0.0, min(5.0, low_vol))
+            self.on_volume_slider(self.ids.slider_volume_pico.value)
+            self.ids.slider_low_temp_pico.value = max(27.0, min(45.0, low_t))
+            self.on_low_temp_slider(self.ids.slider_low_temp_pico.value)
+            self.ids.slider_high_temp_pico.value = max(35.0, min(61.0, high_t))
+            self.on_high_temp_slider(self.ids.slider_high_temp_pico.value)
+        finally:
+            app._suppress_dirty = False
+
+    def on_volume_slider(self, value):
+        lbl = self.ids.get("lbl_volume_pico")
+        if lbl:
+            lbl.text = "OFF" if value <= self.VOLUME_OFF else f"{value:.2f} L"
+        App.get_running_app().mark_settings_dirty()
+
+    def _fmt_temp(self, temp_f):
+        app = App.get_running_app()
+        if app.settings_manager.get_display_units() == 'metric':
+            return f"{(temp_f - 32) * 5 / 9:.1f}°C"
+        return f"{int(temp_f)}°F"
+
+    def on_low_temp_slider(self, value):
+        lbl = self.ids.get("lbl_low_temp_pico")
+        if lbl:
+            lbl.text = "OFF" if value <= self.LOW_TEMP_OFF else self._fmt_temp(value)
+        App.get_running_app().mark_settings_dirty()
+
+    def on_high_temp_slider(self, value):
+        lbl = self.ids.get("lbl_high_temp_pico")
+        if lbl:
+            lbl.text = "OFF" if value >= self.HIGH_TEMP_OFF else self._fmt_temp(value)
+        App.get_running_app().mark_settings_dirty()
+
+    def _build_payload(self):
+        freq_text = self.ids.spin_frequency_pico.text
+        pico_interval = self._FREQ_TO_PICO.get(freq_text, "")
+        push_enabled = freq_text != "None"
+
+        vol   = float(self.ids.slider_volume_pico.value)
+        low_t = float(self.ids.slider_low_temp_pico.value)
+        high_t = float(self.ids.slider_high_temp_pico.value)
+        cond_enabled = (vol > self.VOLUME_OFF
+                        or low_t > self.LOW_TEMP_OFF
+                        or high_t < self.HIGH_TEMP_OFF)
+
+        payload = {
+            "push_enabled":     push_enabled,
+            "push_interval":    pico_interval if push_enabled else "daily",
+            "conditional_enabled": cond_enabled,
+            "low_volume_threshold_liters": round(vol, 2),
+            "low_temp_threshold_f":  low_t,
+            "high_temp_threshold_f": high_t,
+            "from_email":       self.ids.txt_from_email.text.strip(),
+            "to_email":         self.ids.txt_to_email.text.strip(),
+            "mailgun_domain":   self.ids.txt_mailgun_domain.text.strip(),
+        }
+        api_key = self.ids.txt_mailgun_api_key.text.strip()
+        if api_key and api_key != "***":
+            payload["mailgun_api_key"] = api_key
+        return payload
+
+    def _save_to_backend(self):
+        app = App.get_running_app()
+        payload = self._build_payload()
+        if hasattr(app, 'sensor_logic') and app.sensor_logic:
+            def _work():
+                result = app.sensor_logic._put("/api/alerts/config", payload)
+                if result:
+                    print("[AlertsPico] Settings saved to Pico.")
+                else:
+                    print("[AlertsPico] Warning: could not save alert settings to Pico.")
+            import threading
+            threading.Thread(target=_work, daemon=True).start()
+
+    def save_all_settings(self):
+        self._save_to_backend()
+        App.get_running_app().is_settings_dirty = False
+
+    def test_send(self):
+        app = App.get_running_app()
+        app.is_settings_dirty = False
+        if hasattr(app, 'sensor_logic') and app.sensor_logic:
+            payload = self._build_payload()
+            def _work():
+                result = app.sensor_logic._put("/api/alerts/config", payload)
+                if not result:
+                    print("[AlertsPico] Warning: could not save settings before test.")
+                    return
+                print("[AlertsPico] Settings saved to Pico.")
+                import urllib.request, urllib.error, json as _json_mod
+                url = app.sensor_logic.base_url + "/api/alerts/test"
+                try:
+                    req = urllib.request.Request(
+                        url, data=b'{}',
+                        headers={"Content-Type": "application/json"})
+                    with urllib.request.urlopen(req, timeout=10) as resp:
+                        print("[AlertsPico] Test email sent successfully.")
+                except urllib.error.HTTPError as e:
+                    body = e.read().decode()
+                    try:
+                        detail = _json_mod.loads(body).get("error", body)
+                    except Exception:
+                        detail = body
+                    print(f"[AlertsPico] Test email failed: {detail}")
+                except Exception as e:
+                    print(f"[AlertsPico] Test email failed: {e}")
+            import threading
+            threading.Thread(target=_work, daemon=True).start()
+
+
 class DashboardScreen(Screen):
     kegerator_temp = StringProperty("--.- °F")
     
@@ -1768,10 +1922,26 @@ class KegLevelApp(App):
                 return  # navigate happens in callback after switch completes
             elif current_tab == 'tab_alerts':
                 settings_screen.ids.tab_alerts_content._save_to_backend()
+            elif current_tab == 'tab_alerts_pico':
+                settings_screen.ids.tab_alerts_pico_content._save_to_backend()
         except Exception as e:
             print(f"[Settings] save_and_exit error: {e}")
         self.is_settings_dirty = False
         self.navigate_to('dashboard')
+
+    def _get_active_alerts_tab(self):
+        """Return the currently active alerts content widget."""
+        settings_screen = self.root.get_screen('settings')
+        current = settings_screen.ids.settings_manager.current
+        if current == 'tab_alerts_pico':
+            return settings_screen.ids.tab_alerts_pico_content
+        return settings_screen.ids.tab_alerts_content
+
+    def alerts_save(self):
+        self._get_active_alerts_tab().save_all_settings()
+
+    def alerts_test_send(self):
+        self._get_active_alerts_tab().test_send()
 
     def build(self):
         self.title = "KegLevel Pico"
@@ -1926,12 +2096,16 @@ class KegLevelApp(App):
         self.sensor_logic.start_monitoring()
         self.init_temp_sensor()
 
-        # 8. Initialize Notification Manager
-        self.notification_manager = NotificationManager(
-            self.settings_manager,
-            get_temp_f_cb=lambda: self.current_temp_f,
-        )
-        self.notification_manager.start_scheduler()
+        # 8. Initialize Notification Manager (app-side alerts for DEMO/GPIO only;
+        #    in PICO mode the Pico firmware handles alerts autonomously)
+        if sensor_backend != 'pico_w':
+            self.notification_manager = NotificationManager(
+                self.settings_manager,
+                get_temp_f_cb=lambda: self.current_temp_f,
+            )
+            self.notification_manager.start_scheduler()
+        else:
+            self.notification_manager = None
 
         # 9. Switch to Dashboard
         self._update_header_brand()
