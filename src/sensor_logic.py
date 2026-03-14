@@ -69,7 +69,6 @@ class SensorLogic:
         # Current/Last Pour State
         self.current_pour_volume = [0.0] * self.num_sensors
         self.last_pour_volumes = self.settings_manager.get_last_pour_volumes()[:self.num_sensors]
-        self.last_pour_averages = self.settings_manager.get_last_pour_averages()[:self.num_sensors]
         
         self._running = False
         self.is_paused = False

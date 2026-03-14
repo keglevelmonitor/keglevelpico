@@ -79,8 +79,22 @@ except ImportError:
 from notification_manager import NotificationManager
 from version import APP_VERSION
 
-# Special flag for the "Keg Kicked" action
+class BoundedScreenManager(ScreenManager):
+    """ScreenManager that only dispatches touches within its bounds.
+
+    Kivy's default ScreenManager (a FloatLayout) dispatches touch events to
+    ALL child screens regardless of whether the touch is inside the manager's
+    area.  This causes widgets on hidden screens (e.g. a ToggleButton on the
+    SYSTEM tab) to steal touches meant for the tab bar above.
+    """
+    def on_touch_down(self, touch):
+        if not self.collide_point(*touch.pos):
+            return False
+        return super().on_touch_down(touch)
+
+# Special flags for tap card actions
 KEG_KICKED_ID = "keg_kicked_action"
+KEG_MARK_EMPTY_ID = "keg_mark_empty_action"
 
 # Constants for Unit Conversion
 KG_TO_LBS = 2.20462
@@ -114,7 +128,7 @@ class LevelGauge(Widget):
 class TapWidget(ButtonBehavior, BoxLayout):
     tap_index = NumericProperty(0)
     tap_title = StringProperty("Tap ?")
-    beverage_name = StringProperty("Empty")
+    beverage_name = StringProperty("—")
     stats_text = StringProperty("") 
     liquid_color = ListProperty([1, 0.75, 0, 1])
     percent_full = NumericProperty(0)
@@ -142,6 +156,7 @@ class KegSelectPopup(Popup):
 class SettingsConfigTab(BoxLayout):
     """Logic for the Configuration Tab."""
     def init_ui(self):
+        """Reset UI and load preferences. Matches Lite: synchronous _suppress_dirty."""
         app = App.get_running_app()
         app._suppress_dirty = True
         try:
@@ -169,26 +184,44 @@ class SettingsConfigTab(BoxLayout):
     def save_config(self, on_complete=None):
         """Save system config. If on_complete is given, call it after the switch finishes (e.g. for save-and-exit)."""
         app = App.get_running_app()
-        app.is_switching_modes = True
 
         def _do_save(dt):
             try:
+                # Read old values before any saves
+                old_backend = app.settings_manager.get_sensor_backend()
+                old_host = app.settings_manager.get_pico_w_host()
+                old_taps = app.settings_manager.get_displayed_taps()
+
                 new_units = 'imperial' if self.ids.btn_imperial.state == 'down' else 'metric'
                 app.settings_manager.save_display_units(new_units)
                 try:
                     new_taps = int(self.ids.spin_taps.text)
-                    app.settings_manager.save_displayed_taps(new_taps)
                 except ValueError:
-                    pass
+                    new_taps = old_taps
+                app.settings_manager.save_displayed_taps(new_taps)
+
                 new_backend = 'pico_w' if self.ids.btn_pico_w.state == 'down' else 'gpio'
                 pico_host = self.ids.txt_pico_host.text.strip()
                 if not pico_host:
                     pico_host = app.settings_manager.get_pico_w_host()
+
+                # Only teardown/restart sensor when backend, host, or tap count changed
+                needs_restart = (
+                    new_backend != old_backend or
+                    pico_host != old_host or
+                    new_taps != old_taps
+                )
+
                 app.settings_manager.save_sensor_backend(new_backend, pico_host)
                 app.is_settings_dirty = False
-                app.apply_config_changes()
+
+                if needs_restart:
+                    app.is_switching_modes = True
+                    try:
+                        app.apply_config_changes()
+                    finally:
+                        app.is_switching_modes = False
             finally:
-                app.is_switching_modes = False
                 if on_complete:
                     on_complete()
 
@@ -271,11 +304,14 @@ class SettingsConfigTab(BoxLayout):
 class ConfirmPopup(Popup):
     text = StringProperty("")
     action_callback = ObjectProperty(None)
-    
+    action_text = StringProperty("DELETE")
+    action_color = ListProperty([0.8, 0.1, 0.1, 1])
+
     def confirm(self):
         if self.action_callback:
             self.action_callback()
         self.dismiss()
+
 
 class SettingsUpdatesTab(BoxLayout):
     """Logic for System Updates."""
@@ -631,6 +667,7 @@ class SettingsScreen(Screen):
         """
         Manually handles tab switching.
         tab_code: 'conf', 'upd', 'about', 'cal', 'alerts'
+        Matches KegLevel Lite flow: no suppress at start, synchronous clear in init_ui.
         """
         app = App.get_running_app()
 
@@ -672,7 +709,7 @@ class SettingsScreen(Screen):
             self.set_calibration_mode(active=True)
             
         # Initialize UI when entering tabs that load from backend
-        # Suppress dirty-flag changes while programmatically loading values
+        # Suppress dirty while programmatically loading values (matches Lite)
         if tab_code == 'conf':
             app._suppress_dirty = True
             try:
@@ -1065,7 +1102,7 @@ class KegEditScreen(Screen):
         # 2. Resolve Beverage ID
         bev_name = self.beverage_name
         bev_id = UNASSIGNED_BEVERAGE_ID
-        if bev_name != "Empty":
+        if bev_name and bev_name != "Select Beverage":
             lib = app.settings_manager.get_beverage_library().get('beverages', [])
             found = next((b for b in lib if b['name'] == bev_name), None)
             if found: bev_id = found['id']
@@ -1116,11 +1153,27 @@ class KegEditScreen(Screen):
             keg_data['fill_date'] = datetime.now().strftime("%Y-%m-%d")
         # ------------------------------
 
-        # 6. Save — push to Pico first (source of truth), then update local cache
+        self._perform_keg_save(zero_volume=False, keg_data=keg_data, new_keg_id=new_keg_id, is_new=is_new)
+
+    def _perform_keg_save(self, zero_volume=False, keg_data=None, new_keg_id=None, is_new=None):
+        """Persist keg to Pico and local cache. Called by save_keg_edit."""
+        app = App.get_running_app()
+        # Use pending data when invoked from popup callback
+        if keg_data is None and hasattr(self, '_pending_keg_data'):
+            keg_data = self._pending_keg_data
+            new_keg_id = self._pending_keg_new_id
+            is_new = self._pending_keg_is_new
+            del self._pending_keg_data
+            del self._pending_keg_new_id
+            del self._pending_keg_is_new
+        if zero_volume:
+            keg_data['current_dispensed_liters'] = 0.0
+            keg_data['total_dispensed_pulses'] = 0
+            keg_data['fill_date'] = datetime.now().strftime("%Y-%m-%d")
         sl = getattr(app, 'sensor_logic', None)
         if sl and sl.is_pico_online():
             if is_new:
-                pico_result = sl.create_keg_on_pico({
+                sl.create_keg_on_pico({
                     "id":                         new_keg_id,
                     "name":                       keg_data.get('title', keg_data.get('id')),
                     "title":                      keg_data.get('title', ''),
@@ -1134,10 +1187,8 @@ class KegEditScreen(Screen):
                     "fill_date":                  keg_data.get('fill_date', ''),
                     "tap_index":                  -1,
                 })
-                if not pico_result:
-                    print("[KegEdit] Warning: keg not saved to Pico — Pico may be offline.")
             else:
-                sl.update_keg_on_pico(new_keg_id, {
+                update_payload = {
                     "name":                       keg_data.get('title', ''),
                     "title":                      keg_data.get('title', ''),
                     "beverage_id":                keg_data.get('beverage_id', ''),
@@ -1146,11 +1197,13 @@ class KegEditScreen(Screen):
                     "starting_total_weight_kg":   float(keg_data.get('starting_total_weight_kg', 0.0)),
                     "maximum_full_volume_liters":  float(keg_data.get('maximum_full_volume_liters', 0.0)),
                     "fill_date":                  keg_data.get('fill_date', ''),
-                })
+                }
+                if zero_volume:
+                    update_payload["current_dispensed_liters"] = 0.0
+                    update_payload["total_dispensed_pulses"] = 0
+                sl.update_keg_on_pico(new_keg_id, update_payload)
         else:
             print("[KegEdit] Pico offline — keg saved locally only.")
-
-        # Update local cache regardless
         all_kegs = app.settings_manager.get_keg_definitions()
         if is_new:
             all_kegs.append(keg_data)
@@ -1160,11 +1213,10 @@ class KegEditScreen(Screen):
                     all_kegs[i] = keg_data
                     break
         app.settings_manager.save_keg_definitions(all_kegs)
-
-        # 7. Refresh
         app.refresh_keg_list()
         app.refresh_dashboard_metadata()
         app.sensor_logic.force_recalculation()
+        app.request_pico_backup()
         app.navigate_to('inventory')
 
 class BeverageEditScreen(Screen):
@@ -1837,6 +1889,10 @@ class KegLevelApp(App):
             def _update(dt):
                 if is_online:
                     self.pico_status = 'connected'
+                    # Pico library just populated cache — refresh inventory and dashboard
+                    self.refresh_keg_list()
+                    self.refresh_beverage_list()
+                    self.refresh_dashboard_metadata()
                 else:
                     if self.pico_status == 'connected':
                         self.pico_status = 'lost'
@@ -2089,12 +2145,13 @@ class KegLevelApp(App):
         backend = self.settings_manager.get_sensor_backend()
         pico_offline = backend == 'pico_w' and self.pico_status != 'connected'
 
-        # Status: Offline / Pouring / Idle
-        # Offline: no keg OR (keg assigned but Pico not found)
+        # Status: Searching... / Offline / Pouring / Idle
+        # Searching...: Pico mode, keg assigned, looking for Pico
+        # Offline: no keg OR (keg assigned but Pico connection lost)
         # Pouring: any active pour
         # Idle: keg assigned + (Pico connected or Demo mode) + not pouring
         if no_keg_assigned or pico_offline:
-            widget.status_text = "Offline"
+            widget.status_text = "Searching..." if (pico_offline and not no_keg_assigned and self.pico_status == 'searching') else "Offline"
         elif rate > 0:
             widget.status_text = "Pouring"
         else:
@@ -2131,9 +2188,9 @@ class KegLevelApp(App):
             k_id = assignments[i] if i < len(assignments) else None
             no_keg = not k_id or k_id == UNASSIGNED_KEG_ID
 
-            # When Pico offline or no keg: Offline, hide volumes
+            # When Pico offline or no keg: hide volumes
             if no_keg or pico_offline:
-                widget.status_text = "Offline"
+                widget.status_text = "Searching..." if (pico_offline and not no_keg and self.pico_status == 'searching') else "Offline"
                 widget.remaining_text = "--"
                 widget.percent_full = 0
 
@@ -2157,7 +2214,7 @@ class KegLevelApp(App):
                     except: srm = 5
                     widget.liquid_color = get_srm_color_rgba(srm)
                 else:
-                    widget.beverage_name = "Empty"
+                    widget.beverage_name = "—"
                     widget.stats_text = ""
                     widget.liquid_color = (1, 0.75, 0, 1)
 
@@ -2172,7 +2229,7 @@ class KegLevelApp(App):
         data_list = []
         for i, keg in enumerate(kegs):
             b_id = keg.get('beverage_id')
-            b_name = bev_map.get(b_id, "Empty")
+            b_name = bev_map.get(b_id, "—")
             data_list.append({
                 'title': keg.get('title', 'Unknown'),
                 'contents': b_name,
@@ -2207,12 +2264,17 @@ class KegLevelApp(App):
         current_keg = assignments[tap_index]
         if current_keg and current_keg != UNASSIGNED_KEG_ID:
             data_list.append({
-                'text': "[ ! ]  KEG KICKED (CALIBRATE)  [ ! ]",
+                'text': "[ Keg Kicked - Calibrate ]",
                 'background_color': (0.35, 0.35, 0.35, 1),
                 'on_release': lambda: self.select_keg_for_tap(tap_index, KEG_KICKED_ID, popup)
             })
+            data_list.append({
+                'text': "[ Keg Kicked - Mark Empty ]",
+                'background_color': (0.35, 0.35, 0.35, 1),
+                'on_release': lambda: self.select_keg_for_tap(tap_index, KEG_MARK_EMPTY_ID, popup)
+            })
         data_list.append({
-            'text': "[ Disconnect Tap ]",
+            'text': "[ Tap Offline ]",
             'background_color': (0.2, 0.2, 0.2, 1),
             'on_release': lambda: self.select_keg_for_tap(tap_index, UNASSIGNED_KEG_ID, popup)
         })
@@ -2220,10 +2282,13 @@ class KegLevelApp(App):
             k_id = keg['id']
             # Show keg if it's unassigned OR if it's currently assigned to THIS tap
             if (k_id not in assigned_set) or (assignments[tap_index] == k_id):
-                b_id = keg.get('beverage_id')
-                bev_lib = self.settings_manager.get_beverage_library().get('beverages', [])
-                found_bev = next((b for b in bev_lib if b['id'] == b_id), None)
-                b_name = found_bev['name'] if found_bev else "Empty"
+                b_id = keg.get('beverage_id') or ""
+                if not b_id or b_id == UNASSIGNED_BEVERAGE_ID:
+                    b_name = "—"
+                else:
+                    bev_lib = self.settings_manager.get_beverage_library().get('beverages', [])
+                    found_bev = next((b for b in bev_lib if b['id'] == b_id), None)
+                    b_name = found_bev['name'] if found_bev else "—"
                 
                 # --- FIX: Use calculated start volume, not max capacity ---
                 start = keg.get('calculated_starting_volume_liters', 0.0)
@@ -2245,12 +2310,15 @@ class KegLevelApp(App):
         popup.open()
 
     def select_keg_for_tap(self, tap_index, keg_id, popup_instance):
-        # --- INTERCEPT KEG KICKED ACTION ---
+        # --- INTERCEPT KEG KICKED - CALIBRATE ---
         if keg_id == KEG_KICKED_ID:
-            # Prepare data for the Calibration Screen
             self.prepare_keg_kick_screen(tap_index, popup_instance)
             return
-        # -----------------------------------
+        # --- INTERCEPT KEG KICKED - MARK EMPTY ---
+        if keg_id == KEG_MARK_EMPTY_ID:
+            self.prepare_mark_empty_screen(tap_index, popup_instance)
+            return
+        # ---------------------------------------
 
         popup_instance.dismiss()
 
@@ -2276,6 +2344,7 @@ class KegLevelApp(App):
         self.sensor_logic.force_recalculation()
         self.refresh_dashboard_metadata()
         self.update_tap_ui(tap_index, 0, 0, "Idle", 0)
+        self.request_pico_backup()
         
     def prepare_keg_kick_screen(self, tap_index, popup):
         """Calculates stats for the kicked keg and switches popup to calibrate view."""
@@ -2319,6 +2388,64 @@ class KegLevelApp(App):
 
         # 5. Switch Screen
         popup.ids.sm.current = 'calibrate'
+
+    def prepare_mark_empty_screen(self, tap_index, popup):
+        """Prepare and show the Mark Empty confirmation screen."""
+        assignments = self.settings_manager.get_sensor_keg_assignments()
+        if tap_index >= len(assignments):
+            return
+        keg_id = assignments[tap_index]
+        keg = self.settings_manager.get_keg_by_id(keg_id)
+        if not keg or keg_id == UNASSIGNED_KEG_ID:
+            print("Error: No keg assigned to this tap.")
+            popup.dismiss()
+            return
+        popup.tap_index = tap_index
+        popup.cal_keg_id = keg_id
+        popup.cal_keg_title = keg.get('title', 'Unknown')
+        popup.ids.sm.current = 'mark_empty'
+
+    def commit_mark_empty(self, popup):
+        """Zero keg volume, assign Empty, set tap Offline (no K-factor calibration)."""
+        tap_index = popup.tap_index
+        keg_id = popup.cal_keg_id
+        # 1. Unassign tap on Pico and locally
+        if self.sensor_logic.is_pico_online():
+            self.sensor_logic.assign_keg_to_tap_on_pico(tap_index, "")
+        self.settings_manager.save_sensor_keg_assignment(tap_index, UNASSIGNED_KEG_ID)
+        self.settings_manager.save_sensor_beverage_assignment(tap_index, UNASSIGNED_BEVERAGE_ID)
+        # 2. Zero keg on Pico
+        keg_reset_payload = {
+            "beverage_id": "",
+            "fill_date": "",
+            "current_dispensed_liters": 0.0,
+            "total_dispensed_pulses": 0,
+            "starting_total_weight_kg": 0.0,
+            "starting_volume_liters": 0.0,
+            "calculated_starting_volume_liters": 0.0,
+        }
+        if self.sensor_logic.is_pico_online():
+            self.sensor_logic.update_keg_on_pico(keg_id, keg_reset_payload)
+        # 3. Zero keg in local cache
+        all_kegs = self.settings_manager.get_keg_definitions()
+        for keg in all_kegs:
+            if keg.get('id') == keg_id:
+                keg['beverage_id'] = UNASSIGNED_BEVERAGE_ID
+                keg['fill_date'] = ""
+                keg['current_dispensed_liters'] = 0.0
+                keg['total_dispensed_pulses'] = 0
+                tare = keg.get('tare_weight_kg', 0.0)
+                keg['starting_total_weight_kg'] = tare
+                keg['calculated_starting_volume_liters'] = 0.0
+                break
+        self.settings_manager.save_keg_definitions(all_kegs)
+        # 4. Refresh and close
+        self.sensor_logic.force_recalculation()
+        self.refresh_dashboard_metadata()
+        self.refresh_keg_list()
+        self.update_tap_ui(tap_index, 0, 0, "Idle", 0)
+        self.request_pico_backup()
+        popup.dismiss()
 
     def commit_keg_kick_calibration(self, popup):
         """Atomic Save: Updates K-Factor, Unassigns Tap, Resets Keg, Closes Popup."""
@@ -2380,7 +2507,8 @@ class KegLevelApp(App):
         self.refresh_dashboard_metadata()
         self.update_tap_ui(tap_index, 0, 0, "Idle", 0)
 
-        # 5. Close Popup
+        # 5. Trigger backup and close
+        self.request_pico_backup()
         popup.dismiss()
 
     # --- Actions: KEGS ---
@@ -2388,19 +2516,24 @@ class KegLevelApp(App):
         self.inventory_screen.show_kegs()
         bev_lib = self.settings_manager.get_beverage_library().get('beverages', [])
         bev_names = sorted([b['name'] for b in bev_lib])
-        self.keg_edit_screen.beverage_list = ["Empty"] + bev_names
+        # Real beverages only; exclude "Empty" (unassigned is shown as "Select Beverage")
+        self.keg_edit_screen.beverage_list = [n for n in bev_names if n != "Empty"]
         
         # Check units to determine display values
         units = self.settings_manager.get_display_units()
         is_metric = (units == "metric")
 
         if keg_id:
+            keg = self.settings_manager.get_keg_by_id(keg_id)
+            if not keg:
+                print(f"[KegEdit] Keg not found: {keg_id}. Refreshing list.")
+                self.refresh_keg_list()
+                return
             self.keg_edit_screen.screen_title = "Edit Keg"
             self.keg_edit_screen.keg_id = keg_id
-            keg = self.settings_manager.get_keg_by_id(keg_id)
             b_id = keg.get('beverage_id')
             found_bev = next((b for b in bev_lib if b['id'] == b_id), None)
-            self.keg_edit_screen.beverage_name = found_bev['name'] if found_bev else "Empty"
+            self.keg_edit_screen.beverage_name = found_bev['name'] if found_bev else "Select Beverage"
             
             # Load from DB (Always Metric)
             raw_vol = float(keg.get('maximum_full_volume_liters', 19.0))
@@ -2419,7 +2552,7 @@ class KegLevelApp(App):
         else:
             self.keg_edit_screen.screen_title = "Add New Keg"
             self.keg_edit_screen.keg_id = "" 
-            self.keg_edit_screen.beverage_name = "Empty"
+            self.keg_edit_screen.beverage_name = "Select Beverage"
             
             # UPDATED: Set Defaults based on Units
             if is_metric:
@@ -2454,6 +2587,7 @@ class KegLevelApp(App):
         self.refresh_keg_list()
         self.refresh_dashboard_metadata()
         self.sensor_logic.force_recalculation()
+        self.request_pico_backup()
 
     def add_new_keg(self): self.open_keg_edit(None)
 
@@ -2473,34 +2607,31 @@ class KegLevelApp(App):
         # -----------------------------
 
         if bev_id:
-            self.bev_edit_screen.screen_title = "Edit Beverage"
-            self.bev_edit_screen.bev_id = bev_id
             lib = self.settings_manager.get_beverage_library().get('beverages', [])
             found = next((b for b in lib if b['id'] == bev_id), None)
-            if found:
-                self.bev_edit_screen.bev_name = found.get('name', '')
-                
-                # --- NEW: Load BJCP selection ---
-                self.bev_edit_screen.bev_bjcp = found.get('bjcp', '')
-                # --------------------------------
-                
-                # UPDATED: Load ABV (Handle "" as 0.0 for slider)
-                raw_abv = found.get('abv')
-                try: 
-                    self.bev_edit_screen.bev_abv = float(raw_abv)
-                except (ValueError, TypeError): 
-                    self.bev_edit_screen.bev_abv = 0.0
-
-                # UPDATED: Load IBU (Handle "" as 0 for slider)
-                raw_ibu = found.get('ibu')
-                try: 
-                    self.bev_edit_screen.bev_ibu = int(raw_ibu)
-                except (ValueError, TypeError): 
-                    self.bev_edit_screen.bev_ibu = 0
-                
-                srm_val = found.get('srm')
-                try: self.bev_edit_screen.bev_srm = int(srm_val)
-                except: self.bev_edit_screen.bev_srm = 5
+            if not found:
+                print(f"[BevEdit] Beverage not found: {bev_id}. Refreshing list.")
+                self.refresh_beverage_list()
+                return
+            self.bev_edit_screen.screen_title = "Edit Beverage"
+            self.bev_edit_screen.bev_id = bev_id
+            self.bev_edit_screen.bev_name = found.get('name', '')
+            self.bev_edit_screen.bev_bjcp = found.get('bjcp', '')
+            raw_abv = found.get('abv')
+            try:
+                self.bev_edit_screen.bev_abv = float(raw_abv)
+            except (ValueError, TypeError):
+                self.bev_edit_screen.bev_abv = 0.0
+            raw_ibu = found.get('ibu')
+            try:
+                self.bev_edit_screen.bev_ibu = int(raw_ibu)
+            except (ValueError, TypeError):
+                self.bev_edit_screen.bev_ibu = 0
+            srm_val = found.get('srm')
+            try:
+                self.bev_edit_screen.bev_srm = int(srm_val)
+            except (ValueError, TypeError):
+                self.bev_edit_screen.bev_srm = 5
         else:
             self.bev_edit_screen.screen_title = "Add New Beverage"
             self.bev_edit_screen.bev_id = ""
@@ -2539,7 +2670,6 @@ class KegLevelApp(App):
         else:
             new_data = {
                 'id': new_id,
-                'description': ''
             }
         # --- DATA PRESERVATION END ---
 
@@ -2565,13 +2695,12 @@ class KegLevelApp(App):
         sl = getattr(self, 'sensor_logic', None)
         if sl and sl.is_pico_online():
             pico_payload = {
-                "id":          new_id,
-                "name":        scr.bev_name,
-                "bjcp":        scr.bev_bjcp,
-                "abv":         final_abv,
-                "ibu":         final_ibu,
-                "srm":         int(scr.bev_srm),
-                "description": new_data.get('description', ''),
+                "id":   new_id,
+                "name": scr.bev_name,
+                "bjcp": scr.bev_bjcp,
+                "abv":  final_abv,
+                "ibu":  final_ibu,
+                "srm":  int(scr.bev_srm),
             }
             if is_new:
                 sl.create_bev_on_pico(pico_payload)
@@ -2583,6 +2712,7 @@ class KegLevelApp(App):
         self.settings_manager.save_beverage_library(lib)
         self.refresh_beverage_list()
         self.refresh_dashboard_metadata()
+        self.request_pico_backup()
         self.navigate_to('inventory')
 
     def request_delete_beverage(self, bev_id):
@@ -2604,7 +2734,8 @@ class KegLevelApp(App):
         lib = self.settings_manager.get_beverage_library().get('beverages', [])
         new_lib = [b for b in lib if b['id'] != bev_id]
         self.settings_manager.save_beverage_library(new_lib)
-        
+        self.request_pico_backup()
+
         # 2. Determine Defaults based on current Unit Settings
         units = self.settings_manager.get_display_units()
         is_metric = (units == "metric")
@@ -2628,7 +2759,7 @@ class KegLevelApp(App):
             if k.get('beverage_id') == bev_id:
                 affected_keg_ids.add(k.get('id'))
                 
-                # Reset to calculated defaults -> Empty
+                # Reset to calculated defaults (unassigned)
                 k['beverage_id'] = UNASSIGNED_BEVERAGE_ID
                 k['maximum_full_volume_liters'] = def_vol
                 k['tare_weight_kg'] = def_tare
@@ -2711,6 +2842,10 @@ class KegLevelApp(App):
             def _update(dt):
                 if is_online:
                     self.pico_status = 'connected'
+                    # Pico library just populated cache — refresh inventory and dashboard
+                    self.refresh_keg_list()
+                    self.refresh_beverage_list()
+                    self.refresh_dashboard_metadata()
                 else:
                     if self.pico_status == 'connected':
                         self.pico_status = 'lost'
@@ -2766,8 +2901,70 @@ class KegLevelApp(App):
         if hasattr(self, 'notification_manager') and self.notification_manager:
             self.notification_manager.stop_scheduler()
 
+        # Pico: sync backup before exit (blocking, 2s timeout)
+        if (hasattr(self, 'sensor_logic') and self.sensor_logic and
+                hasattr(self.sensor_logic, 'request_pico_backup') and
+                getattr(self.sensor_logic, '_pico_online', False)):
+            if self.settings_manager.get_sensor_backend() == 'pico_w':
+                kegs = self.settings_manager.get_keg_definitions()
+                bevs = self.settings_manager.get_beverage_library().get('beverages', [])
+                self.settings_manager.save_pico_library_backup(kegs, bevs)
+
         if hasattr(self, 'sensor_logic') and self.sensor_logic:
             self.sensor_logic.cleanup_gpio()
+
+    def request_pico_backup(self):
+        """Trigger Pico library backup (background). Called after keg/bev/calibration changes."""
+        if hasattr(self, 'sensor_logic') and self.sensor_logic and hasattr(self.sensor_logic, 'request_pico_backup'):
+            self.sensor_logic.request_pico_backup()
+
+    def request_restore_pico_from_backup(self):
+        """Show confirmation and restore Pico from pico_backup.json."""
+        ts = self.settings_manager.get_pico_backup_timestamp()
+        if not ts:
+            # No backup — can't restore
+            from kivy.uix.popup import Popup
+            from kivy.uix.label import Label
+            from kivy.uix.boxlayout import BoxLayout
+            from kivy.uix.button import Button
+            box = BoxLayout(orientation='vertical', padding=20, spacing=10)
+            box.add_widget(Label(text='No backup file found.\nCreate a backup by using the app with Pico connected.', size_hint_y=None, halign='center'))
+            btn = Button(text='OK', size_hint_y=None, height=44)
+            pop = Popup(title='No Backup', content=box, size_hint=(0.8, 0.4))
+            btn.bind(on_release=pop.dismiss)
+            box.add_widget(btn)
+            pop.open()
+            return
+        try:
+            from datetime import datetime
+            dt = datetime.fromisoformat(ts)
+            friendly_ts = dt.strftime("%B %d, %Y at %H:%M")
+        except Exception:
+            friendly_ts = ts
+        msg = (f"Keg settings and volumes from {friendly_ts} will overwrite "
+               f"the current settings in the Pico.\n\n"
+               f"Click CANCEL to exit or RESTORE to proceed.")
+        self._restore_confirm_popup = ConfirmPopup(
+            text=msg,
+            title='Restore Pico from Backup',
+            action_text='RESTORE',
+            action_color=[0.2, 0.5, 0.8, 1],
+            action_callback=lambda: self._do_restore_pico_from_backup()
+        )
+        self._restore_confirm_popup.open()
+
+    def _do_restore_pico_from_backup(self):
+        if hasattr(self._restore_confirm_popup, 'dismiss'):
+            self._restore_confirm_popup.dismiss()
+        if hasattr(self, 'sensor_logic') and self.sensor_logic and hasattr(self.sensor_logic, 'restore_pico_from_backup'):
+            def _on_restore_done(success):
+                Clock.schedule_once(lambda dt: self._refresh_after_restore(), 0)
+            self.sensor_logic.restore_pico_from_backup(on_complete=_on_restore_done)
+
+    def _refresh_after_restore(self):
+        self.refresh_beverage_list()
+        self.refresh_keg_list()
+        self.refresh_dashboard_metadata()
 
 def run_splash_screen(queue):
     """

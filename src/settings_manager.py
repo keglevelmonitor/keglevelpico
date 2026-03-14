@@ -17,6 +17,9 @@ BEVERAGES_FILE = "beverages_library.json"
 PROCESS_FLOW_FILE = "process_flow.json" 
 BJCP_2021_FILE = "bjcp_2021_library.json" 
 KEG_LIBRARY_FILE = "keg_library.json" 
+PICO_BACKUP_FILE = "pico_backup.json"  # Pico restore-only backup (not primary source)
+DEMO_GPIO_BEVERAGES_FILE = "demo_gpio_beverages.json"
+DEMO_GPIO_KEGS_FILE = "demo_gpio_kegs.json"
 # OBSOLETE LOCAL TRIAL FILE
 TRIAL_RECORD_FILE = "trial_record.dat" 
 
@@ -71,8 +74,7 @@ class SettingsManager:
         return {
             "notification_type": "None", "frequency": "None", "server_email": "", "server_password": "", 
             "email_recipient": "", "smtp_server": "", "smtp_port": "", "sms_number": "", 
-            "sms_carrier_gateway": "",
-            "notify_on_update": True
+            "sms_carrier_gateway": ""
         }
     
     def _get_default_status_request_settings(self):
@@ -99,24 +101,14 @@ class SettingsManager:
     def _get_default_system_settings(self):
         return {
             "display_units": "metric", "displayed_taps": 5, "ds18b20_ambient_sensor": "unassigned", 
-            "ui_mode": "basic", "autostart_enabled": False, 
-            "launch_workflow_on_start": False,
+            "autostart_enabled": False,
             "flow_calibration_factors": [DEFAULT_K_FACTOR] * self.num_sensors,
             "metric_pour_ml": 355, "imperial_pour_oz": 12,
             "flow_calibration_notes": "", "flow_calibration_to_be_poured": 500.0,
-            "last_pour_averages": [0.0] * self.num_sensors,
             "last_pour_volumes": [0.0] * self.num_sensors,
-            "force_numlock": False,
-            "eula_agreed": False,
-            "show_eula_on_launch": True,
             "window_geometry": None,
-            "check_updates_on_launch": True,
-            "notify_on_update": True,
             "setup_complete": False,
-            "workflow_view_mode": "paged",
-            "workflow_window_geometry": None,
-            "enable_pour_log": True,
-            # --- NEW: Calibration Preference ---
+            # --- Calibration Preference ---
             "calibration_deduct_inventory": True,
             # --- NEW: App Window Persistence ---
             "window_x": -1,
@@ -168,40 +160,6 @@ class SettingsManager:
         self._save_all_settings()
         print(f"SettingsManager: Calibration deduct inventory saved: {enabled}")
 
-    # --- NEW METHODS for Pour Log ---
-    def get_enable_pour_log(self):
-        return self.settings.get('system_settings', {}).get('enable_pour_log', True)
-
-    def save_enable_pour_log(self, is_enabled):
-        sys_set = self.settings.get('system_settings', self._get_default_system_settings())
-        sys_set['enable_pour_log'] = bool(is_enabled)
-        self.settings['system_settings'] = sys_set
-        self._save_all_settings()
-        print(f"SettingsManager: Enable Pour Log saved: {is_enabled}")
-
-    # --- NEW METHODS for Workflow Window Geometry ---
-    def get_workflow_window_geometry(self):
-        return self.get_system_settings().get('workflow_window_geometry')
-
-    def save_workflow_window_geometry(self, geometry_string):
-        sys_set = self.settings.get('system_settings', self._get_default_system_settings())
-        sys_set['workflow_window_geometry'] = geometry_string
-        self.settings['system_settings'] = sys_set
-        self._save_all_settings()
-
-    # --- NEW METHODS for Workflow View Mode ---
-    def get_workflow_view_mode(self):
-        """Returns 'paged' or 'dashboard'."""
-        return self.get_system_settings().get('workflow_view_mode', 'paged')
-
-    def save_workflow_view_mode(self, mode):
-        if mode in ['paged', 'dashboard']:
-            sys_set = self.settings.get('system_settings', self._get_default_system_settings())
-            sys_set['workflow_view_mode'] = mode
-            self.settings['system_settings'] = sys_set
-            self._save_all_settings()
-            print(f"SettingsManager: Workflow view mode saved: {mode}")
-        
     def get_setup_complete(self):
         return self.get_system_settings().get('setup_complete', False)
 
@@ -225,30 +183,6 @@ class SettingsManager:
             self.settings.setdefault('system_settings', self._get_default_system_settings())['last_pour_volumes'] = volumes_list
             self._save_all_settings()
 
-    # --- NEW METHODS for Num Lock ---
-    def get_force_numlock(self):
-        return self.get_system_settings().get('force_numlock', False)
-
-    def save_force_numlock(self, enabled):
-        sys_set = self.settings.get('system_settings', self._get_default_system_settings())
-        sys_set['force_numlock'] = bool(enabled)
-        self.settings['system_settings'] = sys_set
-        self._save_all_settings()
-        print(f"SettingsManager: Force Num Lock saved: {enabled}")
-
-        # --- NEW METHODS for Smart Flow Rate ---
-    def get_last_pour_averages(self):
-        defaults = self._get_default_system_settings().get('last_pour_averages')
-        avgs = self.settings.get('system_settings', {}).get('last_pour_averages', defaults)
-        if not isinstance(avgs, list) or len(avgs) != self.num_sensors:
-            return [0.0] * self.num_sensors
-        return [float(x) for x in avgs]
-
-    def save_last_pour_averages(self, averages_list):
-        if len(averages_list) == self.num_sensors:
-            self.settings.setdefault('system_settings', self._get_default_system_settings())['last_pour_averages'] = averages_list
-            self._save_all_settings()
-
     def get_system_settings(self):
         defaults = self._get_default_system_settings() 
         sys_set = self.settings.get('system_settings', defaults).copy() 
@@ -259,16 +193,6 @@ class SettingsManager:
                 sys_set[key] = val
             
         return sys_set
-
-    def get_check_updates_on_launch(self):
-        return self.get_system_settings().get('check_updates_on_launch', True)
-
-    def save_check_updates_on_launch(self, enabled):
-        sys_set = self.settings.get('system_settings', self._get_default_system_settings())
-        sys_set['check_updates_on_launch'] = bool(enabled)
-        self.settings['system_settings'] = sys_set
-        self._save_all_settings()
-        print(f"SettingsManager: Check updates on launch saved: {enabled}")
 
     def get_window_geometry(self):
         return self.get_system_settings().get('window_geometry')
@@ -284,7 +208,7 @@ class SettingsManager:
             "beverages": [
                 {
                     "id": str(uuid.uuid4()), "name": "House Pale Ale", "bjcp": "18(b)", "abv": "5.0", 
-                    "ibu": 35, "srm": 5, "description": "A refreshing, hop-forward American Pale Ale with a balanced malt background and a clean, dry finish. Our go-to beer."
+                    "ibu": 35, "srm": 5
                 }
             ]
         }
@@ -316,20 +240,171 @@ class SettingsManager:
         self.beverages_file_path = os.path.join(self.data_dir, BEVERAGES_FILE)
         self.process_flow_file_path = os.path.join(self.data_dir, PROCESS_FLOW_FILE)
         self.keg_library_file_path = os.path.join(self.data_dir, KEG_LIBRARY_FILE)
+        self.pico_backup_file_path = os.path.join(self.data_dir, PICO_BACKUP_FILE)
+        self.demo_gpio_beverages_path = os.path.join(self.data_dir, DEMO_GPIO_BEVERAGES_FILE)
+        self.demo_gpio_kegs_path = os.path.join(self.data_dir, DEMO_GPIO_KEGS_FILE)
         self.trial_record_file_path = os.path.join(self.data_dir, TRIAL_RECORD_FILE)
         self.bjcp_2021_file_path = os.path.join(self.data_dir, BJCP_2021_FILE)
 
         self.num_sensors = num_sensors_expected
-        
-        self.beverage_library = self._load_beverage_library()
-        self.keg_library, self.keg_map = self._load_keg_library()
+
+        # Load backend first so we know which beverage/keg source to use.
+        # Must set beverage_library and keg_map before _load_settings (it validates against them).
+        backend = self._load_raw_backend()
+        _backup_kegs = []
+        if backend == 'gpio':
+            self.beverage_library = self._load_demo_gpio_beverages()
+            self.keg_library, self.keg_map = self._load_demo_gpio_kegs()
+        else:
+            # Pico mode: seed cache from backup so assignments validate before Pico connects
+            self.beverage_library = {"beverages": []}
+            self.keg_library = {"kegs": []}
+            self.keg_map = {}
+            _backup_kegs, _backup_bevs = self.load_pico_library_backup()
+            if _backup_kegs:
+                self.populate_keg_cache(_backup_kegs)
+            if _backup_bevs:
+                self.populate_beverage_cache(_backup_bevs)
         self.settings = self._load_settings()
+        # Overwrite assignments from backup (Pico mode) so UI shows correct taps before Pico connects
+        if backend != 'gpio' and _backup_kegs:
+            assignments = [UNASSIGNED_KEG_ID] * self.num_sensors
+            bev_assigns = [UNASSIGNED_BEVERAGE_ID] * self.num_sensors
+            for k in _backup_kegs:
+                ti = int(k.get("tap_index", -1))
+                if 0 <= ti < self.num_sensors:
+                    assignments[ti] = k.get("id", UNASSIGNED_KEG_ID)
+                    bev_assigns[ti] = k.get("beverage_id") or UNASSIGNED_BEVERAGE_ID
+            self.settings["sensor_keg_assignments"] = assignments
+            self.settings["sensor_beverage_assignments"] = bev_assigns
 
     def get_base_dir(self):
         return self.base_dir
-    
+
     def get_data_dir(self):
         return self.data_dir
+
+    def _load_raw_backend(self):
+        """Read sensor_backend from settings file before full load (for init branching)."""
+        if not os.path.exists(self.settings_file_path):
+            return "gpio"
+        try:
+            with open(self.settings_file_path, "r") as f:
+                data = json.load(f)
+            return data.get("system_settings", {}).get("sensor_backend", "gpio")
+        except Exception:
+            return "gpio"
+
+    def _load_demo_gpio_beverages(self):
+        """Load beverage library from demo_gpio_beverages.json (GPIO/DEMO mode)."""
+        if os.path.exists(self.demo_gpio_beverages_path):
+            try:
+                with open(self.demo_gpio_beverages_path, "r") as f:
+                    library = json.load(f)
+                if not isinstance(library.get("beverages"), list):
+                    library = {"beverages": self._get_default_beverage_library().get("beverages", [])}
+                beverages = library.get("beverages", [])
+                for b in beverages:
+                    if "srm" not in b:
+                        b["srm"] = None
+                    elif isinstance(b.get("srm"), float):
+                        b["srm"] = int(b["srm"])
+                return library
+            except Exception as e:
+                print(f"Demo GPIO beverages: Error loading: {e}. Using default.")
+        default = self._get_default_beverage_library()
+        try:
+            with open(self.demo_gpio_beverages_path, "w", encoding="utf-8") as f:
+                json.dump(default, f, indent=4)
+        except Exception:
+            pass
+        return default
+
+    def _load_demo_gpio_kegs(self):
+        """Load keg library from demo_gpio_kegs.json (GPIO/DEMO mode)."""
+        defaults = self._get_default_keg_definitions()
+        if os.path.exists(self.demo_gpio_kegs_path):
+            try:
+                with open(self.demo_gpio_kegs_path, "r") as f:
+                    library = json.load(f)
+                if not isinstance(library.get("kegs"), list) or not library.get("kegs"):
+                    library = {"kegs": defaults}
+                keg_list = library.get("kegs", [])
+                migrated_list = []
+                default_keg_profile = defaults[0]
+                raw_settings = {}
+                if os.path.exists(self.settings_file_path):
+                    try:
+                        with open(self.settings_file_path, "r") as sf:
+                            raw_settings = json.load(sf)
+                    except Exception:
+                        pass
+                current_keg_assignments = raw_settings.get("sensor_keg_assignments", [])
+                current_bev_assignments = raw_settings.get("sensor_beverage_assignments", [])
+                while len(current_keg_assignments) < self.num_sensors:
+                    current_keg_assignments.append(UNASSIGNED_KEG_ID)
+                while len(current_bev_assignments) < self.num_sensors:
+                    current_bev_assignments.append(UNASSIGNED_BEVERAGE_ID)
+                active_map = {}
+                for i, k_id in enumerate(current_keg_assignments):
+                    if k_id != UNASSIGNED_KEG_ID and i < len(current_bev_assignments):
+                        active_map[k_id] = current_bev_assignments[i]
+                for k in keg_list:
+                    if "empty_weight_kg" in k:
+                        k["tare_weight_kg"] = k.pop("empty_weight_kg")
+                    if "starting_volume_liters" in k:
+                        k["calculated_starting_volume_liters"] = k.pop("starting_volume_liters")
+                    if "maximum_full_volume_liters" not in k:
+                        k["maximum_full_volume_liters"] = default_keg_profile["maximum_full_volume_liters"]
+                    if "tare_weight_kg" not in k:
+                        k["tare_weight_kg"] = default_keg_profile["tare_weight_kg"]
+                    if "starting_total_weight_kg" not in k:
+                        k["starting_total_weight_kg"] = default_keg_profile["starting_total_weight_kg"]
+                    if "calculated_starting_volume_liters" not in k:
+                        k["calculated_starting_volume_liters"] = default_keg_profile["calculated_starting_volume_liters"]
+                    if "current_dispensed_liters" not in k:
+                        k["current_dispensed_liters"] = default_keg_profile["current_dispensed_liters"]
+                    if "total_dispensed_pulses" not in k:
+                        k["total_dispensed_pulses"] = int(k.get("current_dispensed_liters", 0) * DEFAULT_K_FACTOR)
+                    if "beverage_id" not in k:
+                        k_id_val = k.get("id")
+                        if k_id_val in active_map:
+                            k["beverage_id"] = active_map[k_id_val]
+                            k["fill_date"] = datetime.now().strftime("%Y-%m-%d")
+                        else:
+                            k["beverage_id"] = UNASSIGNED_BEVERAGE_ID
+                            k["fill_date"] = ""
+                    if "fill_date" not in k:
+                        k["fill_date"] = ""
+                    migrated_list.append(k)
+                library["kegs"] = migrated_list
+                keg_map = {k["id"]: k for k in migrated_list if "id" in k}
+                return library, keg_map
+            except Exception as e:
+                print(f"Demo GPIO kegs: Error loading: {e}. Using default.")
+        library = {"kegs": defaults}
+        try:
+            with open(self.demo_gpio_kegs_path, "w", encoding="utf-8") as f:
+                json.dump(library, f, indent=4)
+        except Exception:
+            pass
+        return library, {k["id"]: k for k in defaults}
+
+    def _save_demo_gpio_kegs(self, library):
+        try:
+            with open(self.demo_gpio_kegs_path, "w", encoding="utf-8") as f:
+                json.dump(library, f, indent=4)
+            print(f"SettingsManager: Demo GPIO keg library saved to {self.demo_gpio_kegs_path}.")
+        except Exception as e:
+            print(f"Error saving demo GPIO keg library: {e}")
+
+    def _save_demo_gpio_beverages(self, library):
+        try:
+            with open(self.demo_gpio_beverages_path, "w", encoding="utf-8") as f:
+                json.dump(library, f, indent=4)
+            print(f"SettingsManager: Demo GPIO beverage library saved to {self.demo_gpio_beverages_path}.")
+        except Exception as e:
+            print(f"Error saving demo GPIO beverage library: {e}")
 
     def _load_keg_library(self):
         defaults = self._get_default_keg_definitions()
@@ -432,7 +507,9 @@ class SettingsManager:
             print(f"Error saving keg library: {e}")
 
     def get_keg_definitions(self):
-        self.keg_library, self.keg_map = self._load_keg_library()
+        if self.get_sensor_backend() == 'pico_w':
+            return self.keg_library.get('kegs', [])
+        self.keg_library, self.keg_map = self._load_demo_gpio_kegs()
         return self.keg_library.get('kegs', [])
     
     def save_keg_definitions(self, definitions_list):
@@ -441,7 +518,8 @@ class SettingsManager:
         
         self.keg_library['kegs'] = definitions_list
         self.keg_map = {k['id']: k for k in definitions_list}
-        self._save_keg_library(self.keg_library)
+        if self.get_sensor_backend() == 'gpio':
+            self._save_demo_gpio_kegs(self.keg_library)
         print("Keg definitions saved.") 
         
     def delete_keg_definition(self, keg_id_to_delete):
@@ -484,7 +562,9 @@ class SettingsManager:
         return False
 
     def save_all_keg_dispensed_volumes(self):
-        self._save_keg_library(self.keg_library)
+        if self.get_sensor_backend() != 'gpio':
+            return
+        self._save_demo_gpio_kegs(self.keg_library)
         
     def get_keg_by_id(self, keg_id):
         if keg_id == UNASSIGNED_KEG_ID:
@@ -537,7 +617,8 @@ class SettingsManager:
 
     def save_beverage_library(self, new_library_list):
         self.beverage_library['beverages'] = new_library_list
-        self._save_beverage_library(self.beverage_library)
+        if self.get_sensor_backend() == 'gpio':
+            self._save_demo_gpio_beverages(self.beverage_library)
 
     def load_bjcp_styles(self):
         """Loads the strict BJCP styles from the central JSON file."""
@@ -623,32 +704,21 @@ class SettingsManager:
             
             if 'velocity_mode' in sys_set: del sys_set['velocity_mode']
             if 'user_temp_input_c' in sys_set: del sys_set['user_temp_input_c']
+            # Strip obsolete keys (no longer in defaults)
+            for obsolete in ('ui_mode', 'launch_workflow_on_start', 'last_pour_averages', 'force_numlock',
+                             'eula_agreed', 'show_eula_on_launch', 'check_updates_on_launch', 'notify_on_update',
+                             'workflow_view_mode', 'workflow_window_geometry', 'enable_pour_log'):
+                if obsolete in sys_set:
+                    del sys_set[obsolete]
             
             settings['system_settings'] = sys_set 
             
-            # --- MIGRATION: UI MODE (Full/Lite -> Detailed/Basic) ---
-            current_mode = settings['system_settings'].get('ui_mode')
-            if current_mode == 'full':
-                settings['system_settings']['ui_mode'] = 'detailed'
-                print("Settings: Migrated UI Mode 'full' -> 'detailed'")
-            elif current_mode == 'lite':
-                settings['system_settings']['ui_mode'] = 'basic'
-                print("Settings: Migrated UI Mode 'lite' -> 'basic'")
-            elif current_mode not in ["detailed", "basic"]:
-                 settings['system_settings']['ui_mode'] = default_system_settings_val['ui_mode']
-            
             # --- MIGRATION: DETECT LEGACY INSTALL ---
             if needs_migration_check:
-                # Heuristic: If we have valid keg assignments (not default unassigned)
                 assignments = settings.get('sensor_keg_assignments', [])
                 has_active_kegs = any(k != UNASSIGNED_KEG_ID for k in assignments)
                 
-                # Also check for non-default labels if they customized them
-                labels = settings.get('sensor_labels', [])
-                has_custom_labels = any(l != f"Tap {i+1}" for i, l in enumerate(labels))
-                
-                # If it looks like a configured system, mark setup as complete
-                if has_active_kegs or has_custom_labels:
+                if has_active_kegs:
                     print("Settings: Legacy installation detected. Auto-completing setup.")
                     settings['system_settings']['setup_complete'] = True
                 else:
@@ -667,8 +737,6 @@ class SettingsManager:
                 settings['system_settings']['displayed_taps'] = current_displayed_taps 
             if 'ds18b20_ambient_sensor' not in settings['system_settings']: 
                 settings['system_settings']['ds18b20_ambient_sensor'] = default_system_settings_val['ds18b20_ambient_sensor'] 
-            if 'ui_mode' not in settings['system_settings'] or settings['system_settings']['ui_mode'] not in ["detailed", "basic"]:
-                 settings['system_settings']['ui_mode'] = default_system_settings_val['ui_mode']
             
             if 'flow_calibration_factors' not in settings['system_settings'] or not isinstance(settings.get('flow_calibration_factors', []), list) or len(settings['system_settings'].get('flow_calibration_factors', [])) != self.num_sensors:
                  settings['system_settings']['flow_calibration_factors'] = default_system_settings_val['flow_calibration_factors']
@@ -701,18 +769,9 @@ class SettingsManager:
                 except (ValueError, TypeError): 
                     settings['system_settings']['flow_calibration_to_be_poured'] = default_system_settings_val['flow_calibration_to_be_poured']
 
-            if 'eula_agreed' not in settings['system_settings']:
-                settings['system_settings']['eula_agreed'] = default_system_settings_val['eula_agreed']
-            if 'show_eula_on_launch' not in settings['system_settings']:
-                settings['system_settings']['show_eula_on_launch'] = default_system_settings_val['show_eula_on_launch']
-            
             # Validation for Window Geometry
             if 'window_geometry' not in settings['system_settings']:
                 settings['system_settings']['window_geometry'] = default_system_settings_val['window_geometry']
-
-            # Validation for Update Check
-            if 'check_updates_on_launch' not in settings['system_settings']:
-                settings['system_settings']['check_updates_on_launch'] = default_system_settings_val['check_updates_on_launch']
                 
             # Validation for Setup Complete
             if 'setup_complete' not in settings['system_settings']:
@@ -726,7 +785,9 @@ class SettingsManager:
             loaded_notif_settings = settings.pop('push_notification_settings') 
         
         notif_set = default_push_notification_settings_val.copy() 
-        notif_set.update(loaded_notif_settings) 
+        notif_set.update(loaded_notif_settings)
+        if 'notify_on_update' in notif_set:
+            del notif_set['notify_on_update']  # Removed: not used for manual Check for Updates
         settings['push_notification_settings'] = notif_set 
         if notif_set.get('notification_type') not in ["None", "Email", "Text", "Both"]: notif_set['notification_type'] = default_push_notification_settings_val['notification_type'] 
         if notif_set.get('frequency') not in ["None", "Hourly", "Daily", "Weekly", "Monthly"]: notif_set['frequency'] = default_push_notification_settings_val['frequency'] 
@@ -831,24 +892,11 @@ class SettingsManager:
                 return {}, beverage_map
         return {}, beverage_map
 
-    def get_ui_mode(self): return self.settings.get('system_settings', {}).get('ui_mode', 'basic')
-    def save_ui_mode(self, mode_string):
-        if mode_string in ["detailed", "basic"]:
-            self.settings.setdefault('system_settings', self._get_default_system_settings())['ui_mode'] = mode_string
-            self._save_all_settings()
-            print(f"SettingsManager: UI Mode saved to {mode_string}.")
-
     def get_autostart_enabled(self): return self.settings.get('system_settings', {}).get('autostart_enabled', self._get_default_system_settings()['autostart_enabled'])
     def save_autostart_enabled(self, is_enabled):
         self.settings.setdefault('system_settings', self._get_default_system_settings())['autostart_enabled'] = bool(is_enabled)
         self._save_all_settings()
         print(f"SettingsManager: Autostart setting saved as {is_enabled}.")
-
-    def get_launch_workflow_on_start(self): return self.settings.get('system_settings', {}).get('launch_workflow_on_start', self._get_default_system_settings()['launch_workflow_on_start'])
-    def save_launch_workflow_on_start(self, is_enabled):
-        self.settings.setdefault('system_settings', self._get_default_system_settings())['launch_workflow_on_start'] = bool(is_enabled)
-        self._save_all_settings()
-        print(f"SettingsManager: Launch workflow on start setting saved as {is_enabled}.")
 
     def get_flow_calibration_factors(self):
         defaults = self._get_default_system_settings().get('flow_calibration_factors')
@@ -929,25 +977,8 @@ class SettingsManager:
         print(f"Beverage assignment for Tap {sensor_index+1} saved: {beverage_id}.") 
     
     def get_sensor_labels(self):
-        assignments = self.get_sensor_beverage_assignments() 
-        library = self.get_beverage_library().get('beverages', []) 
-        
-        id_to_name = {b['id']: b['name'] for b in library if 'id' in b and 'name' in b} 
-        
-        labels = []
-        for i, beverage_id in enumerate(assignments): 
-            name = id_to_name.get(beverage_id) 
-            if name: 
-                labels.append(name) 
-            else:
-                labels.append(f"Tap {i+1}") 
-            
-        return labels 
-
-    def save_sensor_labels(self, sensor_labels_list):
-        if len(sensor_labels_list) == self.num_sensors: 
-            self.settings['sensor_labels'] = sensor_labels_list 
-            self._save_all_settings() 
+        """Return fixed tap labels (Tap 1, Tap 2, ...) for notifications. Not editable."""
+        return self._get_default_sensor_labels()
 
     def get_conditional_notification_settings(self):
         defaults = self._get_default_conditional_notification_settings() 
@@ -1284,19 +1315,42 @@ class SettingsManager:
                     break
 
     def save_pico_library_backup(self, kegs: list, beverages: list):
-        """Write a snapshot of the Pico's keg/beverage library to the local backup
-        file (keg_library.json / beverages_library.json).  This file is read on
-        startup before the Pico connects, and is pushed back to a freshly
-        reflashed Pico that has an empty library."""
-        self._save_keg_library({"kegs": kegs})
-        self._save_beverage_library({"beverages": beverages})
-        print("SettingsManager: Pico library backup written to disk.")
+        """Write a snapshot of the Pico's keg/beverage library to pico_backup.json.
+        Format: {"timestamp": "ISO datetime", "kegs": [...], "beverages": [...]}"""
+        try:
+            data = {
+                "timestamp": datetime.now().isoformat(),
+                "kegs": kegs,
+                "beverages": beverages,
+            }
+            with open(self.pico_backup_file_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4)
+            print("SettingsManager: Pico library backup written to pico_backup.json.")
+        except Exception as e:
+            print(f"SettingsManager: Error saving Pico backup: {e}")
 
     def load_pico_library_backup(self) -> tuple:
-        """Return (kegs_list, beverages_list) from the local backup files."""
-        kegs = self.keg_library.get("kegs", [])
-        bevs = self.beverage_library.get("beverages", [])
-        return kegs, bevs
+        """Return (kegs_list, beverages_list) from pico_backup.json. Returns ([], []) if file doesn't exist."""
+        if not os.path.exists(self.pico_backup_file_path):
+            return [], []
+        try:
+            with open(self.pico_backup_file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            return data.get("kegs", []), data.get("beverages", [])
+        except Exception as e:
+            print(f"SettingsManager: Error loading Pico backup: {e}")
+            return [], []
+
+    def get_pico_backup_timestamp(self) -> str:
+        """Return the timestamp string from pico_backup.json for the restore dialog, or '' if no file."""
+        if not os.path.exists(self.pico_backup_file_path):
+            return ""
+        try:
+            with open(self.pico_backup_file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            return data.get("timestamp", "")
+        except Exception:
+            return ""
 
     def _save_all_settings(self, current_settings=None):
         settings_to_save = current_settings if current_settings is not None else self.settings

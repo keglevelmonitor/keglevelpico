@@ -244,7 +244,7 @@
             pos: self.pos
             size: self.size
         Color:
-            rgba: 0.8, 0.2, 0.2, 1 # Red Border for Warning
+            rgba: root.action_color
         Line:
             rectangle: self.x, self.y, self.width, self.height
             width: 2
@@ -274,10 +274,10 @@
                 on_release: root.dismiss()
                 
             Button:
-                text: "DELETE"
+                text: root.action_text
                 bold: True
                 font_size: '16sp'
-                background_color: 0.8, 0.1, 0.1, 1
+                background_color: root.action_color
                 on_release: root.confirm()
 
 <SimulationPopup>:
@@ -570,6 +570,43 @@
                         background_color: 0.2, 0.7, 0.2, 1
                         disabled: not (root.cal_is_valid and root.cal_confirmed)
                         on_release: app.commit_keg_kick_calibration(root)
+
+        # SCREEN 3: KEG KICKED - MARK EMPTY (Zero keg, assign Empty, no calibration)
+        Screen:
+            name: 'mark_empty'
+            BoxLayout:
+                orientation: 'vertical'
+                padding: 20
+                spacing: 20
+                Label:
+                    text: "Zero this keg's volume and assign Empty?"
+                    font_size: '20sp'
+                    bold: True
+                    color: 1, 0.75, 0, 1
+                    halign: 'center'
+                    text_size: self.size
+                    size_hint_y: None
+                    height: 80
+                Label:
+                    text: root.cal_keg_title
+                    font_size: '16sp'
+                    color: 0.9, 0.9, 0.9, 1
+                    halign: 'center'
+                    size_hint_y: None
+                    height: 30
+                BoxLayout:
+                    spacing: 20
+                    size_hint_y: None
+                    height: 70
+                    Button:
+                        text: "Cancel"
+                        background_color: 0.4, 0.4, 0.4, 1
+                        on_release: root.ids.sm.current = 'list'
+                    Button:
+                        text: "Confirm"
+                        bold: True
+                        background_color: 0.2, 0.7, 0.2, 1
+                        on_release: app.commit_mark_empty(root)
 
 # --- TABS FOR INVENTORY ---
 
@@ -937,7 +974,7 @@
             spacing: 16
             ToggleButton:
                 id: btn_gpio
-                text: "DEMO"
+                text: "DEMO/GPIO"
                 group: 'sensor_backend'
                 allow_no_selection: False
                 font_size: '17sp'
@@ -989,6 +1026,22 @@
             background_normal: ''
             background_color: 0.15, 0.35, 0.7, 1
             on_release: root.find_pico()
+
+    # 5. RESTORE PICO FROM BACKUP
+    BoxLayout:
+        size_hint_y: None
+        height: 52
+        spacing: 10
+        Label:
+            size_hint_x: 0.3
+        Button:
+            text: "Restore Pico from Backup"
+            font_size: '14sp'
+            bold: True
+            size_hint_x: 0.5
+            background_normal: ''
+            background_color: 0.4, 0.25, 0.1, 1
+            on_release: app.request_restore_pico_from_backup()
 
     # Spacer
     Label:
@@ -2219,10 +2272,9 @@
                 on_release: root.set_active_tab('cal')
 
         # --- CONTENT AREA ---
-        ScreenManager:
+        BoundedScreenManager:
             id: settings_manager
             transition: NoTransition()
-            
             Screen:
                 name: 'tab_conf'
                 SettingsConfigTab:
@@ -2243,7 +2295,6 @@
                 name: 'tab_alerts'
                 SettingsAlertsTab:
                     id: tab_alerts_content
-
             Screen:
                 name: 'tab_diag'
                 DiagnosticPanel:
