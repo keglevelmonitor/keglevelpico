@@ -216,6 +216,18 @@ class SettingsConfigTab(BoxLayout):
                 app.is_settings_dirty = False
 
                 if needs_restart:
+                    # Backup Pico library before leaving PICO mode
+                    if old_backend == 'pico_w' and new_backend != 'pico_w':
+                        if (hasattr(app, 'sensor_logic') and app.sensor_logic and
+                                getattr(app.sensor_logic, '_pico_online', False)):
+                            kegs = app.settings_manager.get_keg_definitions()
+                            bevs = app.settings_manager.get_beverage_library().get('beverages', [])
+                            app.settings_manager.save_pico_library_backup(kegs, bevs)
+                            print("[Config] Pico library backed up before mode switch.")
+
+                    # Reload caches from correct files for the new backend
+                    app.settings_manager.reload_for_backend(new_backend)
+
                     app.is_switching_modes = True
                     try:
                         app.apply_config_changes()
@@ -3050,10 +3062,27 @@ class KegLevelApp(App):
                 settings_manager=self.settings_manager
             )
         
+        self.refresh_keg_list()
+        self.refresh_beverage_list()
         self.refresh_dashboard_metadata()
         self.sensor_logic.start_monitoring()
         self.init_temp_sensor()
         self._update_header_brand()
+
+        # Toggle NotificationManager based on new backend
+        if sensor_backend == 'pico_w':
+            if hasattr(self, 'notification_manager') and self.notification_manager:
+                self.notification_manager.stop_scheduler()
+                self.notification_manager = None
+                print("[Config] NotificationManager stopped (PICO mode).")
+        else:
+            if not (hasattr(self, 'notification_manager') and self.notification_manager):
+                self.notification_manager = NotificationManager(
+                    self.settings_manager,
+                    get_temp_f_cb=lambda: self.current_temp_f,
+                )
+                self.notification_manager.start_scheduler()
+                print("[Config] NotificationManager started (DEMO/GPIO mode).")
 
     def on_stop(self):
         if hasattr(self, 'settings_manager'):

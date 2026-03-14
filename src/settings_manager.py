@@ -278,6 +278,37 @@ class SettingsManager:
             self.settings["sensor_keg_assignments"] = assignments
             self.settings["sensor_beverage_assignments"] = bev_assigns
 
+    def reload_for_backend(self, backend: str):
+        """Re-seed the in-memory keg/beverage caches for the given backend.
+
+        Call this after persisting a backend change so the UI shows the correct
+        data set without requiring a full app restart.
+        """
+        if backend == 'gpio':
+            self.beverage_library = self._load_demo_gpio_beverages()
+            self.keg_library, self.keg_map = self._load_demo_gpio_kegs()
+            print("SettingsManager: Reloaded caches from DEMO/GPIO files.")
+        else:
+            self.beverage_library = {"beverages": []}
+            self.keg_library = {"kegs": []}
+            self.keg_map = {}
+            backup_kegs, backup_bevs = self.load_pico_library_backup()
+            if backup_kegs:
+                self.populate_keg_cache(backup_kegs)
+            if backup_bevs:
+                self.populate_beverage_cache(backup_bevs)
+            if backup_kegs:
+                assignments = [UNASSIGNED_KEG_ID] * self.num_sensors
+                bev_assigns = [UNASSIGNED_BEVERAGE_ID] * self.num_sensors
+                for k in backup_kegs:
+                    ti = int(k.get("tap_index", -1))
+                    if 0 <= ti < self.num_sensors:
+                        assignments[ti] = k.get("id", UNASSIGNED_KEG_ID)
+                        bev_assigns[ti] = k.get("beverage_id") or UNASSIGNED_BEVERAGE_ID
+                self.settings["sensor_keg_assignments"] = assignments
+                self.settings["sensor_beverage_assignments"] = bev_assigns
+            print("SettingsManager: Reloaded caches from Pico backup.")
+
     def get_base_dir(self):
         return self.base_dir
 
