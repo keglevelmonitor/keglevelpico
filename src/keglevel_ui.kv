@@ -1276,7 +1276,7 @@
                 text: app.header_brand
                 font_size: '24sp'
                 bold: True
-                color: (1, 0.75, 0, 1) if (app.header_brand == "KegLevel Demo" or app.pico_status == 'connected') else ((0.55, 0.55, 0.55, 1) if app.pico_status == 'searching' else (0.9, 0.3, 0.1, 1))
+                color: (1, 0.75, 0, 1) if (app.header_brand == "KegLevel Demo/GPIO" or app.pico_status == 'connected') else ((0.55, 0.55, 0.55, 1) if app.pico_status == 'searching' else (0.9, 0.3, 0.1, 1))
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             
             # Temp Label + Hidden Trigger

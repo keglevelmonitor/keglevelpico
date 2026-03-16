@@ -1891,7 +1891,7 @@ class KegLevelApp(App):
         """Set header_brand based on sensor backend and Pico connection status."""
         backend = self.settings_manager.get_sensor_backend()
         if backend == 'gpio':
-            self.header_brand = "KegLevel Demo"
+            self.header_brand = "KegLevel Demo/GPIO"
         elif self.pico_status == 'connected':
             self.header_brand = "KegLevel Pico"
         elif self.pico_status == 'searching':
