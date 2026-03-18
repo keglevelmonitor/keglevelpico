@@ -206,10 +206,14 @@ class SettingsManager:
     def _get_default_beverage_library(self):
         return {
             "beverages": [
-                {
-                    "id": str(uuid.uuid4()), "name": "House Pale Ale", "bjcp": "18(b)", "abv": "5.0", 
-                    "ibu": 35, "srm": 5
-                }
+                {"id": "bev_default_1", "name": "American IPA", "bjcp": "21A", "abv": "6.5", "ibu": 55, "srm": 10},
+                {"id": "bev_default_2", "name": "Czech Pilsner", "bjcp": "3B", "abv": "4.5", "ibu": 35, "srm": 4},
+                {"id": "bev_default_3", "name": "German Lager", "bjcp": "4A", "abv": "5.0", "ibu": 22, "srm": 4},
+                {"id": "bev_default_4", "name": "English Bitter", "bjcp": "11C", "abv": "4.5", "ibu": 30, "srm": 12},
+                {"id": "bev_default_5", "name": "Norwegian Farmhouse Ale", "bjcp": "34C", "abv": "7.5", "ibu": 25, "srm": 15},
+                {"id": "bev_default_6", "name": "Irish Red Ale", "bjcp": "15A", "abv": "5.0", "ibu": 23, "srm": 14},
+                {"id": "bev_default_7", "name": "Belgian Wit", "bjcp": "24A", "abv": "5.0", "ibu": 15, "srm": 3},
+                {"id": "bev_default_8", "name": "French Country Ale", "bjcp": "24C", "abv": "7.0", "ibu": 25, "srm": 12},
             ]
         }
 

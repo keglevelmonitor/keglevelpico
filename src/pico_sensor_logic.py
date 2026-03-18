@@ -887,7 +887,7 @@ class PicoSensorLogic:
         default_kegs = self.settings_manager._get_default_keg_definitions()
         if not default_bevs or not default_kegs:
             return
-        print("[PicoSensor] Pico empty — pushing DEMO defaults (5 kegs, 1 beverage)...")
+        print("[PicoSensor] Pico empty — pushing DEMO defaults (5 kegs, 8 beverages)...")
         bev_id_map = {}
         first_bev_id = default_bevs[0].get("id", "") if default_bevs else ""
         for bev in default_bevs:
@@ -924,7 +924,7 @@ class PicoSensorLogic:
         """
         If the Pico has an empty library (freshly reflashed), push data to it:
         1. Local backup exists → restore from backup
-        2. No backup (fresh install) → push DEMO/GPIO defaults (5 empty kegs, 1 beverage)
+        2. No backup (fresh install) → push DEMO/GPIO defaults (5 empty kegs, 8 beverages)
         """
         pico_kegs = self._get("/api/kegs") or []
         if pico_kegs:
@@ -988,7 +988,7 @@ class PicoSensorLogic:
     def _push_demo_defaults_to_pico(self):
         """
         Push DEMO/GPIO defaults to the Pico when it is empty and no backup exists.
-        Matches DEMO mode: 5 empty kegs (unassigned), 1 beverage (House Pale Ale).
+        Matches DEMO mode: 5 empty kegs (unassigned), 8 default beverages.
         """
         print("[PicoSensor] Pico empty, no backup — pushing DEMO defaults...")
         default_bevs = self.settings_manager._get_default_beverage_library().get("beverages", [])
