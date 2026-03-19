@@ -1,0 +1,78 @@
+{
+  "version": "1.0.13",
+  "build_date": "2026-03-19",
+  "firmware_file": "keglevel-pico-firmware-1.0.13.zip",
+  "firmware_sha256": "4ad3ef3d8c542cf607c69545a43df893c29bb7908d1ce69210ad78516133a890",
+  "bundle_file": "firmware-bundle-1.0.13.json",
+  "bundle_sha256": "845d6feeb47f33e10a2ec3e9ef8bbd288dc17ace1e489c5178df66c9e2bf5a7a",
+  "files": [
+    {
+      "path": "lib/microdot/__init__.py",
+      "sha256": "c6f6e11414ec04623b60a24a10a6b734e7dde9a9dd2ad93c5292625ca4d015e3"
+    },
+    {
+      "path": "lib/microdot/microdot.py",
+      "sha256": "622d83d3a7d08201ecd6d121e5f449dcd8758604f872dfe7b200e4b0f6f8c0cf"
+    },
+    {
+      "path": "alert_manager.py",
+      "sha256": "00145d7ed46b05811254a98445b526d2554c7db3ebb64828c169b9969061d8fd"
+    },
+    {
+      "path": "config_manager.py",
+      "sha256": "89308ca9bf0b3ff1886163f3f28ff8058b39135d17675bf2cec5f1a1ad2fff60"
+    },
+    {
+      "path": "diagnostic.py",
+      "sha256": "827eaed30b80ad8392f7653fb1058140bec5506e6591cdda1ab05c8696e072ed"
+    },
+    {
+      "path": "main.py",
+      "sha256": "12eb9649839e8d57dfab3c70eb098f919923f25218bf8004cdda9f678f6e741f"
+    },
+    {
+      "path": "sensor.py",
+      "sha256": "5bae37ddc027133ddb70c2c4418e6c7fbff44ba004c4570e59daa6af260165bf"
+    },
+    {
+      "path": "server.py",
+      "sha256": "b14d2ff7221f7554794791b0a531754738e47d799fc38dd27b15d6c6c4661a56"
+    },
+    {
+      "path": "temperature.py",
+      "sha256": "ea1c5da2d08bbf543819a0bc15b752ef2947f777d065e8813110468e73df7064"
+    },
+    {
+      "path": "version.py",
+      "sha256": "1115d2efd8b633d240e5e8baf3cadfa6bcc041fb63cbf4cb9b9d4e1a97102cb2"
+    },
+    {
+      "path": "wifi.py",
+      "sha256": "05cca0dbb7811e6fc84ffa8eaa655266bd66078c8cf52783df247d6160951900"
+    },
+    {
+      "path": "www/index.html",
+      "sha256": "a479d99982fc6b617cc002674607f8e8e2b896a887efa3c701305b0abb68d650"
+    },
+    {
+      "path": "www/style.css",
+      "sha256": "9f2a82725b08070da440dc71bea6d4bb6157ac951a4ed0c7cf45e6994c50b855"
+    },
+    {
+      "path": "www/app.js",
+      "sha256": "561fc54c5aef82ab3df14dca6ab7f595b44555a4f0dbc5aff53d352e31da8400"
+    },
+    {
+      "path": "www/batchflow.html",
+      "sha256": "7eb3cb7913a856c769dd3014a7920890dcf2ec9e4ea30e706c9caadc192c443d"
+    },
+    {
+      "path": "www/batchflow.css",
+      "sha256": "834c194acddc44e02d6eaaf647298a40a4e582eec85d303ade109f820a53807c"
+    },
+    {
+      "path": "www/batchflow.js",
+      "sha256": "4b90e3ad64aefb39e279ede57e6df278b0fcbcd9594c539328a9946738f1e202"
+    }
+  ]
+}
