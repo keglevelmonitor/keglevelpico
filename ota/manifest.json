@@ -1,10 +1,10 @@
 {
-  "version": "1.0.13",
+  "version": "1.0.14",
   "build_date": "2026-03-19",
-  "firmware_file": "keglevel-pico-firmware-1.0.13.zip",
-  "firmware_sha256": "4ad3ef3d8c542cf607c69545a43df893c29bb7908d1ce69210ad78516133a890",
-  "bundle_file": "firmware-bundle-1.0.13.json",
-  "bundle_sha256": "845d6feeb47f33e10a2ec3e9ef8bbd288dc17ace1e489c5178df66c9e2bf5a7a",
+  "firmware_file": "keglevel-pico-firmware-1.0.14.zip",
+  "firmware_sha256": "bc86b0e3b01c13400e4be19f7b67c98f7cd3882f055aaf124938a8d162dbebd1",
+  "bundle_file": "firmware-bundle-1.0.14.json",
+  "bundle_sha256": "6bd9aa86a1e75d3549dd1fd81bf055ccd77b4bf258a712da49cd851ae03063ae",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "b14d2ff7221f7554794791b0a531754738e47d799fc38dd27b15d6c6c4661a56"
+      "sha256": "799dab062baef5227056e80c38cee3786622183dee3c1bc74a57194e25e10370"
     },
     {
       "path": "temperature.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "1115d2efd8b633d240e5e8baf3cadfa6bcc041fb63cbf4cb9b9d4e1a97102cb2"
+      "sha256": "d46f490f9788c2bc96caebdbb0ac178a4096cdfa6ba8308d9b6430ce636d7322"
     },
     {
       "path": "wifi.py",
@@ -60,7 +60,7 @@
     },
     {
       "path": "www/app.js",
-      "sha256": "561fc54c5aef82ab3df14dca6ab7f595b44555a4f0dbc5aff53d352e31da8400"
+      "sha256": "8cbd80dfae7cb0ad90c98bad4b76179102cd4851a90660bfa21cbfdeb9d6c0cb"
     },
     {
       "path": "www/batchflow.html",
@@ -72,7 +72,7 @@
     },
     {
       "path": "www/batchflow.js",
-      "sha256": "4b90e3ad64aefb39e279ede57e6df278b0fcbcd9594c539328a9946738f1e202"
+      "sha256": "d2bf1a70e9c6f0fb06ed1ae1482efdede3d147767d1cb8a0b2035d4245c1f9d3"
     }
   ]
 }
