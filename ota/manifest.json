@@ -1,10 +1,10 @@
 {
-  "version": "1.0.25",
+  "version": "1.0.26",
   "build_date": "2026-03-20",
-  "firmware_file": "keglevel-pico-firmware-1.0.25.zip",
-  "firmware_sha256": "a7d4f5fef7af500737a7c3a52a1d55ec01456ab4e8e8e5fcbe421b2461ef1629",
-  "bundle_file": "firmware-bundle-1.0.25.json",
-  "bundle_sha256": "2a3e0742b57150861e9d7d6cd018792137c14e6636ec4bc717962743bbfe456d",
+  "firmware_file": "keglevel-pico-firmware-1.0.26.zip",
+  "firmware_sha256": "e458c5e8c9a7b687864185ee01b9533803151361937d97a8110e7d506c9c9148",
+  "bundle_file": "firmware-bundle-1.0.26.json",
+  "bundle_sha256": "0c6590757a8b756ae34a8f35e495ff1186db511d6a863bf8afcb2906e6d19a26",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "0a277b8936d32dd07d551232e848f411792ff5ae8160e7dada57b94817a996e6"
+      "sha256": "1ea0404a3b0cb03fbeff348c5fbbc12f0624ba6d7ccdef93f501d408f9f72596"
     },
     {
       "path": "wifi.py",
