@@ -1,10 +1,10 @@
 {
-  "version": "1.0.31",
-  "build_date": "2026-03-21",
-  "firmware_file": "keglevel-pico-firmware-1.0.31.zip",
-  "firmware_sha256": "18a326f9018b3ef1ff5c13ea22961d902a6e6a255d95694a771189725529c643",
-  "bundle_file": "firmware-bundle-1.0.31.json",
-  "bundle_sha256": "5ea3bf6ee342fbb7a0dd6c7670653363cbb3c8adbd57d804f4c005be9213c96d",
+  "version": "1.0.32",
+  "build_date": "2026-03-24",
+  "firmware_file": "keglevel-pico-firmware-1.0.32.zip",
+  "firmware_sha256": "1cddfdaedee9c4e8ac4dc62c350f291775006fb6aa6eb9e3c1e0f50b8e0711ac",
+  "bundle_file": "firmware-bundle-1.0.32.json",
+  "bundle_sha256": "736ccf60c7628f85952f950a066042ec6cebc86d18deb2468c5a234cdb3f805e",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -24,15 +24,15 @@
     },
     {
       "path": "diagnostic.py",
-      "sha256": "827eaed30b80ad8392f7653fb1058140bec5506e6591cdda1ab05c8696e072ed"
+      "sha256": "0c6393dbad6eaa6fadcd70a125332c2e427e9417075c6ddf4bc69ed5063915cb"
     },
     {
       "path": "main.py",
-      "sha256": "2244fd964f15f924b0ed3db053cc64d100cefa7b5b0ffb62a3b7148ded6e5739"
+      "sha256": "38a9fa007db802e1cf174870915522c99ed37fe64ca083751e95d02786bb7abe"
     },
     {
       "path": "sensor.py",
-      "sha256": "ec166a88cdc44b409883876e7e5a53e900b14aecd6e870d1eef0f2497cc74643"
+      "sha256": "e63028f3ebcc89064ba596d58f61f29ff4a9eead9da05a8c277158544f29648d"
     },
     {
       "path": "server.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "366ec33f65f482a415c70879edb31e1961db0c774c519989fe369dd4fd39dcbf"
+      "sha256": "aadeab529a76e633c8443ed8e12b508d268145e87869045f63c7f4ea765b56d7"
     },
     {
       "path": "wifi.py",
@@ -52,7 +52,7 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "499f7f1b13d094197480e758652e1c86e81cc60c2f02940b0c6ad54c031a2cd2"
+      "sha256": "e20bca14f8686637c42afcc08f4548fe5454f5436f2b7ea6fa275f827b102d08"
     },
     {
       "path": "www/style.css",
@@ -60,7 +60,7 @@
     },
     {
       "path": "www/app.js",
-      "sha256": "a7dcaa78ca4c699b288e7d379f4989e868ad0e43dbbbc6f50e999f33acb0860c"
+      "sha256": "e0e1c3cb97a4acd811462a06f7c09be3a0df11e1563977fd0f856d2c624d9630"
     },
     {
       "path": "www/batchflow.html",
