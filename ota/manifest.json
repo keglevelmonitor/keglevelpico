@@ -1,10 +1,10 @@
 {
-  "version": "1.0.37",
+  "version": "1.0.38",
   "build_date": "2026-03-30",
-  "firmware_file": "keglevel-pico-firmware-1.0.37.zip",
-  "firmware_sha256": "02d25d9062b11585e2fab5dd0a804cfd6a77a4958df72c7ca31a950d49bfbe23",
-  "bundle_file": "firmware-bundle-1.0.37.json",
-  "bundle_sha256": "8b352c544549eb0e4c5e3c2ab8b22988f8faa45600640d975e4fb5380f9a25d1",
+  "firmware_file": "keglevel-pico-firmware-1.0.38.zip",
+  "firmware_sha256": "79eb3621d774ad98c8d0a9de8e9c8672bed053a72cca640c288239fc73204c0a",
+  "bundle_file": "firmware-bundle-1.0.38.json",
+  "bundle_sha256": "f5cb86f0351789b3774c490172e586dc72c47727acc067c593588e4710f5c186",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,11 +16,11 @@
     },
     {
       "path": "alert_manager.py",
-      "sha256": "619b9fcfebb33dde16359e7a75ce8f566c192d7b16d6c4e556aa1c76baae168c"
+      "sha256": "5a031c147e53979ca4f6d0257c1649eadc84099c1b96a266c03b66eff9565de7"
     },
     {
       "path": "config_manager.py",
-      "sha256": "66692d5512a84225cfc8308c31baf7ca6a2001b0ecb2064a89809dd7a72e2440"
+      "sha256": "19c0da26ccf480dc18a653821ec9c24ce2097061a010084220faa103d62d5632"
     },
     {
       "path": "diagnostic.py",
@@ -32,11 +32,11 @@
     },
     {
       "path": "sensor.py",
-      "sha256": "3913a654f3f998a116208ce92c1809ca9d93e47e1c89df36453bada0e5e90be7"
+      "sha256": "7b8f7855fec2d3600ca69dcc4f4eadc05b42e54476f37533b1cc4a790af3324d"
     },
     {
       "path": "server.py",
-      "sha256": "8528e6f377a48a8fcd39eb6f183895198a0a8545d17a48a0b2a2984e09fb6659"
+      "sha256": "8fe3ca946b5d0968a40ba17ed5ca0c9308d4c264dd8078747f21ba0c2d9d0fa1"
     },
     {
       "path": "temperature.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "10304eb5d3d89c8fd6941eacd625888cf9d8ee1fbada3274f65d5e55d30d93b6"
+      "sha256": "f909d36e6a5de9caa83bf8b96a2d2fba92e59c017d48856dac0659fbcbf2df40"
     },
     {
       "path": "wifi.py",
@@ -52,15 +52,15 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "d54a3b7b3806c67f1251834b5a69510fc1c2fd5ca4a21deb1ba2b5d76c950530"
+      "sha256": "36f6a91889816720c4b08668e6b458b16f42ec2295de61b46107412e9a223e2b"
     },
     {
       "path": "www/style.css",
-      "sha256": "f73f82cc60f5e74c95b6b6200f431e37f99acccfafd4bd6d8bf6a39d22b626dc"
+      "sha256": "50ad7ccc587ee6482ab38433e7f72bdd703897e9fc5d33ad4a07721a36f84aa9"
     },
     {
       "path": "www/app.js",
-      "sha256": "534f4f6f843dd7634bc2d7a363504ce38fb509c48dd0bc63a057068330647d87"
+      "sha256": "8267f82275c104f48ab275b9ad4063093c434dd3f942677f74d4b6b307570cce"
     },
     {
       "path": "www/help.html",
