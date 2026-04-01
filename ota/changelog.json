@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.53",
+    "date": "2026-04-01",
+    "notes": "Make keg names editable"
+  },
+  {
     "version": "1.0.52",
     "date": "2026-04-01",
     "notes": "Testing release notes; Updated Help file"
