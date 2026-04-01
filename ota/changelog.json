@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.51",
+    "date": "2026-04-01",
+    "notes": "Made revision notes visible in Update window."
+  },
+  {
     "version": "1.0.50",
     "date": "2026-04-01",
     "notes": "Release notes now shown on Updates screen"
