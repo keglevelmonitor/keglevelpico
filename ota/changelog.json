@@ -1,0 +1,82 @@
+[
+  {
+    "version": "1.0.50",
+    "date": "2026-04-01",
+    "notes": "Release notes now shown on Updates screen"
+  },
+  {
+    "version": "1.0.49",
+    "date": "2026-03-31",
+    "notes": "Improved DRIP test toggle and leak state clearing"
+  },
+  {
+    "version": "1.0.48",
+    "date": "2026-03-31",
+    "notes": "Fixed beverage delete to show name instead of UUID; BatchFlow cleanup on delete"
+  },
+  {
+    "version": "1.0.47",
+    "date": "2026-03-30",
+    "notes": "Improved connection stability; BatchFlow card display improvements"
+  },
+  {
+    "version": "1.0.46",
+    "date": "2026-03-29",
+    "notes": "Fixed RELOAD button to bypass browser cache"
+  },
+  {
+    "version": "1.0.45",
+    "date": "2026-03-29",
+    "notes": "Improved main navigation hover style"
+  },
+  {
+    "version": "1.0.44",
+    "date": "2026-03-28",
+    "notes": "Fixed weight units (kg/lb) in keg form"
+  },
+  {
+    "version": "1.0.43",
+    "date": "2026-03-28",
+    "notes": "Fixed imperial/metric unit switching for all volume displays"
+  },
+  {
+    "version": "1.0.42",
+    "date": "2026-03-27",
+    "notes": "Renamed report labels to Scheduled/Conditional Notifications"
+  },
+  {
+    "version": "1.0.41",
+    "date": "2026-03-27",
+    "notes": "Added leak event count to scheduled notification reports"
+  },
+  {
+    "version": "1.0.40",
+    "date": "2026-03-26",
+    "notes": "Added DRIP test button for leak detection testing"
+  },
+  {
+    "version": "1.0.39",
+    "date": "2026-03-26",
+    "notes": "Added leak/drip detection with conditional notification"
+  },
+  {
+    "version": "1.0.38",
+    "date": "2026-03-25",
+    "notes": "Allow manual K-factor entry on calibration screen"
+  },
+  {
+    "version": "1.0.37",
+    "date": "2026-03-25",
+    "notes": "Updated notification emails; KegLevel Brain rename; default K-factor 2900"
+  },
+  {
+    "version": "1.0.36",
+    "date": "2026-03-24",
+    "notes": "WiFi reset escape hatch during provisioning"
+  },
+  {
+    "version": "1.0.35",
+    "date": "2026-03-24",
+    "notes": "Renamed WiFi Mode to Network Mode"
+  }
+]
