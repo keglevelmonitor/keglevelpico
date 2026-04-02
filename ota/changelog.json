@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.58",
+    "date": "2026-04-02",
+    "notes": "Updates:\n                        - Fixed NTP sync to ensure correct timestamps with logs "
+  },
+  {
     "version": "1.0.57",
     "date": "2026-04-02",
     "notes": "Updates:\n                        - Renamed LOG to LOGS\n                        - Fixed intermittent logging issue"
