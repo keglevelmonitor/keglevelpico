@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.55",
+    "date": "2026-04-02",
+    "notes": "Fixed sort order in Beverage dropdown in Edit Keg popup\nMinor UI enhancement to Beverages screen\nAllow multiple lines for release notes"
+  },
+  {
     "version": "1.0.54",
     "date": "2026-04-02",
     "notes": "Fixed keg name to resolve with changes; fixed beverage name on tap cards to resolve live; re-ordered and simplified Notifications screen and labels; fixed keg deletion issues related to keg names; simplified labels on edit keg popup"
