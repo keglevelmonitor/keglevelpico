@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.57",
+    "date": "2026-04-02",
+    "notes": "Updates:\n                        - Renamed LOG to LOGS\n                        - Fixed intermittent logging issue"
+  },
+  {
     "version": "1.0.56",
     "date": "2026-04-02",
     "notes": "Added LOGS"
