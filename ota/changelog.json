@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.59",
+    "date": "2026-04-02",
+    "notes": "Added CLEAR LOG button to LOGS screen"
+  },
+  {
     "version": "1.0.58",
     "date": "2026-04-02",
     "notes": "Updates:\n                        - Fixed NTP sync to ensure correct timestamps with logs "
