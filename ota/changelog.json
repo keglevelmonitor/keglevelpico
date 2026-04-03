@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.63",
+    "date": "2026-04-03",
+    "notes": "Moved LOGS to SETTINGS menu\nDeployed Help file"
+  },
+  {
     "version": "1.0.62",
     "date": "2026-04-03",
     "notes": "Corrected null keg name issue"
