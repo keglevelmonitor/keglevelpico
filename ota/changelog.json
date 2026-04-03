@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.61",
+    "date": "2026-04-02",
+    "notes": "Wrapped conversions in try/except to prevent bad data crashes"
+  },
+  {
     "version": "1.0.59",
     "date": "2026-04-02",
     "notes": "Added CLEAR LOG button to LOGS screen"
