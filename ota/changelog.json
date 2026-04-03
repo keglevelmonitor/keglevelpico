@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.62",
+    "date": "2026-04-03",
+    "notes": "Corrected null keg name issue"
+  },
+  {
     "version": "1.0.61",
     "date": "2026-04-02",
     "notes": "Wrapped conversions in try/except to prevent bad data crashes"
