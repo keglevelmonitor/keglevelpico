@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.66",
+    "date": "2026-04-05",
+    "notes": "Auto-save NOTIFICATIONS screen"
+  },
+  {
     "version": "1.0.65",
     "date": "2026-04-05",
     "notes": "Added optional pour summary and pour detailed logs for scheduled notifications"
@@ -143,10 +148,5 @@
     "version": "1.0.36",
     "date": "2026-03-24",
     "notes": "WiFi reset escape hatch during provisioning"
-  },
-  {
-    "version": "1.0.35",
-    "date": "2026-03-24",
-    "notes": "Renamed WiFi Mode to Network Mode"
   }
 ]
