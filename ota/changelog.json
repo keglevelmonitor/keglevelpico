@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.65",
+    "date": "2026-04-05",
+    "notes": "Added optional pour summary and pour detailed logs for scheduled notifications"
+  },
+  {
     "version": "1.0.64",
     "date": "2026-04-03",
     "notes": "RELOAD disabled until update is complete and Pico is back online"
