@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.67",
+    "date": "2026-04-06",
+    "notes": "Integrated CO2 tank measurement from Scale Brain app"
+  },
+  {
     "version": "1.0.66",
     "date": "2026-04-05",
     "notes": "Auto-save NOTIFICATIONS screen"
@@ -143,10 +148,5 @@
     "version": "1.0.37",
     "date": "2026-03-25",
     "notes": "Updated notification emails; KegLevel Brain rename; default K-factor 2900"
-  },
-  {
-    "version": "1.0.36",
-    "date": "2026-03-24",
-    "notes": "WiFi reset escape hatch during provisioning"
   }
 ]
