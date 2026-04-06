@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.13",
+    "date": "2026-04-06",
+    "notes": "\ufeffAdded 2 scale capability"
+  },
+  {
     "version": "0.1.12",
     "date": "2026-04-06",
     "notes": "\ufeffAdded Network and Standalone selections to Settings screen"
