@@ -1,10 +1,10 @@
 {
-  "version": "0.1.13",
+  "version": "0.1.14",
   "build_date": "2026-04-06",
-  "firmware_file": "scalebrain-firmware-0.1.13.zip",
-  "firmware_sha256": "74acbbef9e463613c745e4277222c64f4030744f56e5049620043dca2d037eb0",
-  "bundle_file": "firmware-bundle-0.1.13.json",
-  "bundle_sha256": "d08e9f37f1df43a9db5711ea284265cac00c79063bab9c9678092c6e6d7ac3e8",
+  "firmware_file": "scalebrain-firmware-0.1.14.zip",
+  "firmware_sha256": "5d0a8636b73d6bdb2485b720059f969a07153dee58d36cec44b4263d8fe18efc",
+  "bundle_file": "firmware-bundle-0.1.14.json",
+  "bundle_sha256": "f327c2ba8eb27b1b06163c8911cef54b8147214e6a6a5df22f0e4c99d8a7f3b8",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,7 +16,7 @@
     },
     {
       "path": "config_manager.py",
-      "sha256": "ac8e7df7be4c33aae11ecc1262016006b466a90fb54e6da7eab4305510b0ff6a"
+      "sha256": "db491a2a9ad9f37001168bd95bb30c537272ee40600745b96d6e6793d0f82833"
     },
     {
       "path": "hx711.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "d9a999b2aee68f5c8fb3e8db8ab5344ea3d963b372e0256ceda1f4b854d09e57"
+      "sha256": "e5fff5ffa7e3249808bb2fbc9f7fb9845ff4d2dbf18cf45a07002c98eac794de"
     },
     {
       "path": "wifi.py",
