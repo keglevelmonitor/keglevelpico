@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.15",
+    "date": "2026-04-06",
+    "notes": "\ufeffIntegrated into KegLevel Brain for CO2 tank monitoring"
+  },
+  {
     "version": "0.1.14",
     "date": "2026-04-06",
     "notes": "\ufeffCorrected migration issue for 2 scales"
