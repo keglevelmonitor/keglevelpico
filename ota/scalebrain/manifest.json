@@ -1,10 +1,10 @@
 {
-  "version": "0.1.12",
+  "version": "0.1.13",
   "build_date": "2026-04-06",
-  "firmware_file": "scalebrain-firmware-0.1.12.zip",
-  "firmware_sha256": "55c8421f311057e06141c9e952655398a4158c60480fed130d2848cee97ffac0",
-  "bundle_file": "firmware-bundle-0.1.12.json",
-  "bundle_sha256": "fa1b7ec618581a413599da5936f033a4620186b9d67546bfad959afdf3be0258",
+  "firmware_file": "scalebrain-firmware-0.1.13.zip",
+  "firmware_sha256": "74acbbef9e463613c745e4277222c64f4030744f56e5049620043dca2d037eb0",
+  "bundle_file": "firmware-bundle-0.1.13.json",
+  "bundle_sha256": "d08e9f37f1df43a9db5711ea284265cac00c79063bab9c9678092c6e6d7ac3e8",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,11 +16,11 @@
     },
     {
       "path": "config_manager.py",
-      "sha256": "3b9c8e6832e9d0eb66fe62cdfb5a62a7461e5f11f0bdf9299526bf7794675511"
+      "sha256": "ac8e7df7be4c33aae11ecc1262016006b466a90fb54e6da7eab4305510b0ff6a"
     },
     {
       "path": "hx711.py",
-      "sha256": "5ce6562534de8b70e1a80aa2e7d0cfd50488a6f88648650209bbbd03c1be7d26"
+      "sha256": "914ebdbf4afff51319f0789584c486b6dc844e7a12deab3b940bc4e43971ae94"
     },
     {
       "path": "main.py",
@@ -28,15 +28,15 @@
     },
     {
       "path": "scale.py",
-      "sha256": "c5c8ca533ca9ba06a8bac944f74982ae538bb4ebcb6491c72014ab76332e7e07"
+      "sha256": "674aeb63a51b19f06465e7b7f113f9041fa172f1453d145af1792a06fa073e67"
     },
     {
       "path": "server.py",
-      "sha256": "44bb1ff166dd26b0786335caeed21fd1f0c34267d22a57b104b64fabeb3810f0"
+      "sha256": "e535d8d900042a53de2c493b3469950d5498ac113d1d3eca12d5196e617817b3"
     },
     {
       "path": "version.py",
-      "sha256": "828f204acd1f009d0ec82c53976c5cb4c71c13e6aeee28174be9f43e5eb03288"
+      "sha256": "d9a999b2aee68f5c8fb3e8db8ab5344ea3d963b372e0256ceda1f4b854d09e57"
     },
     {
       "path": "wifi.py",
@@ -44,19 +44,19 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "8973dbbba79846479a065d67e4a680f8a43262fde44cf191be90477ca5ca2727"
+      "sha256": "a1de617f9cbe3117a46eba75b6b70c34bda398e61b9b09bb1a9a51f328e97244"
     },
     {
       "path": "www/style.css",
-      "sha256": "47b5e374bfd8fe8affd8d9aa4afc8b67501a9f40b62f41d7a46424a690a544fd"
+      "sha256": "40453a216cb45fb76b73097c316ca44f0e7d0fd89b7ce9c8cba95d008069fac1"
     },
     {
       "path": "www/app.js",
-      "sha256": "293d6e790a05d7eb5d0f49141eb79325c761d93d10a77a3b1497b37a340513da"
+      "sha256": "3db6711749d53f5d98b6fc301166006dc5264b348560f5cc3d1eccadae951725"
     },
     {
       "path": "www/help.html",
-      "sha256": "28f697dee4d4253bc1427b95d249f1365f5876ce161dc254af769683f42a9f03"
+      "sha256": "9fd81f4d1cbdcd0d350492a73fa3c720d827ab0f744ddaedd7eb6269ad80e86b"
     }
   ]
 }
