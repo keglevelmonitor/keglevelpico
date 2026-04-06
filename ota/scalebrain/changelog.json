@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.18",
+    "date": "2026-04-06",
+    "notes": "\ufeffClarified Profiles as Gas Cylinders\nImproved UX for gas cylinders"
+  },
+  {
     "version": "0.1.17",
     "date": "2026-04-06",
     "notes": "\ufeffAdded N2 selection"
