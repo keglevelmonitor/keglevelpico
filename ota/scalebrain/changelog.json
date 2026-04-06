@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.6",
+    "date": "2026-04-06",
+    "notes": "Updated CALIRATION screen to include current weight and tare button"
+  },
+  {
     "version": "0.1.5",
     "date": "2026-04-06",
     "notes": "updated icon"
