@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.20",
+    "date": "2026-04-06",
+    "notes": "\ufeffMake main UX consistent with KegLevel app"
+  },
+  {
     "version": "0.1.19",
     "date": "2026-04-06",
     "notes": "\ufeffClean up and optimize UX"
