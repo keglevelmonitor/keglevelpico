@@ -1,10 +1,10 @@
 {
-  "version": "1.0.66",
-  "build_date": "2026-04-05",
-  "firmware_file": "keglevel-pico-firmware-1.0.66.zip",
-  "firmware_sha256": "6de83cd6d8f253f151b3f3677ad7b0fd423ec07f1ebcab7f61f4ae6e8eb1f39a",
-  "bundle_file": "firmware-bundle-1.0.66.json",
-  "bundle_sha256": "32b863889a85742649f6794d68ccdf18290f7f03d027b07bafc0f9b5c5f27060",
+  "version": "1.0.67",
+  "build_date": "2026-04-06",
+  "firmware_file": "keglevel-pico-firmware-1.0.67.zip",
+  "firmware_sha256": "13fcd9b1ae450b3682b388cb1ecf65bab85a37650a5ba3aa333fff7c8668442d",
+  "bundle_file": "firmware-bundle-1.0.67.json",
+  "bundle_sha256": "0c05df5fbcc89d03965a8f8695c4e148b95ac4d5e909dd2ca765b3b56cd23a15",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -20,7 +20,7 @@
     },
     {
       "path": "config_manager.py",
-      "sha256": "d3fc719bff5bca7f997a9c740752ac1d60d5064df07ecc1a795527d08484a393"
+      "sha256": "3dde26005a6af0ab751dd5df7a54bd3e554262a16d478e6f0bf2f8cb1f9c6a68"
     },
     {
       "path": "diagnostic.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "c8b11cceca323b28ded9b47fc5151a12f73c9ec249e332eb7c7e2ff7228a8e0a"
+      "sha256": "6a8a7f27f508a4d79b6447591ef7fdc5fad4698d2511c3a3efe9691003078c1a"
     },
     {
       "path": "temperature.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "97a3be950ca35ba43bb00b3a1c6b0194142d4228d09a549b08504f9926e1cc1c"
+      "sha256": "24f44ba31855ee2d77a2fc82bb56a810a6bbb3c2d97349205aa41113a59fedb4"
     },
     {
       "path": "wifi.py",
@@ -52,15 +52,15 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "7fb999b75b0c5d9c2592d7dc1ff44c178d61dbc1b6e5620754cb440d4eed44f7"
+      "sha256": "24ad7efaa218eeaa435494490b37b9ba602d3e7d259c6a11320d2e21631ff99e"
     },
     {
       "path": "www/style.css",
-      "sha256": "960d6e2848931b9fbca532858dac9046d66b8fc752bd39a1ca1b1de7c4683ef6"
+      "sha256": "5c12d6b3a3b8fc0f283f3d64d920b639723e4b736520c4bbcecdf77cdcbe3b79"
     },
     {
       "path": "www/app.js",
-      "sha256": "767ccc40c0b87d1d84e65958024492ea669ebf06f851b1945c6871bc1238efe2"
+      "sha256": "9c5eb080d47d02a1566a0941105b7d79552da57837dd2b349f3afc90001a4038"
     },
     {
       "path": "www/help.html",
