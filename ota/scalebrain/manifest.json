@@ -1,10 +1,10 @@
 {
-  "version": "0.1.11",
+  "version": "0.1.12",
   "build_date": "2026-04-06",
-  "firmware_file": "scalebrain-firmware-0.1.11.zip",
-  "firmware_sha256": "f3ca9e52f32bf0b9c2d7ff3d6783af0b15ab9d115b0319a05266bdf32466f447",
-  "bundle_file": "firmware-bundle-0.1.11.json",
-  "bundle_sha256": "3db165bc7495868fe5aafc83673a604a03564d6f8f312683e603c26fc1101bb5",
+  "firmware_file": "scalebrain-firmware-0.1.12.zip",
+  "firmware_sha256": "55c8421f311057e06141c9e952655398a4158c60480fed130d2848cee97ffac0",
+  "bundle_file": "firmware-bundle-0.1.12.json",
+  "bundle_sha256": "fa1b7ec618581a413599da5936f033a4620186b9d67546bfad959afdf3be0258",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -32,11 +32,11 @@
     },
     {
       "path": "server.py",
-      "sha256": "603759c23eb24fcb85391c670376b64747ba9d894796f7fb5f87c0461c89cf6a"
+      "sha256": "44bb1ff166dd26b0786335caeed21fd1f0c34267d22a57b104b64fabeb3810f0"
     },
     {
       "path": "version.py",
-      "sha256": "64c093d79c97a49ef2f0464f619e0a8cfc47d14ea1461478212dd7c194d1080e"
+      "sha256": "828f204acd1f009d0ec82c53976c5cb4c71c13e6aeee28174be9f43e5eb03288"
     },
     {
       "path": "wifi.py",
@@ -44,19 +44,19 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "3f9b699ed7b735165672ad9667f556b626fe47f4e82a06c1fd89f723e82108a4"
+      "sha256": "8973dbbba79846479a065d67e4a680f8a43262fde44cf191be90477ca5ca2727"
     },
     {
       "path": "www/style.css",
-      "sha256": "773622f7e643da0eb34222f45eb3b32d428c0456f79f0c464ae0c2a4a7e805d2"
+      "sha256": "47b5e374bfd8fe8affd8d9aa4afc8b67501a9f40b62f41d7a46424a690a544fd"
     },
     {
       "path": "www/app.js",
-      "sha256": "3c95425b596f3410460a847958a6131c94416d8daa1a2447885756305b9e3eda"
+      "sha256": "293d6e790a05d7eb5d0f49141eb79325c761d93d10a77a3b1497b37a340513da"
     },
     {
       "path": "www/help.html",
-      "sha256": "a468a470ab9dcb4c84a47a792ebebb39ee84947f16321bbb858037a31edb1fd4"
+      "sha256": "28f697dee4d4253bc1427b95d249f1365f5876ce161dc254af769683f42a9f03"
     }
   ]
 }
