@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.8",
+    "date": "2026-04-06",
+    "notes": "\ufeffCheck for keglevel IP / AP before erroring on \"no kegs\""
+  },
+  {
     "version": "0.1.7",
     "date": "2026-04-06",
     "notes": "Increased timeout to prevent access errors"
