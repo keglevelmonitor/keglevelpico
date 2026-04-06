@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.11",
+    "date": "2026-04-06",
+    "notes": "\ufeffFixed \"waiting for reboot\" after update"
+  },
+  {
     "version": "0.1.10",
     "date": "2026-04-06",
     "notes": "\ufeffAdded Help file\nCorrected changelog so all entries are included"
