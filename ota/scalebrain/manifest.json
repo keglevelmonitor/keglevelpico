@@ -1,10 +1,10 @@
 {
-  "version": "0.1.16",
+  "version": "0.1.17",
   "build_date": "2026-04-06",
-  "firmware_file": "scalebrain-firmware-0.1.16.zip",
-  "firmware_sha256": "bd44f6894463152f9ac5db6ca05cf90f69e6664c13cb8994035b339450643d6e",
-  "bundle_file": "firmware-bundle-0.1.16.json",
-  "bundle_sha256": "5566c2bad92c41dc0852b68758eef0e06556087daff89c36010311a924a59267",
+  "firmware_file": "scalebrain-firmware-0.1.17.zip",
+  "firmware_sha256": "086c0916078d1d79bb220671aac6bacd9e38e761362458e1048483aaff7468d2",
+  "bundle_file": "firmware-bundle-0.1.17.json",
+  "bundle_sha256": "da5a5cf371c7a70d1d7d2562411e6f65c7a7876792ab430cbc0a6f78007bb4d9",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,7 +16,7 @@
     },
     {
       "path": "config_manager.py",
-      "sha256": "916cc166430c88533e8d7b5fde02c12deed67659717aa19f249a383422a0bedd"
+      "sha256": "6c0736f6107ac738bd97f6d70a64693c35dbb404cfae845e16a6e6e8a64babea"
     },
     {
       "path": "hx711.py",
@@ -32,11 +32,11 @@
     },
     {
       "path": "server.py",
-      "sha256": "64731cc86c92ab82c26ddb16328fed27acb042f4b0f6cdb7c085ae184a5fbc7b"
+      "sha256": "27a51ee8c6de11731086c9c29e397cf8561cb2a695f471533585c4893536b30b"
     },
     {
       "path": "version.py",
-      "sha256": "a27f30022dcbeb3065b74a520e0ee543bca1b4f298ef8fe351380041590484f9"
+      "sha256": "9d9b5a010ef19314c91eeb998acae0ddf7c7f9d7a67bd29ffed3730931b7bc05"
     },
     {
       "path": "wifi.py",
@@ -44,15 +44,15 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "b58e117addb3dd89b734636a3ccd35c4095e96a86798ac3ad0e02a7b61a5338e"
+      "sha256": "21c7e07ab83166bf70c31dc48031ce357dc767a2ed661c7e286f4cb288d633d9"
     },
     {
       "path": "www/style.css",
-      "sha256": "cbdc1f8936faca85771d115b9b292c59eeffa282f4b56b8dd7793b021f91ef6c"
+      "sha256": "b3b7bd4f4f27dd500a1e6dd7d025397cca136e9a746c86480ac9c86b2bf9e2f6"
     },
     {
       "path": "www/app.js",
-      "sha256": "1dc224e1e2b656da189a9be2564e02b71c31f8505910bdb488a5a7d569c7efd8"
+      "sha256": "59e6ba5b72aae143aea0d586129e969a622ff7f4e5be54070adc88a77f31b9ce"
     },
     {
       "path": "www/help.html",
