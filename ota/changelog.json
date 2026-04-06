@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.69",
+    "date": "2026-04-06",
+    "notes": "Added N2 selection"
+  },
+  {
     "version": "1.0.68",
     "date": "2026-04-06",
     "notes": "Squashed CO2 reporting bug"
@@ -143,10 +148,5 @@
     "version": "1.0.39",
     "date": "2026-03-26",
     "notes": "Added leak/drip detection with conditional notification"
-  },
-  {
-    "version": "1.0.38",
-    "date": "2026-03-25",
-    "notes": "Allow manual K-factor entry on calibration screen"
   }
 ]
