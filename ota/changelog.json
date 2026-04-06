@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.71",
+    "date": "2026-04-06",
+    "notes": "Optimized header line UX"
+  },
+  {
     "version": "1.0.70",
     "date": "2026-04-06",
     "notes": "Clean up and optimize UX"
@@ -143,10 +148,5 @@
     "version": "1.0.41",
     "date": "2026-03-27",
     "notes": "Added leak event count to scheduled notification reports"
-  },
-  {
-    "version": "1.0.40",
-    "date": "2026-03-26",
-    "notes": "Added DRIP test button for leak detection testing"
   }
 ]
