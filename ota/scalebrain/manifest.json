@@ -1,10 +1,10 @@
 {
-  "version": "0.1.14",
+  "version": "0.1.15",
   "build_date": "2026-04-06",
-  "firmware_file": "scalebrain-firmware-0.1.14.zip",
-  "firmware_sha256": "5d0a8636b73d6bdb2485b720059f969a07153dee58d36cec44b4263d8fe18efc",
-  "bundle_file": "firmware-bundle-0.1.14.json",
-  "bundle_sha256": "f327c2ba8eb27b1b06163c8911cef54b8147214e6a6a5df22f0e4c99d8a7f3b8",
+  "firmware_file": "scalebrain-firmware-0.1.15.zip",
+  "firmware_sha256": "4355f4fee05ddebce12913c1b9211f8a0bcc91c6797c5a71d7705b12b0fe47ef",
+  "bundle_file": "firmware-bundle-0.1.15.json",
+  "bundle_sha256": "0ced48cf40b6e791dcc3e4150e523c4b577b8e59d4cac9f571904f7b8fe88e58",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,7 +16,7 @@
     },
     {
       "path": "config_manager.py",
-      "sha256": "db491a2a9ad9f37001168bd95bb30c537272ee40600745b96d6e6793d0f82833"
+      "sha256": "916cc166430c88533e8d7b5fde02c12deed67659717aa19f249a383422a0bedd"
     },
     {
       "path": "hx711.py",
@@ -32,11 +32,11 @@
     },
     {
       "path": "server.py",
-      "sha256": "e535d8d900042a53de2c493b3469950d5498ac113d1d3eca12d5196e617817b3"
+      "sha256": "64731cc86c92ab82c26ddb16328fed27acb042f4b0f6cdb7c085ae184a5fbc7b"
     },
     {
       "path": "version.py",
-      "sha256": "e5fff5ffa7e3249808bb2fbc9f7fb9845ff4d2dbf18cf45a07002c98eac794de"
+      "sha256": "766b0321237944c1df4223b8b7e36060c90ecaa328531dba4b5bdacb1447f2d5"
     },
     {
       "path": "wifi.py",
@@ -44,19 +44,19 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "a1de617f9cbe3117a46eba75b6b70c34bda398e61b9b09bb1a9a51f328e97244"
+      "sha256": "b58e117addb3dd89b734636a3ccd35c4095e96a86798ac3ad0e02a7b61a5338e"
     },
     {
       "path": "www/style.css",
-      "sha256": "40453a216cb45fb76b73097c316ca44f0e7d0fd89b7ce9c8cba95d008069fac1"
+      "sha256": "cbdc1f8936faca85771d115b9b292c59eeffa282f4b56b8dd7793b021f91ef6c"
     },
     {
       "path": "www/app.js",
-      "sha256": "3db6711749d53f5d98b6fc301166006dc5264b348560f5cc3d1eccadae951725"
+      "sha256": "56154d63696a80e56c4cb6c973ecf4053acf73beb21437aa543e24778410243f"
     },
     {
       "path": "www/help.html",
-      "sha256": "9fd81f4d1cbdcd0d350492a73fa3c720d827ab0f744ddaedd7eb6269ad80e86b"
+      "sha256": "54d8d749b4547f445f92bd5b0c208436a9e6af614744535998ff971ee361875b"
     }
   ]
 }
