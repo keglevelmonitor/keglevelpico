@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.22",
+    "date": "2026-04-06",
+    "notes": "\ufeffImproved gas assignment UX"
+  },
+  {
     "version": "0.1.21",
     "date": "2026-04-06",
     "notes": "\ufeffRefined connectivity schema for improved performance"
