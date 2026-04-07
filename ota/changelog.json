@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.72",
+    "date": "2026-04-06",
+    "notes": "Added gas volume to conditional notification\nAdded conditional alert for low gas"
+  },
+  {
     "version": "1.0.71",
     "date": "2026-04-06",
     "notes": "Optimized header line UX"
@@ -143,10 +148,5 @@
     "version": "1.0.42",
     "date": "2026-03-27",
     "notes": "Renamed report labels to Scheduled/Conditional Notifications"
-  },
-  {
-    "version": "1.0.41",
-    "date": "2026-03-27",
-    "notes": "Added leak event count to scheduled notification reports"
   }
 ]
