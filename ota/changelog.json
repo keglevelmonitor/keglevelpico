@@ -1,8 +1,8 @@
 [
   {
-    "version": "1.0.72",
+    "version": "1.0.73",
     "date": "2026-04-06",
-    "notes": "Added gas volume to conditional notification\nAdded conditional alert for low gas"
+    "notes": "made low gas alert the bottommost slider"
   },
   {
     "version": "1.0.71",
