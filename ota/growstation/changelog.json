@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.8",
+    "date": "2026-04-09",
+    "notes": "\ufeffChanged a label"
+  },
+  {
     "version": "0.1.7",
     "date": "2026-04-09",
     "notes": "\ufeffOptimized watering settings"
