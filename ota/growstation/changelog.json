@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.5",
+    "date": "2026-04-09",
+    "notes": "\ufeffAdded setting for pump volume"
+  },
+  {
     "version": "0.1.4",
     "date": "2026-04-09",
     "notes": "\ufeffFixed card titles again"
