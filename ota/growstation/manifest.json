@@ -1,10 +1,10 @@
 {
-  "version": "0.1.6",
+  "version": "0.1.7",
   "build_date": "2026-04-09",
-  "firmware_file": "growstation-firmware-0.1.6.zip",
-  "firmware_sha256": "9ec7ce033fc909f6e3f162f65fc6e11d14621659806288c85325c6ff34234471",
-  "bundle_file": "firmware-bundle-0.1.6.json",
-  "bundle_sha256": "ee8b1cf3c777bfc9a8f12ff4c9a094b94c76e21a32c82ece7ac96cd84fcc53df",
+  "firmware_file": "growstation-firmware-0.1.7.zip",
+  "firmware_sha256": "42d41c81663d1896fc16bf448c7f067ea6dc5129bbed4fd62fa77ec8cf6fa905",
+  "bundle_file": "firmware-bundle-0.1.7.json",
+  "bundle_sha256": "d626555c646325cee6b0225551e1588357212a4e277e507e3bdca1f7caeadef3",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,7 +16,7 @@
     },
     {
       "path": "config_manager.py",
-      "sha256": "f160acd066aa534590fa6d442c90d1fe7d220cdf0ef326e314ef7124c57ade1a"
+      "sha256": "4e0cfcabedd9c9cfd5a3c0111812945fe76f3692036346f38dbfed8be1f5983f"
     },
     {
       "path": "main.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "8adab156654e251abbb35e93e48e382491720804aa34ee1920910fe94539e5e5"
+      "sha256": "663892bf4e53e1235353313205530a338ee944f8fa19ff5397758cbefc6bf0a6"
     },
     {
       "path": "temperature.py",
@@ -44,11 +44,11 @@
     },
     {
       "path": "version.py",
-      "sha256": "be0f88cc5aeda1ab29b9f7cea071798b7b91bc33f2169445a3357402c746f25d"
+      "sha256": "c9c7dcb0eb6de0286b872e031ca7f3d5771aa90bc5509da637c500a244464bf4"
     },
     {
       "path": "watering.py",
-      "sha256": "802a2b2edc42ec12e89fbde6a180401537fe81b900fe2f492c43aad599ecab63"
+      "sha256": "9187e92b89dc1c90c4d3143ce4adc7c5938466aff97366d02152f15d49a07c90"
     },
     {
       "path": "wifi.py",
@@ -64,11 +64,11 @@
     },
     {
       "path": "www/app.js",
-      "sha256": "efa6094985c09abc9641f892a35be5f751fbcabf079a7bc351a8907853d29316"
+      "sha256": "9ed117589f8a89a01c841910c353ee466afe99240a721b29e87414029f695642"
     },
     {
       "path": "www/help.html",
-      "sha256": "4c2de1590ffb5b205014c17b48e97aac0086664badfcc198fabc29bcd3d83457"
+      "sha256": "53a0ba06ec88fb3697e0098a25a37548d6de4652dbc0aa088b327188d0fc2f8a"
     }
   ]
 }
