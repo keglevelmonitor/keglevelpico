@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.6",
+    "date": "2026-04-09",
+    "notes": "\ufeffimproved look of cards on main ui"
+  },
+  {
     "version": "0.1.5",
     "date": "2026-04-09",
     "notes": "\ufeffAdded setting for pump volume"
