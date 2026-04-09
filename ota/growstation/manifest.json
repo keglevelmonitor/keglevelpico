@@ -1,10 +1,10 @@
 {
-  "version": "0.1.4",
+  "version": "0.1.5",
   "build_date": "2026-04-09",
-  "firmware_file": "growstation-firmware-0.1.4.zip",
-  "firmware_sha256": "2ceea72e7b872c5224a90b074faa8390baa7c2e7c311e9503285adb78c3c6c20",
-  "bundle_file": "firmware-bundle-0.1.4.json",
-  "bundle_sha256": "b882bf9173aee8ba45cd9eecdd57c7ea951d41a24c01bb1b9e65e3bba79668cd",
+  "firmware_file": "growstation-firmware-0.1.5.zip",
+  "firmware_sha256": "a1115b1b60a2cacf57382320c12687f78aa6ad5076179003072b281844d403cc",
+  "bundle_file": "firmware-bundle-0.1.5.json",
+  "bundle_sha256": "aca10f40deda6794a7325b034cca7e721d5a6a55886ded1dada9b7f148f2e5b1",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "d051e036c04580bc728c088aa5d90bd07e18403f9eb20d193a4fe0839fde7081"
+      "sha256": "450a51e8c5661be69e42b15f07d4cab1a29ba7ba18cd2c6cded624fc8a657255"
     },
     {
       "path": "watering.py",
