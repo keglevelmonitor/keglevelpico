@@ -1,0 +1,70 @@
+{
+  "version": "0.1.2",
+  "build_date": "2026-04-09",
+  "firmware_file": "growstation-firmware-0.1.2.zip",
+  "firmware_sha256": "6952696eb99caabcdbb5b472ea44feabe15d591a1d95abcf14d1c1341adb5e92",
+  "bundle_file": "firmware-bundle-0.1.2.json",
+  "bundle_sha256": "4ff4ba0e339756b5a69c8b934626c239cf8b85bbfd7c0cb6a61e4c52fc240108",
+  "files": [
+    {
+      "path": "lib/microdot/__init__.py",
+      "sha256": "c6f6e11414ec04623b60a24a10a6b734e7dde9a9dd2ad93c5292625ca4d015e3"
+    },
+    {
+      "path": "lib/microdot/microdot.py",
+      "sha256": "622d83d3a7d08201ecd6d121e5f449dcd8758604f872dfe7b200e4b0f6f8c0cf"
+    },
+    {
+      "path": "config_manager.py",
+      "sha256": "f8bffcd20e18235fee1a5640d4e6dd1b787c7955e6fd74e1b6d756bd1db88f55"
+    },
+    {
+      "path": "main.py",
+      "sha256": "d9a919b4f8579fce9e60cf4b508b781327e081e606e8852e58d4f424ec6a16f4"
+    },
+    {
+      "path": "moisture.py",
+      "sha256": "22f001923ff5b191993e099d4cfe3ab246bd002c2d043877e17272259dae98a0"
+    },
+    {
+      "path": "relay.py",
+      "sha256": "b553cf8b75190461d96e6f13b32b3d6f34746a29a827712c86c90bc2b04130cb"
+    },
+    {
+      "path": "schedule.py",
+      "sha256": "fb5f62494888c061c6824450967dabcfac40aadb44863a84d5a24cd84454b7f0"
+    },
+    {
+      "path": "server.py",
+      "sha256": "1992157998a026ff616e2117d446a42e6022d269ab31bcf56c9979d0686e40dd"
+    },
+    {
+      "path": "version.py",
+      "sha256": "528cfe87f710e62b06b4957433f41ee680d69f705ccd33d77efa57da6d21e885"
+    },
+    {
+      "path": "watering.py",
+      "sha256": "9bcfc50fc0746c067455e1f0144a2e85136edff9d1aa68e6aa3393a808e973ee"
+    },
+    {
+      "path": "wifi.py",
+      "sha256": "67ed7f0ca4e6800694af1bcb82a4708df90c798748aea0226264c99e4278f72f"
+    },
+    {
+      "path": "www/index.html",
+      "sha256": "74dea061497564b195edab1a16883f4d3d4d4ecd8ca7cbca5905b150684c9a8e"
+    },
+    {
+      "path": "www/style.css",
+      "sha256": "b024b3bb5732836e32e8bf6322a003b49e883066dc5f25fadfccfe93ce11ea78"
+    },
+    {
+      "path": "www/app.js",
+      "sha256": "7fc57229e0020d29e926632588e56a5a18fe7551cce1b6a585aa5eb94cdefebc"
+    },
+    {
+      "path": "www/help.html",
+      "sha256": "a12d35b02dcb3413b6fdb43d1073de618c043a2fc6fbb4c41e041e782e831047"
+    }
+  ]
+}
