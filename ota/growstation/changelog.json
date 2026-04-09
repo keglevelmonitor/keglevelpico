@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.7",
+    "date": "2026-04-09",
+    "notes": "\ufeffOptimized watering settings"
+  },
+  {
     "version": "0.1.6",
     "date": "2026-04-09",
     "notes": "\ufeffimproved look of cards on main ui"
