@@ -1,10 +1,10 @@
 {
-  "version": "0.1.13",
+  "version": "0.1.14",
   "build_date": "2026-04-12",
-  "firmware_file": "growstation-firmware-0.1.13.zip",
-  "firmware_sha256": "1fda63bb70ba311fe14ef91f7b17e74210228d1522f4078e1a9ff66ca48570dd",
-  "bundle_file": "firmware-bundle-0.1.13.json",
-  "bundle_sha256": "af41ebb5c4c67023afcfc447d348af37d2d46e1168b767be63edfc929b7884cf",
+  "firmware_file": "growstation-firmware-0.1.14.zip",
+  "firmware_sha256": "de056f4c2e1d251c6343ad7f1e25270092a4101abc02772dfb8d8604b59bb747",
+  "bundle_file": "firmware-bundle-0.1.14.json",
+  "bundle_sha256": "6b1eb2fc6b19d159dbb82585eee0c96b214792e54e0cfb59d25156985dd9c1f0",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -44,11 +44,11 @@
     },
     {
       "path": "version.py",
-      "sha256": "f4b56aef67323524c33e39f4ac93e4903cf16b14754b27a5c91a44ce038c1eb2"
+      "sha256": "5982ee0cdc9f54c528b89e4731d12a75d47d30d4719c19ec5bb1f63af65794da"
     },
     {
       "path": "watering.py",
-      "sha256": "31bb57795822d0d0ffd179a7de6d5436f408bc90e9384f176a7d32974db4a8ff"
+      "sha256": "7aaef1449b62f88eb298b024aea0b0574da61a3bcc56807e15840153ba202d85"
     },
     {
       "path": "wifi.py",
