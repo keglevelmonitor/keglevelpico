@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.16",
+    "date": "2026-04-12",
+    "notes": "\ufeffImproved calibration function"
+  },
+  {
     "version": "0.1.15",
     "date": "2026-04-12",
     "notes": "\ufeffAdded wet/dry calibration for LM393 sensors"
