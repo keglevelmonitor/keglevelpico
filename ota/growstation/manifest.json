@@ -1,10 +1,10 @@
 {
-  "version": "0.1.15",
+  "version": "0.1.16",
   "build_date": "2026-04-12",
-  "firmware_file": "growstation-firmware-0.1.15.zip",
-  "firmware_sha256": "214aff49242d4721774192b0cab605897e181ebea7f764576a67bcb573e75a6e",
-  "bundle_file": "firmware-bundle-0.1.15.json",
-  "bundle_sha256": "343ebaa53ec54812c0e7877939063ddf02794c37af9f2e68e8a1c4aa7ed73755",
+  "firmware_file": "growstation-firmware-0.1.16.zip",
+  "firmware_sha256": "41e75ff0e96c65f90021820eecc11777f8ab91900968f882055781cbcc13079d",
+  "bundle_file": "firmware-bundle-0.1.16.json",
+  "bundle_sha256": "babd05f75c865444abe4707edcbe325515bd7eab47d7d75b0ae915a2dbf3b3e3",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "138c6fffcde6a53c78a641aab33dd57b7c9b23ed6e415ce073701b8374ff5b53"
+      "sha256": "0685f91e9116176e0e2cacd4256ccdbc7427c590276c8429c571e160829a8da3"
     },
     {
       "path": "watering.py",
@@ -60,15 +60,15 @@
     },
     {
       "path": "www/style.css",
-      "sha256": "0764e7dc143c2fccf9df90b166a5ca40050e3f78f91467d06038aae4591d076f"
+      "sha256": "917e5cb14bd6f7c53444cf9bf3484df92742d40bbd4ddf0bc3eac61f9ca5ce0c"
     },
     {
       "path": "www/app.js",
-      "sha256": "0d5b214ec3471caedf52239a1afdae6b8fb5266bdfbf2b5e8ed331a8a23ab3c6"
+      "sha256": "ba83ad16215ed3fb42df8f8463ddccd6832e96c57e8d03516a30cbddb31d66d7"
     },
     {
       "path": "www/help.html",
-      "sha256": "484930a00d52f8bffc53a8da49bc3338dd1d7401fa44928e445da118c1858562"
+      "sha256": "ad03a1c019fc1a4e3362a2de6c1411112e77e13953e2c2ea270ebee6391cf9bf"
     }
   ]
 }
