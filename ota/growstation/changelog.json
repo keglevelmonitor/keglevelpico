@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.14",
+    "date": "2026-04-12",
+    "notes": "\ufeffDebugging ADC2 issue"
+  },
+  {
     "version": "0.1.13",
     "date": "2026-04-12",
     "notes": "\ufeffChanged read schema to a rolling average of 3 readings, at least 5 seconds apart"
