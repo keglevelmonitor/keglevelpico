@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.18",
+    "date": "2026-04-12",
+    "notes": "\ufeffCreated sensor log to debug drift"
+  },
+  {
     "version": "0.1.17",
     "date": "2026-04-12",
     "notes": "\ufeffSquashed a calibration bug"
