@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.13",
+    "date": "2026-04-12",
+    "notes": "\ufeffChanged read schema to a rolling average of 3 readings, at least 5 seconds apart"
+  },
+  {
     "version": "0.1.12",
     "date": "2026-04-12",
     "notes": "\ufeffAdded a SKIP button for watering\nAligned button names on dashboard"
