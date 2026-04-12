@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.10",
+    "date": "2026-04-12",
+    "notes": "\ufeffmatched relays to production pcb"
+  },
+  {
     "version": "0.1.9",
     "date": "2026-04-09",
     "notes": "\ufeffOptimzed labels on SYSTEM settings screen."
