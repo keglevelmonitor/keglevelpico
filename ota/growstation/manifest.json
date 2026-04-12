@@ -1,10 +1,10 @@
 {
-  "version": "0.1.14",
+  "version": "0.1.15",
   "build_date": "2026-04-12",
-  "firmware_file": "growstation-firmware-0.1.14.zip",
-  "firmware_sha256": "de056f4c2e1d251c6343ad7f1e25270092a4101abc02772dfb8d8604b59bb747",
-  "bundle_file": "firmware-bundle-0.1.14.json",
-  "bundle_sha256": "6b1eb2fc6b19d159dbb82585eee0c96b214792e54e0cfb59d25156985dd9c1f0",
+  "firmware_file": "growstation-firmware-0.1.15.zip",
+  "firmware_sha256": "214aff49242d4721774192b0cab605897e181ebea7f764576a67bcb573e75a6e",
+  "bundle_file": "firmware-bundle-0.1.15.json",
+  "bundle_sha256": "343ebaa53ec54812c0e7877939063ddf02794c37af9f2e68e8a1c4aa7ed73755",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -24,7 +24,7 @@
     },
     {
       "path": "moisture.py",
-      "sha256": "d27a45c1a6c5d6b482587253d3ba865f6fe02f620ec24543921973fa98013c40"
+      "sha256": "51e916032269c862c18aa6d59f5f0ff03d4f184de73e551dde37af9e70ff5a43"
     },
     {
       "path": "relay.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "5982ee0cdc9f54c528b89e4731d12a75d47d30d4719c19ec5bb1f63af65794da"
+      "sha256": "138c6fffcde6a53c78a641aab33dd57b7c9b23ed6e415ce073701b8374ff5b53"
     },
     {
       "path": "watering.py",
@@ -60,15 +60,15 @@
     },
     {
       "path": "www/style.css",
-      "sha256": "dbc937f18f9457edd95d1e179faaad881280685e1ee1d482a0b97a99043e3b4c"
+      "sha256": "0764e7dc143c2fccf9df90b166a5ca40050e3f78f91467d06038aae4591d076f"
     },
     {
       "path": "www/app.js",
-      "sha256": "5707d0507ff2d14ef2749c00696382eaceb90236c23f8ca22985476f3f1889be"
+      "sha256": "0d5b214ec3471caedf52239a1afdae6b8fb5266bdfbf2b5e8ed331a8a23ab3c6"
     },
     {
       "path": "www/help.html",
-      "sha256": "14d917e27f3d033cceea72ad7b4e1e85366d652533fbc73826390d02d1ac2f22"
+      "sha256": "484930a00d52f8bffc53a8da49bc3338dd1d7401fa44928e445da118c1858562"
     }
   ]
 }
