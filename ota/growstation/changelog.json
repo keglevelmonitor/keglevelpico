@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.12",
+    "date": "2026-04-12",
+    "notes": "\ufeffAdded a SKIP button for watering\nAligned button names on dashboard"
+  },
+  {
     "version": "0.1.11",
     "date": "2026-04-12",
     "notes": "\ufeffAdded pull-down to ADC lines\nAdded delay between reading each sensor to limit crosstalk"
