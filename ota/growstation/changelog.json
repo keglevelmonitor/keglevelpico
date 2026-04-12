@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.19",
+    "date": "2026-04-12",
+    "notes": "\ufeffPOST and GET for logs"
+  },
+  {
     "version": "0.1.18",
     "date": "2026-04-12",
     "notes": "\ufeffCreated sensor log to debug drift"
