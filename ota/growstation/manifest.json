@@ -1,10 +1,10 @@
 {
-  "version": "0.1.18",
+  "version": "0.1.19",
   "build_date": "2026-04-12",
-  "firmware_file": "growstation-firmware-0.1.18.zip",
-  "firmware_sha256": "13485cd154cc738e4d8c6c17fbda4304dfbe720dcadfdfc645b94fc7037b1143",
-  "bundle_file": "firmware-bundle-0.1.18.json",
-  "bundle_sha256": "52403ce5376cf0b11f87ccb808a906aa39128138f30bcddc9e2a7589a29c07b3",
+  "firmware_file": "growstation-firmware-0.1.19.zip",
+  "firmware_sha256": "e590ca37caffca0117b8b5229c76278ede1a22cc0d345c33d54ca878c0c0395e",
+  "bundle_file": "firmware-bundle-0.1.19.json",
+  "bundle_sha256": "62718bdf6d66147ea57623455d1ea3c2b501a766dc30f4b2454d295d4735264e",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "d8bcee1f25369350749770018f41138e9861eb57527249137ebbf750da7dd7a5"
+      "sha256": "4b4e2743a55ea1c77a641eadd9db9574b3b3b62a39b4e8c738a9e1e3198d037c"
     },
     {
       "path": "temperature.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "2623396f85e9cfe25c92990fea46b69dab093c0307b552a6936ed8aa39bf046b"
+      "sha256": "d355780455093bda065ae460089c4f2be0134b33774398a2367637cc0065de76"
     },
     {
       "path": "watering.py",
