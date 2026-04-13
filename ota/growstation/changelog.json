@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.23",
+    "date": "2026-04-13",
+    "notes": "\ufeffAllow NONE selection for zone assignment to relay"
+  },
+  {
     "version": "0.1.22",
     "date": "2026-04-13",
     "notes": "\ufeffAdded relay mapping to select which zones drive which relays"
