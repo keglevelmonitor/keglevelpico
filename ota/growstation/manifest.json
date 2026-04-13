@@ -1,10 +1,10 @@
 {
-  "version": "0.1.21",
-  "build_date": "2026-04-12",
-  "firmware_file": "growstation-firmware-0.1.21.zip",
-  "firmware_sha256": "8eef17eb0ecdb41892a983fc566cbc814a7dfe5b69f18229d9eceeb2115ba014",
-  "bundle_file": "firmware-bundle-0.1.21.json",
-  "bundle_sha256": "a4c656d2bfac2609c16391a11ab9eeae224b76abd02def730c531d667cd5b719",
+  "version": "0.1.22",
+  "build_date": "2026-04-13",
+  "firmware_file": "growstation-firmware-0.1.22.zip",
+  "firmware_sha256": "30ee97be0cebd7018cab5dcfe1444bc0097ea4203134c8dbf21c653a2541a761",
+  "bundle_file": "firmware-bundle-0.1.22.json",
+  "bundle_sha256": "40c84df4cc8e2eed48997a93a4a77c810f1776a21c6075a23022039f053169d9",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,11 +16,11 @@
     },
     {
       "path": "config_manager.py",
-      "sha256": "e8b868e0664a7a0c457b48014ac295387a9f5b5ac0d6f14ff59ebf9b32e01dd5"
+      "sha256": "08489c4e3b8f986e8995443e52b19993a19ce0620cbe639a86aee7900f61252b"
     },
     {
       "path": "main.py",
-      "sha256": "d9a919b4f8579fce9e60cf4b508b781327e081e606e8852e58d4f424ec6a16f4"
+      "sha256": "c5f774dac3be29976872f71bbe5b76f204cd529716f9c53ab3c31ff0b9b69f63"
     },
     {
       "path": "moisture.py",
@@ -28,7 +28,7 @@
     },
     {
       "path": "relay.py",
-      "sha256": "6f4e11e51e782cbfd2ddf280fe58d79107de945f47a3606aa49098ff989fb00d"
+      "sha256": "204f9c97b1e3fa230e89223d2f0130e63fefbd8cba9929be18e63aad96ea1237"
     },
     {
       "path": "schedule.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "59da5a19426ab579108a9790860e7213187cba766b4e51ea9da38a81113eae8c"
+      "sha256": "597b37b73f6d49724569f17172dabf8187831de0d6cde343cb75cddcee88f00f"
     },
     {
       "path": "temperature.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "f5001aca460d3a0a202271df127654546be4c97a0299825390c405604c73f2b8"
+      "sha256": "b29bbc3fdbe1ee79ab7dbf6b313faf0050a7ec7d06bc86eff49431096c7f7945"
     },
     {
       "path": "watering.py",
@@ -56,19 +56,19 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "791d936bad2fb54092b2f83ae18efe2af19e0c11dc630846582487200fe8dc8c"
+      "sha256": "e4840b2a964737026cb8539e8a69f28b9790c5d8f2cde81380ad91e6b5002664"
     },
     {
       "path": "www/style.css",
-      "sha256": "917e5cb14bd6f7c53444cf9bf3484df92742d40bbd4ddf0bc3eac61f9ca5ce0c"
+      "sha256": "315677194633ceb52fa644abb678c7df697fbebb1dc9ed922e7b37ec6ea1a17b"
     },
     {
       "path": "www/app.js",
-      "sha256": "ba83ad16215ed3fb42df8f8463ddccd6832e96c57e8d03516a30cbddb31d66d7"
+      "sha256": "3742cb2ccb6a0fdca0fbfe34710cb4a28f918d824b1f5a101fc767aec29c16cc"
     },
     {
       "path": "www/help.html",
-      "sha256": "ad03a1c019fc1a4e3362a2de6c1411112e77e13953e2c2ea270ebee6391cf9bf"
+      "sha256": "8c5f7c136d3d90e68ba56155e3bf82f7b225ca7ca345d89cc03a36d6aec04ed5"
     }
   ]
 }
