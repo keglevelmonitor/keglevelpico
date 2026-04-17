@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.27",
+    "date": "2026-04-17",
+    "notes": "\ufeffMore fixes to the Sparkfun sensor read"
+  },
+  {
     "version": "0.1.26",
     "date": "2026-04-17",
     "notes": "\ufeffFixed the SparkFun capacitive sensor reads"
