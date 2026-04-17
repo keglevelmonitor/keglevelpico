@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.24",
+    "date": "2026-04-17",
+    "notes": "\ufeffDeploy SparkFun Qwiik-compatible moisture sensor code and selection"
+  },
+  {
     "version": "0.1.23",
     "date": "2026-04-13",
     "notes": "\ufeffAllow NONE selection for zone assignment to relay"
