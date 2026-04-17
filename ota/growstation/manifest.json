@@ -1,10 +1,10 @@
 {
-  "version": "0.1.24",
+  "version": "0.1.25",
   "build_date": "2026-04-17",
-  "firmware_file": "growstation-firmware-0.1.24.zip",
-  "firmware_sha256": "196b6f26ed3fbde83a0db610826f5980983b022dd9bfcef7b7fa9e0d85b87cfa",
-  "bundle_file": "firmware-bundle-0.1.24.json",
-  "bundle_sha256": "07b5dd98bc503d29db872b64756993073144418bd5beb09114a01ecb69609db7",
+  "firmware_file": "growstation-firmware-0.1.25.zip",
+  "firmware_sha256": "1bc5445fc7f99c410a9e85b3494c6b5cd686bc7250e4e56ba996cbdb88ce5660",
+  "bundle_file": "firmware-bundle-0.1.25.json",
+  "bundle_sha256": "fc3769abafa9bc80f5b5c9c99d6060509cdbd4f9ea569c941585c279652f6d0e",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -24,7 +24,7 @@
     },
     {
       "path": "moisture.py",
-      "sha256": "16e5e9abd139f3ebf13a984987823b6753e3547291a6078915ec2b72c7e22d48"
+      "sha256": "15c391973eb7cc07b2435096b952e1592e36ecdeeccc548adf156d71c82c44b5"
     },
     {
       "path": "relay.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "f328163284ec446f6d1be33f6a7ac89ce25f9d556d206669b8f21512ab1bcff1"
+      "sha256": "ba2faa46d567f5281dc88d37b0bea29c19605dd3b03205846886584ab604bf12"
     },
     {
       "path": "watering.py",
