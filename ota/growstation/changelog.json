@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.26",
+    "date": "2026-04-17",
+    "notes": "\ufeffFixed the SparkFun capacitive sensor reads"
+  },
+  {
     "version": "0.1.25",
     "date": "2026-04-17",
     "notes": "\ufeffSquashed but in Qwiic sensor reads"
