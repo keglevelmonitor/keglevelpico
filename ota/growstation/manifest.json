@@ -1,10 +1,10 @@
 {
-  "version": "0.1.23",
-  "build_date": "2026-04-13",
-  "firmware_file": "growstation-firmware-0.1.23.zip",
-  "firmware_sha256": "570d5f0daad37a5f32af295844e162d8a6d69a96bd8c8687fa53620db92f590a",
-  "bundle_file": "firmware-bundle-0.1.23.json",
-  "bundle_sha256": "16f3c31218cd2b668937e0edbb80df2c5f3bddbe4d2525016cd77d2c1399ebfb",
+  "version": "0.1.24",
+  "build_date": "2026-04-17",
+  "firmware_file": "growstation-firmware-0.1.24.zip",
+  "firmware_sha256": "196b6f26ed3fbde83a0db610826f5980983b022dd9bfcef7b7fa9e0d85b87cfa",
+  "bundle_file": "firmware-bundle-0.1.24.json",
+  "bundle_sha256": "07b5dd98bc503d29db872b64756993073144418bd5beb09114a01ecb69609db7",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -24,7 +24,7 @@
     },
     {
       "path": "moisture.py",
-      "sha256": "3e1dbcc69c98318ba9e53610211fda9adb1cadac8611b951115ca67cf05ae339"
+      "sha256": "16e5e9abd139f3ebf13a984987823b6753e3547291a6078915ec2b72c7e22d48"
     },
     {
       "path": "relay.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "f1eae837308ca5594b2b9afa58e06394a111fbe2153102ca0c3870303602dd7c"
+      "sha256": "3fd389aea811974d35585f2580117dc85b598fe7e1bd9e334efd31b938f676d5"
     },
     {
       "path": "temperature.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "be51c65fb95e5f38cb439a5b4681eccd38aaf3c134cf772f03db79ca83288ebe"
+      "sha256": "f328163284ec446f6d1be33f6a7ac89ce25f9d556d206669b8f21512ab1bcff1"
     },
     {
       "path": "watering.py",
@@ -56,7 +56,7 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "e4840b2a964737026cb8539e8a69f28b9790c5d8f2cde81380ad91e6b5002664"
+      "sha256": "f7aa310f78f34b66cb6d2e2048a09cfb5af008a7947298eb5e45f97bec80d7eb"
     },
     {
       "path": "www/style.css",
@@ -64,11 +64,11 @@
     },
     {
       "path": "www/app.js",
-      "sha256": "650bd9560dfd0487cd54c9b05541f3e4cec908ec302084ee442b0b3112e37aa4"
+      "sha256": "bb058f68b5d125f78137ace22dfc982d9610e3234a1d177b494beae48c9213d3"
     },
     {
       "path": "www/help.html",
-      "sha256": "afa17e2a8901e5012f80bcaeb07051782fa38e43a1c1e089bad7691b83b31730"
+      "sha256": "db2fa7013d4b57f0333e516241570ade25c215f6c9e97f3ce612eae75ebc62b1"
     }
   ]
 }
