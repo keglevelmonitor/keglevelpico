@@ -1,10 +1,10 @@
 {
-  "version": "0.1.29",
+  "version": "0.1.30",
   "build_date": "2026-04-18",
-  "firmware_file": "growstation-firmware-0.1.29.zip",
-  "firmware_sha256": "49688e012cdf6ce79bbfb1f5f0d9bbfc9f1a2d972553e5dad8f1b0a022c44308",
-  "bundle_file": "firmware-bundle-0.1.29.json",
-  "bundle_sha256": "48e6db58aeff7ac32517dde5cb36a7c422d589b7ce89b2e82d80e536ec47dc91",
+  "firmware_file": "growstation-firmware-0.1.30.zip",
+  "firmware_sha256": "f148fccf8498f9958e341202c5b79b6da667e86bb958bbb284db677798da820a",
+  "bundle_file": "firmware-bundle-0.1.30.json",
+  "bundle_sha256": "99f79871d097c736b4cbc1e0ec77112fd080e38aa0222ce74eedbf78a3e0b151",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,7 +16,7 @@
     },
     {
       "path": "config_manager.py",
-      "sha256": "08489c4e3b8f986e8995443e52b19993a19ce0620cbe639a86aee7900f61252b"
+      "sha256": "ed44606a36233b526a4e35e9434b3339b9bf7939e83e2a03dccfa0c8b6c1c266"
     },
     {
       "path": "main.py",
@@ -24,7 +24,7 @@
     },
     {
       "path": "moisture.py",
-      "sha256": "3425f0ae40365807b22b4262875cd4b6eed81c7cb35c5ca22f784a88b65dc3bb"
+      "sha256": "80b4d25ab663e88332f96c98609512e747609b4465f758759e00f4a919d358e3"
     },
     {
       "path": "relay.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "b861dca947a65d0da52cf1a87eca6f7335f8ef39b28c9b8dd9847f67ab3eca8a"
+      "sha256": "ea1c88675c31416f0beec4d4b26e1c8a9083c1ac1753d6f6952e313da8bcee79"
     },
     {
       "path": "temperature.py",
@@ -44,11 +44,11 @@
     },
     {
       "path": "version.py",
-      "sha256": "1635f80df87b3f1e224961740e69a36df4316385b41c1da059c8bc8b1a6d8b05"
+      "sha256": "ad077ad8967b05110508fd98e974705d4ad8ba7cb9ee11ca97a612f678fa4cdb"
     },
     {
       "path": "watering.py",
-      "sha256": "06b5c56b83b342e816cd63f782a1057ef62d0cd9ff13f22a293f2e8b2d39dd51"
+      "sha256": "3b77698d1087c99d73fc57a0b33c8418eb5b693e9110f29fd2abde625aea6bfd"
     },
     {
       "path": "wifi.py",
