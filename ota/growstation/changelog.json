@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.29",
+    "date": "2026-04-18",
+    "notes": "\ufeffTrying to revert to a previous build to overcome a bug"
+  },
+  {
     "version": "0.1.28",
     "date": "2026-04-17",
     "notes": "\ufeffstill fixing sparkfun sensor reads"
