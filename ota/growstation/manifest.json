@@ -1,10 +1,10 @@
 {
-  "version": "0.1.30",
-  "build_date": "2026-04-18",
-  "firmware_file": "growstation-firmware-0.1.30.zip",
-  "firmware_sha256": "f148fccf8498f9958e341202c5b79b6da667e86bb958bbb284db677798da820a",
-  "bundle_file": "firmware-bundle-0.1.30.json",
-  "bundle_sha256": "99f79871d097c736b4cbc1e0ec77112fd080e38aa0222ce74eedbf78a3e0b151",
+  "version": "0.1.31",
+  "build_date": "2026-04-20",
+  "firmware_file": "growstation-firmware-0.1.31.zip",
+  "firmware_sha256": "0d3edf97f8ffbb3de28233458ca07876123772acd7b4938d508d324bcb143fc9",
+  "bundle_file": "firmware-bundle-0.1.31.json",
+  "bundle_sha256": "90bc4fe93f5a172180da7f3a728445563776b41fdb611290ef3a19ae7b7ac940",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -20,7 +20,7 @@
     },
     {
       "path": "main.py",
-      "sha256": "c5f774dac3be29976872f71bbe5b76f204cd529716f9c53ab3c31ff0b9b69f63"
+      "sha256": "a0e69802b463a527acfc4e4e6c513f8404c2402b0f591c4118497ac0af282b15"
     },
     {
       "path": "moisture.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "ea1c88675c31416f0beec4d4b26e1c8a9083c1ac1753d6f6952e313da8bcee79"
+      "sha256": "1c854e56eabcf8941e01bf1aed0e1d72ad144b7ddc10dbfcb66619d0c82eae4b"
     },
     {
       "path": "temperature.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "ad077ad8967b05110508fd98e974705d4ad8ba7cb9ee11ca97a612f678fa4cdb"
+      "sha256": "4a5e09da155ab9a21105bcd1ee0a4d2214613dbb5591ce02975aec7cda80b558"
     },
     {
       "path": "watering.py",
@@ -56,15 +56,15 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "f7aa310f78f34b66cb6d2e2048a09cfb5af008a7947298eb5e45f97bec80d7eb"
+      "sha256": "48014fdd9aa6aeb3ddb1080a4ed9ad2bdd03a54365de2fb70f9af7d81cbf9812"
     },
     {
       "path": "www/style.css",
-      "sha256": "315677194633ceb52fa644abb678c7df697fbebb1dc9ed922e7b37ec6ea1a17b"
+      "sha256": "ea73d4dd0f939cfb7680b8a721efc423e5cac491d31ce2289f9c2c7dc9bb742c"
     },
     {
       "path": "www/app.js",
-      "sha256": "ace9b4cec41cd34a5d20c8c46534e9c0de2e424f70d79cbdeb5838774bb87b45"
+      "sha256": "d653cba6e65d8eee50aa2d35db9369b808243a6e26381574a61dfcfa60e6fb96"
     },
     {
       "path": "www/help.html",
