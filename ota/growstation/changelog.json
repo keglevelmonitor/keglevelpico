@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.31",
+    "date": "2026-04-20",
+    "notes": "\ufeffAdded logging function for moisture levels"
+  },
+  {
     "version": "0.1.30",
     "date": "2026-04-18",
     "notes": "\ufeffFixing issues with sparkfun implementation"
