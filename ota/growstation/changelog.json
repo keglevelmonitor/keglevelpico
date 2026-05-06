@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.33",
+    "date": "2026-05-06",
+    "notes": "\ufeffAdd per-zone \"Wait Time When Watering Demand True\" debounce so a transient dry sample (or a cold-boot dry probe) doesn't immediately trigger the pump\nRename \"Auto Pump Dwell Time\" -> \"Wait Time Between Watering Cycles\" for clarity\nAllow Number of Watering Zones to be set to 0 (lighting-only configs)\nBoth timers accept 0 to disable\nhelp.html updated with the two-timer explanation"
+  },
+  {
     "version": "0.1.32",
     "date": "2026-05-06",
     "notes": "\ufeffNumbers updated on every watering loop iteration"
@@ -143,10 +148,5 @@
     "version": "0.1.5",
     "date": "2026-04-09",
     "notes": "\ufeffAdded setting for pump volume"
-  },
-  {
-    "version": "0.1.4",
-    "date": "2026-04-09",
-    "notes": "\ufeffFixed card titles again"
   }
 ]
