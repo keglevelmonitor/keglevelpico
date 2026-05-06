@@ -1,10 +1,10 @@
 {
-  "version": "0.1.31",
-  "build_date": "2026-04-20",
-  "firmware_file": "growstation-firmware-0.1.31.zip",
-  "firmware_sha256": "0d3edf97f8ffbb3de28233458ca07876123772acd7b4938d508d324bcb143fc9",
-  "bundle_file": "firmware-bundle-0.1.31.json",
-  "bundle_sha256": "90bc4fe93f5a172180da7f3a728445563776b41fdb611290ef3a19ae7b7ac940",
+  "version": "0.1.33",
+  "build_date": "2026-05-06",
+  "firmware_file": "growstation-firmware-0.1.33.zip",
+  "firmware_sha256": "52de18f55e3efab5c14439e283cde2b1c27c19d3f40f68a3e3cd6423080735d3",
+  "bundle_file": "firmware-bundle-0.1.33.json",
+  "bundle_sha256": "d25b28e7faa66d1085791d1fbc7e08ef60005729961b96991e12f9a2d1fe7bcd",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -24,7 +24,7 @@
     },
     {
       "path": "moisture.py",
-      "sha256": "80b4d25ab663e88332f96c98609512e747609b4465f758759e00f4a919d358e3"
+      "sha256": "3d077a615407ce73c4ddf04b3fd6a5a66b5c518efd3c10aa26393489dcbbe258"
     },
     {
       "path": "relay.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "1c854e56eabcf8941e01bf1aed0e1d72ad144b7ddc10dbfcb66619d0c82eae4b"
+      "sha256": "fb18326c30d2561e16bb24c3acb14299e46b83a924531fbbd231077a0887bfbb"
     },
     {
       "path": "temperature.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "4a5e09da155ab9a21105bcd1ee0a4d2214613dbb5591ce02975aec7cda80b558"
+      "sha256": "2a61882b7f4905809370285ee94a6a9658b2853f7b9e21dc05719a302b725b48"
     },
     {
       "path": "watering.py",
@@ -60,11 +60,11 @@
     },
     {
       "path": "www/style.css",
-      "sha256": "ea73d4dd0f939cfb7680b8a721efc423e5cac491d31ce2289f9c2c7dc9bb742c"
+      "sha256": "29a2297eb9364c3871c90bfd57768792022c822d4d2a80feb27437912d75ebad"
     },
     {
       "path": "www/app.js",
-      "sha256": "d653cba6e65d8eee50aa2d35db9369b808243a6e26381574a61dfcfa60e6fb96"
+      "sha256": "8bfc65ae7a5697e9a4c0c468cca5ce8bdb0f8dfa7955054e19c0ca6106d9f68d"
     },
     {
       "path": "www/help.html",
