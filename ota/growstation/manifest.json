@@ -1,10 +1,10 @@
 {
-  "version": "0.1.32",
+  "version": "0.1.33",
   "build_date": "2026-05-06",
-  "firmware_file": "growstation-firmware-0.1.32.zip",
-  "firmware_sha256": "4385ad24e752d48e36d62d95be3b0f71f8b02fada6d3ddb4e2e40e63c3a7b6e0",
-  "bundle_file": "firmware-bundle-0.1.32.json",
-  "bundle_sha256": "eb18405c26ca95c375a3f08f8a98021c30e3d71d694f2843be65b93eba79cedb",
+  "firmware_file": "growstation-firmware-0.1.33.zip",
+  "firmware_sha256": "8d5235d5e57883576a6867c66d5a1258ec9e83c6ccab3f6614f79759b7272a20",
+  "bundle_file": "firmware-bundle-0.1.33.json",
+  "bundle_sha256": "362cf26c2420fe4d895846e281f5c430da6cbd3541fed445b8cc4e23f968333e",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,11 +16,11 @@
     },
     {
       "path": "config_manager.py",
-      "sha256": "ed44606a36233b526a4e35e9434b3339b9bf7939e83e2a03dccfa0c8b6c1c266"
+      "sha256": "cd2214708b08bd2edf549762666e3c419e7a2014db6b605a1a8c96c51f1db5c5"
     },
     {
       "path": "data_log.py",
-      "sha256": "8082dda86a8ba63128294abb8303b2cf9722691184b879b9f557aa6c5fb348a9"
+      "sha256": "479f2bb66687680dd44e7973abf7e5e449d7cc6d9a2c7db049de30e4a9ac13f3"
     },
     {
       "path": "main.py",
@@ -40,7 +40,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "fb18326c30d2561e16bb24c3acb14299e46b83a924531fbbd231077a0887bfbb"
+      "sha256": "4ce93193287d0acb73c757f7a0dca19acf179f8bd93d394cae38076d2ddbb825"
     },
     {
       "path": "temperature.py",
@@ -48,11 +48,11 @@
     },
     {
       "path": "version.py",
-      "sha256": "453a3582bb079d63519a6fa9b00ae359b80d3df8d8dcd07406d28fd508d251c6"
+      "sha256": "2a61882b7f4905809370285ee94a6a9658b2853f7b9e21dc05719a302b725b48"
     },
     {
       "path": "watering.py",
-      "sha256": "3b77698d1087c99d73fc57a0b33c8418eb5b693e9110f29fd2abde625aea6bfd"
+      "sha256": "5777bcc6f01b31e8bb64b44d6b6983b0c1642f32922e9d605f4f0c5c39e0897b"
     },
     {
       "path": "wifi.py",
@@ -60,19 +60,19 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "48014fdd9aa6aeb3ddb1080a4ed9ad2bdd03a54365de2fb70f9af7d81cbf9812"
+      "sha256": "1e80fe1ac4c61e6f2a28ad9ae1875fa6d7713115b22c11e5afc934f3e4f137ef"
     },
     {
       "path": "www/style.css",
-      "sha256": "29a2297eb9364c3871c90bfd57768792022c822d4d2a80feb27437912d75ebad"
+      "sha256": "b0cf1b00d009989410af8db17d591a7e42bddae4c1ff01d7bdb9faac77a29bd6"
     },
     {
       "path": "www/app.js",
-      "sha256": "8bfc65ae7a5697e9a4c0c468cca5ce8bdb0f8dfa7955054e19c0ca6106d9f68d"
+      "sha256": "f31d64ffd43e430d652f3a5b7e36a8b1e49e1b80fbaddab41e7940d3bd8bddd8"
     },
     {
       "path": "www/help.html",
-      "sha256": "db2fa7013d4b57f0333e516241570ade25c215f6c9e97f3ce612eae75ebc62b1"
+      "sha256": "52fd696f596a8b2b40cee55c380ed0471eb4546d6b8b73ff610510e33d467a53"
     }
   ]
 }
