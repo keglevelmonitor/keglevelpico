@@ -1,0 +1,70 @@
+{
+  "version": "0.1.31",
+  "build_date": "2026-07-22",
+  "firmware_file": "fermvault-pico-firmware-0.1.31.zip",
+  "firmware_sha256": "9bd13b4f728286394952e65514215ecf602e70f4327581093c85bb26f8436c7a",
+  "bundle_file": "firmware-bundle-0.1.31.json",
+  "bundle_sha256": "4198346f6420974b14cd9bd497ef462b49468b1355ab73c250b0f1885c33be61",
+  "files": [
+    {
+      "path": "lib/microdot/__init__.py",
+      "sha256": "c6f6e11414ec04623b60a24a10a6b734e7dde9a9dd2ad93c5292625ca4d015e3"
+    },
+    {
+      "path": "lib/microdot/microdot.py",
+      "sha256": "622d83d3a7d08201ecd6d121e5f449dcd8758604f872dfe7b200e4b0f6f8c0cf"
+    },
+    {
+      "path": "alert_manager.py",
+      "sha256": "8dfaef9145a62f7974a690eaf0b1912775d5fc89c65038d47ca304292a0a1326"
+    },
+    {
+      "path": "brewersfriend.py",
+      "sha256": "c194098d3bb506086eff2a16ee87384028e70c6e45f1a827ce29869e7bdd4e22"
+    },
+    {
+      "path": "config_manager.py",
+      "sha256": "b39a613397fb064e7bddd62165d58f05900f7c0577e7615a65932fc352b2da18"
+    },
+    {
+      "path": "control.py",
+      "sha256": "824cdec0f0d5384de9c77204afb7bf524461882e5c86248524f26c782b783be0"
+    },
+    {
+      "path": "main.py",
+      "sha256": "c793a55befd131e7bc9b8935d74618b8a62b7e5c3235689d08e85e4d65d73281"
+    },
+    {
+      "path": "relay_control.py",
+      "sha256": "61cac12b52204ff49eaa42d8ee1e9382e19445f2d6793a949486d30afacee0ce"
+    },
+    {
+      "path": "server.py",
+      "sha256": "629f14bfc2d215777be245280617e55daf2e0ff7ffbd916ec1b7a69f35e8ffcb"
+    },
+    {
+      "path": "temperature.py",
+      "sha256": "3973c590e8cbee081bca3b7def1b4148ee91852bec0d49701b0899b0e2e1202b"
+    },
+    {
+      "path": "version.py",
+      "sha256": "5d230a519e9c6e7b4fefb4fbaf86ca5503cff62925eef562c50962db9546f178"
+    },
+    {
+      "path": "wifi.py",
+      "sha256": "ce84b544afa7205ad4ff6d79afc32077125892d08463915e79140a37a2af222d"
+    },
+    {
+      "path": "www/index.html",
+      "sha256": "3220cfeb4a17a99b7ba4be98d89dd7460f0cf436023ce004c286f2ad2dae0311"
+    },
+    {
+      "path": "www/style.css",
+      "sha256": "7e20c42cd363c105a83cf4599ab168ba04e57c1b22d1c5d63617b0e6f66684a4"
+    },
+    {
+      "path": "www/app.js",
+      "sha256": "998f3d0781021b63dab449770f7b2ca87e88e32c77e27bf7ffda7053a4ff2be8"
+    }
+  ]
+}
