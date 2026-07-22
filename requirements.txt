@@ -1,4 +1,0 @@
-# Raspberry Pi GPIO (Linux only - app uses MockGPIO on Windows)
-lgpio==0.2.2.0; sys_platform == 'linux'
-rpi-lgpio==0.6; sys_platform == 'linux'
-kivy[base]
