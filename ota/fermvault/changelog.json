@@ -1,0 +1,7 @@
+[
+  {
+    "version": "0.1.31",
+    "date": "2026-07-22",
+    "notes": "OTA target moved to keglevelmonitor/keglevelpico/ota/fermvault/"
+  }
+]
