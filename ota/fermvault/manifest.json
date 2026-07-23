@@ -1,10 +1,10 @@
 {
-  "version": "0.1.32",
+  "version": "0.1.33",
   "build_date": "2026-07-23",
-  "firmware_file": "fermvault-pico-firmware-0.1.32.zip",
-  "firmware_sha256": "20384b189b64e9c9972843a042526fac70923eb0c0c00e9efd553f9f913f6d3e",
-  "bundle_file": "firmware-bundle-0.1.32.json",
-  "bundle_sha256": "dfd3ccf6b508567c6a3b98ec8c78d0740f4fca655ec8c0d72945408db9a33c51",
+  "firmware_file": "fermvault-pico-firmware-0.1.33.zip",
+  "firmware_sha256": "b6874ace4548a786d274a6a8167497d76ae21b797cc0b9c9b92b4886a52f0e50",
+  "bundle_file": "firmware-bundle-0.1.33.json",
+  "bundle_sha256": "1df53d5518b27baa3b8fe19a90199de8d0d4391ae012656d129ce79445b0e438",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "relay_control.py",
-      "sha256": "61cac12b52204ff49eaa42d8ee1e9382e19445f2d6793a949486d30afacee0ce"
+      "sha256": "55fc4d60e09c7b4a7fd0ac2eb6787a8a7a5ab71e56090b8e2e87455429cf4477"
     },
     {
       "path": "server.py",
@@ -48,7 +48,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "038336d771bb857f4db8cadc21fa6fb2a1a260c704187f6b168b442538ac89ac"
+      "sha256": "f00c1bc1c76988260041366df4f200399962b877c3f892fcfb83065e13752d35"
     },
     {
       "path": "wifi.py",
