@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.33",
+    "date": "2026-07-23",
+    "notes": "DWELL enforced with every Pico startup to prevent power outage short-cycling"
+  },
+  {
     "version": "0.1.32",
     "date": "2026-07-23",
     "notes": "Pico is now authoritative vor freshest reading age"
