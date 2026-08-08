@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.36",
+    "date": "2026-08-08",
+    "notes": "Fixed issue with commit"
+  },
+  {
     "version": "0.1.35",
     "date": "2026-08-08",
     "notes": "Dashboard: new inline \"REFRESH FROM BREWER'S FRIEND\" button on the right of the FG DIAGNOSTICS header.  One click pulls the freshest readings from BF via the shared Cloudflare Worker and re-runs FG analysis, no tab-switching needed.  Button reports its own progress (Refreshing / Loaded N / Error) and self-disables for 3 s after each click to prevent accidental double-taps."
