@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.35",
+    "date": "2026-08-08",
+    "notes": "Dashboard: new inline \"REFRESH FROM BREWER'S FRIEND\" button on the right of the FG DIAGNOSTICS header.  One click pulls the freshest readings from BF via the shared Cloudflare Worker and re-runs FG analysis, no tab-switching needed.  Button reports its own progress (Refreshing / Loaded N / Error) and self-disables for 3 s after each click to prevent accidental double-taps."
+  },
+  {
     "version": "0.1.34",
     "date": "2026-08-08",
     "notes": "Dashboard: new fermentation block ported from FermTrend -- summary strip (SESSION / OG / CURRENT SG / TEMP / READINGS), DATA STALE banner, compact FERMENTATION STATUS bar, SG trend chart with Window/Full modes, Temp overlay, F vs C, SG Temp Compensate, drag-to-set analysis window, and expanded FG DIAGNOSTICS panel.\nUnder the hood: browser now fetches Brewers Friend readings directly via the shared fermtrend-proxy Cloudflare Worker, eliminating the paginated on-Pico history fetch that caused OOM crashes during Refresh History and the 8 h auto-refresh tick.  Pico keeps the lightweight status poll that feeds the DATA STALE banner and email alerts."
