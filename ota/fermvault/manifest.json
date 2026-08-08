@@ -1,10 +1,10 @@
 {
-  "version": "0.1.33",
-  "build_date": "2026-07-23",
-  "firmware_file": "fermvault-pico-firmware-0.1.33.zip",
-  "firmware_sha256": "b6874ace4548a786d274a6a8167497d76ae21b797cc0b9c9b92b4886a52f0e50",
-  "bundle_file": "firmware-bundle-0.1.33.json",
-  "bundle_sha256": "1df53d5518b27baa3b8fe19a90199de8d0d4391ae012656d129ce79445b0e438",
+  "version": "0.1.34",
+  "build_date": "2026-08-08",
+  "firmware_file": "fermvault-pico-firmware-0.1.34.zip",
+  "firmware_sha256": "bb171f9ac94984d6bbf63d05cf99b43534dac0ca9c0b8ef41e6b8a823e0b0d13",
+  "bundle_file": "firmware-bundle-0.1.34.json",
+  "bundle_sha256": "c3624d1057239582b8c9ae0c29d47ef79d04a9850b1910020efebf30f8a1c1fc",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,23 +16,23 @@
     },
     {
       "path": "alert_manager.py",
-      "sha256": "8dfaef9145a62f7974a690eaf0b1912775d5fc89c65038d47ca304292a0a1326"
+      "sha256": "5096de409bfd5be6a5baa823bb3050fa39b9dec7b14819d3b607009414ab5603"
     },
     {
       "path": "brewersfriend.py",
-      "sha256": "c194098d3bb506086eff2a16ee87384028e70c6e45f1a827ce29869e7bdd4e22"
+      "sha256": "518ae743d29cd158b8ed5ccc0f604880ed19cf5d7e15319e26bdb1b3eef07044"
     },
     {
       "path": "config_manager.py",
-      "sha256": "b39a613397fb064e7bddd62165d58f05900f7c0577e7615a65932fc352b2da18"
+      "sha256": "95d7f3f5d817ed3b075a527dce951d34a5636601ba3bd86610963770ea4f709d"
     },
     {
       "path": "control.py",
-      "sha256": "824cdec0f0d5384de9c77204afb7bf524461882e5c86248524f26c782b783be0"
+      "sha256": "b21fc09f977d1a6fff6afddb944c9cef05050298cc2c2e610977cdf675c744d6"
     },
     {
       "path": "main.py",
-      "sha256": "c793a55befd131e7bc9b8935d74618b8a62b7e5c3235689d08e85e4d65d73281"
+      "sha256": "5dd8ca54ffc539f989e3a1ccf878556edd30bc9f397f8586c8e77f2ca98151ef"
     },
     {
       "path": "relay_control.py",
@@ -40,7 +40,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "d4897cf5b4259b33476cb181f3a1ef1deb05e52b1a1e1a72d5b1cb8c353bdf4f"
+      "sha256": "89998dd6bf509e77d62d0a38df9d7e2aace783ee05d443983ffd903f439423a7"
     },
     {
       "path": "temperature.py",
@@ -48,7 +48,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "f00c1bc1c76988260041366df4f200399962b877c3f892fcfb83065e13752d35"
+      "sha256": "d9a10662de5e06e81043d8c3908a8baa2a8452765d53fd676e3cc2450ca31cc4"
     },
     {
       "path": "wifi.py",
@@ -56,15 +56,31 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "3220cfeb4a17a99b7ba4be98d89dd7460f0cf436023ce004c286f2ad2dae0311"
+      "sha256": "d024c2cb32647f4b9c1eacd05da84fb38bfcfa02e2e478d619cb2ed4b73cac6d"
     },
     {
       "path": "www/style.css",
-      "sha256": "7e20c42cd363c105a83cf4599ab168ba04e57c1b22d1c5d63617b0e6f66684a4"
+      "sha256": "5ec8ef2a3d6a57d9f335beb7bc3b17a08bbc188c167dddea34e0daa4931c82b1"
     },
     {
       "path": "www/app.js",
-      "sha256": "664dac64a69e33af82231525b40d20e12840a08db910d2a84815b7630b643732"
+      "sha256": "b42227072b56490599ae7d38df0805db2f7aa1148e29b573a644a0028d13c139"
+    },
+    {
+      "path": "www/fg.js",
+      "sha256": "c2036c96a5a92a6f367c3e2a342c6e9b32f445f3f3d67a938cc5c306a7b631d0"
+    },
+    {
+      "path": "www/chart.js",
+      "sha256": "d78608fbee426e33d157861a226a92313c66a4853d8ef6e89b049d55c128f7c2"
+    },
+    {
+      "path": "www/bf-client.js",
+      "sha256": "6c1b3d28bd8f3c70df8647386e383f86b2a3c77a2f82dcb9712a27b6d55cd300"
+    },
+    {
+      "path": "www/sg-compensate.js",
+      "sha256": "2456f6f43c2014b5ce56b7b8bcbf555f599211c1faddbbdc8c373d4c19f42946"
     }
   ]
 }
