@@ -1,10 +1,10 @@
 {
-  "version": "0.1.39",
+  "version": "0.1.40",
   "build_date": "2026-08-09",
-  "firmware_file": "fermvault-pico-firmware-0.1.39.zip",
-  "firmware_sha256": "1131ecddef25ffd0c606ed7f5a6d96be1aa54b6f83a657f379b2ccffd24c897f",
-  "bundle_file": "firmware-bundle-0.1.39.json",
-  "bundle_sha256": "30f50a5ade8647483e81325f68ced216754b7e9ebdaa462705c67574896128b9",
+  "firmware_file": "fermvault-pico-firmware-0.1.40.zip",
+  "firmware_sha256": "6a3482da73b3f66c39676304891f8c39e9325bcbdb452739bbc7dbedb9c489f0",
+  "bundle_file": "firmware-bundle-0.1.40.json",
+  "bundle_sha256": "2db044d1762e83bf1ba2b93b62d537c8804d4b1d3ad7016fac9f80427c489359",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -32,7 +32,7 @@
     },
     {
       "path": "main.py",
-      "sha256": "5dd8ca54ffc539f989e3a1ccf878556edd30bc9f397f8586c8e77f2ca98151ef"
+      "sha256": "5e7debf3d996716747a9f90f677f3082b56ddc2f01030c96c3507629b4ea36ab"
     },
     {
       "path": "relay_control.py",
@@ -40,7 +40,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "89998dd6bf509e77d62d0a38df9d7e2aace783ee05d443983ffd903f439423a7"
+      "sha256": "e00373b7f31a3394183f381586d969991c5447fa9627e0eee98d15dfd93dcb0c"
     },
     {
       "path": "temperature.py",
@@ -48,7 +48,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "f974091f9d83d28cd76fc7e1623a92e7f15a45ee7afba72c45a79c3aa364b93e"
+      "sha256": "8a7f1b40578811c916f7510de3514fbed8003218e608d5be4f080804d505d704"
     },
     {
       "path": "wifi.py",
@@ -64,7 +64,7 @@
     },
     {
       "path": "www/app.js",
-      "sha256": "2be3eb5c5355ccc4b11aa1a628b800d104da520fa6fd5c88d80e7f259355b126"
+      "sha256": "fb4b3589097c5fcb9bd569f4ad24dd132da6387e88b2f88f6411d01cd8723fc5"
     },
     {
       "path": "www/fg.js",
