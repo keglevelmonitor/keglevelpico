@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.38",
+    "date": "2026-08-09",
+    "notes": "Trend card: SG TEMP COMPENSATE button removed from the UI.  The correction transform (SG to 68 F) was counterintuitive in practice -- during cold crash it makes SG appear to rise, and it mismatches BF's own logs at any non-68 F temperature.  Underlying pipeline (sg-compensate.js and readingsForAnalysis) stays intact so we can revisit if we ever want it back."
+  },
+  {
     "version": "0.1.37",
     "date": "2026-08-09",
     "notes": "Trend card fix: SG TEMP COMPENSATE no longer shoves the WINDOW/FULL/TEMP/\u00b0F/\u00b0C/COMPENSATE buttons to the far right edge of the card.  With space-between removed from the toolbar row, the button cluster stays glued to the SG TREND title on the left; the info text still right-aligns via margin-left: auto, wrapping to a second row cleanly when compensate is on rather than shifting the buttons."
