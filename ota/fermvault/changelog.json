@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.39",
+    "date": "2026-08-09",
+    "notes": "SG trend fix: clicking WINDOW after dragging the analysis anchor in FULL mode now preserves the dragged position instead of snapping to the newest 24 h.  Also removes a silent side effect where the FG classification reported to /api/fg-report (and quoted in email alerts) could drift out of sync with what was on screen after any mode toggle."
+  },
+  {
     "version": "0.1.38",
     "date": "2026-08-09",
     "notes": "Trend card: SG TEMP COMPENSATE button removed from the UI.  The correction transform (SG to 68 F) was counterintuitive in practice -- during cold crash it makes SG appear to rise, and it mismatches BF's own logs at any non-68 F temperature.  Underlying pipeline (sg-compensate.js and readingsForAnalysis) stays intact so we can revisit if we ever want it back."
