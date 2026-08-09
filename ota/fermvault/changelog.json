@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.40",
+    "date": "2026-08-09",
+    "notes": "New endpoint POST /api/log/ota accepts browser-side OTA messages (Check for Updates, manifest fetch, per-file writes, reboot wait, verification) and appends them to boot_log.txt with an [OTA/UI] prefix. Debounced batching from the browser keeps traffic to one POST per burst.\nboot_log.txt is no longer wiped fresh on every boot - the previous boot's tail is preserved (16 KB when over the 32 KB cap) so pre-reboot OTA context survives the reboot it was narrating.\nReset-button heartbeat throttled from once-per-30-s to once-per-30-min via new RESET_HEARTBEAT_EVERY_N constant, so long-running fermentations don't push OTA context out of the log tail.\nNo config change, no schema change, no version bump forced by these changes."
+  },
+  {
     "version": "0.1.39",
     "date": "2026-08-09",
     "notes": "SG trend fix: clicking WINDOW after dragging the analysis anchor in FULL mode now preserves the dragged position instead of snapping to the newest 24 h.  Also removes a silent side effect where the FG classification reported to /api/fg-report (and quoted in email alerts) could drift out of sync with what was on screen after any mode toggle."
