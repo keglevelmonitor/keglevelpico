@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.37",
+    "date": "2026-08-09",
+    "notes": "Trend card fix: SG TEMP COMPENSATE no longer shoves the WINDOW/FULL/TEMP/\u00b0F/\u00b0C/COMPENSATE buttons to the far right edge of the card.  With space-between removed from the toolbar row, the button cluster stays glued to the SG TREND title on the left; the info text still right-aligns via margin-left: auto, wrapping to a second row cleanly when compensate is on rather than shifting the buttons."
+  },
+  {
     "version": "0.1.36",
     "date": "2026-08-08",
     "notes": "Fixed issue with commit"
