@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.75",
+    "date": "2026-08-10",
+    "notes": "Created function for optimizing ram with .mpy"
+  },
+  {
     "version": "1.0.74",
     "date": "2026-07-18",
     "notes": "OTA streamlined"
@@ -143,10 +148,5 @@
     "version": "1.0.44",
     "date": "2026-03-28",
     "notes": "Fixed weight units (kg/lb) in keg form"
-  },
-  {
-    "version": "1.0.43",
-    "date": "2026-03-28",
-    "notes": "Fixed imperial/metric unit switching for all volume displays"
   }
 ]
