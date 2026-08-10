@@ -1,10 +1,10 @@
 {
-  "version": "0.1.40",
-  "build_date": "2026-08-09",
-  "firmware_file": "fermvault-pico-firmware-0.1.40.zip",
-  "firmware_sha256": "6a3482da73b3f66c39676304891f8c39e9325bcbdb452739bbc7dbedb9c489f0",
-  "bundle_file": "firmware-bundle-0.1.40.json",
-  "bundle_sha256": "2db044d1762e83bf1ba2b93b62d537c8804d4b1d3ad7016fac9f80427c489359",
+  "version": "0.1.41",
+  "build_date": "2026-08-10",
+  "firmware_file": "fermvault-pico-firmware-0.1.41.zip",
+  "firmware_sha256": "70a1cd83e7ade85f98b6b9aee052756a7f026f25b37d2ddf58e67abab93aee21",
+  "bundle_file": "firmware-bundle-0.1.41.json",
+  "bundle_sha256": "46bda4fe5f9f575541c6b87e4ed79b9db2a45ea1d6c99c418ad05109be4cf9dc",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -40,7 +40,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "e00373b7f31a3394183f381586d969991c5447fa9627e0eee98d15dfd93dcb0c"
+      "sha256": "96bc920ee758a0a2eb9be43251499d9821aa020052e2b96ddaf4b2d52d709d19"
     },
     {
       "path": "temperature.py",
@@ -48,7 +48,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "8a7f1b40578811c916f7510de3514fbed8003218e608d5be4f080804d505d704"
+      "sha256": "2fe4320842ab7bc34d4900032376fbdb1f38bf023f8e2f3fb8ebf8da50a31d00"
     },
     {
       "path": "wifi.py",
@@ -64,7 +64,7 @@
     },
     {
       "path": "www/app.js",
-      "sha256": "fb4b3589097c5fcb9bd569f4ad24dd132da6387e88b2f88f6411d01cd8723fc5"
+      "sha256": "7723027768dae450f7f3c10235c95a723ae00e67343fb919f900685df4472e47"
     },
     {
       "path": "www/fg.js",
