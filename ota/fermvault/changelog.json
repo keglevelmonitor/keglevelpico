@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.42",
+    "date": "2026-08-11",
+    "notes": "Shipping compiled code to save RAM"
+  },
+  {
     "version": "0.1.41",
     "date": "2026-08-10",
     "notes": "Optimized ram"
