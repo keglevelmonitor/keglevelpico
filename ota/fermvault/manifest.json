@@ -1,58 +1,58 @@
 {
-  "version": "0.1.41",
-  "build_date": "2026-08-10",
-  "firmware_file": "fermvault-pico-firmware-0.1.41.zip",
-  "firmware_sha256": "70a1cd83e7ade85f98b6b9aee052756a7f026f25b37d2ddf58e67abab93aee21",
-  "bundle_file": "firmware-bundle-0.1.41.json",
-  "bundle_sha256": "46bda4fe5f9f575541c6b87e4ed79b9db2a45ea1d6c99c418ad05109be4cf9dc",
+  "version": "0.1.42",
+  "build_date": "2026-08-11",
+  "firmware_file": "fermvault-pico-firmware-0.1.42.zip",
+  "firmware_sha256": "cc7e4ad7013fd72df2170afed4f8146522c11d33037c6529d9d3db436b9eee2f",
+  "bundle_file": "firmware-bundle-0.1.42.json",
+  "bundle_sha256": "49a402e09c78de29bbce8b513fd86e15ca705ba28ee4a0d5405e4f0c05d17aff",
   "files": [
     {
-      "path": "lib/microdot/__init__.py",
-      "sha256": "c6f6e11414ec04623b60a24a10a6b734e7dde9a9dd2ad93c5292625ca4d015e3"
+      "path": "lib/microdot/__init__.mpy",
+      "sha256": "ed42085b429944311d00ebabb19bfbfd250e88584d1bb79d76927266ef169e37"
     },
     {
-      "path": "lib/microdot/microdot.py",
-      "sha256": "622d83d3a7d08201ecd6d121e5f449dcd8758604f872dfe7b200e4b0f6f8c0cf"
+      "path": "lib/microdot/microdot.mpy",
+      "sha256": "0e9efeb25fcbe882ea9f27aa3b643042b9abd0328006eac6507edd4766ddb211"
     },
     {
-      "path": "alert_manager.py",
-      "sha256": "5096de409bfd5be6a5baa823bb3050fa39b9dec7b14819d3b607009414ab5603"
+      "path": "alert_manager.mpy",
+      "sha256": "d8b22463a474c9bba82fdc1876c9d31bc6aa8888fa369fa72385caa0d9b18283"
     },
     {
-      "path": "brewersfriend.py",
-      "sha256": "518ae743d29cd158b8ed5ccc0f604880ed19cf5d7e15319e26bdb1b3eef07044"
+      "path": "brewersfriend.mpy",
+      "sha256": "94f21919bc9bdb272005a127aa03ce8f26bbb8796cf18f5e548d5bafab2dafad"
     },
     {
-      "path": "config_manager.py",
-      "sha256": "95d7f3f5d817ed3b075a527dce951d34a5636601ba3bd86610963770ea4f709d"
+      "path": "config_manager.mpy",
+      "sha256": "855f3a351b5db664416fdbf57d670b0ae35ea2ad449e622fa88c2b01f6dab50b"
     },
     {
-      "path": "control.py",
-      "sha256": "b21fc09f977d1a6fff6afddb944c9cef05050298cc2c2e610977cdf675c744d6"
+      "path": "control.mpy",
+      "sha256": "1bc3cfed72babac8f65a989d281f4efe4b4ae98072eb65616444c4e648d85b61"
     },
     {
       "path": "main.py",
       "sha256": "5e7debf3d996716747a9f90f677f3082b56ddc2f01030c96c3507629b4ea36ab"
     },
     {
-      "path": "relay_control.py",
-      "sha256": "55fc4d60e09c7b4a7fd0ac2eb6787a8a7a5ab71e56090b8e2e87455429cf4477"
+      "path": "relay_control.mpy",
+      "sha256": "118725416d113ac8740b52b748dfef541be2621c2c835b9ae819526adc77ac29"
     },
     {
-      "path": "server.py",
-      "sha256": "96bc920ee758a0a2eb9be43251499d9821aa020052e2b96ddaf4b2d52d709d19"
+      "path": "server.mpy",
+      "sha256": "fcb7b152c00a2f7f871f0438fc9fe9ed7a2a363ed6088d89eaef2cfa159e91a7"
     },
     {
-      "path": "temperature.py",
-      "sha256": "3973c590e8cbee081bca3b7def1b4148ee91852bec0d49701b0899b0e2e1202b"
+      "path": "temperature.mpy",
+      "sha256": "95dd8a0e4b708eedeb7fbd6904c8650b2dc26346820ba09c61ecb3238f3d1e84"
     },
     {
       "path": "version.py",
-      "sha256": "2fe4320842ab7bc34d4900032376fbdb1f38bf023f8e2f3fb8ebf8da50a31d00"
+      "sha256": "53b95a46084c2ef69b9a8f1897e0255eeef72693b7aa89427fda807bc57ee40f"
     },
     {
-      "path": "wifi.py",
-      "sha256": "ce84b544afa7205ad4ff6d79afc32077125892d08463915e79140a37a2af222d"
+      "path": "wifi.mpy",
+      "sha256": "1922fa96517568179de07c4bd2c4c73c02cb6e4abf19b6651d563801651be770"
     },
     {
       "path": "www/index.html",
