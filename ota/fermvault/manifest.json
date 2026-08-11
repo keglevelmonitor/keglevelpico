@@ -1,70 +1,70 @@
 {
-  "version": "0.1.42",
+  "version": "0.1.43",
   "build_date": "2026-08-11",
-  "firmware_file": "fermvault-pico-firmware-0.1.42.zip",
-  "firmware_sha256": "cc7e4ad7013fd72df2170afed4f8146522c11d33037c6529d9d3db436b9eee2f",
-  "bundle_file": "firmware-bundle-0.1.42.json",
-  "bundle_sha256": "49a402e09c78de29bbce8b513fd86e15ca705ba28ee4a0d5405e4f0c05d17aff",
+  "firmware_file": "fermvault-pico-firmware-0.1.43.zip",
+  "firmware_sha256": "bae7e8b7c1d362097591dee96680d18a2b7de4b19a805f419a201aabf5e5cc20",
+  "bundle_file": "firmware-bundle-0.1.43.json",
+  "bundle_sha256": "c407ddbc4f0e4ec85794999a7091ee213bd88fbd3527542eab2a6aed592b6043",
   "files": [
     {
-      "path": "lib/microdot/__init__.mpy",
-      "sha256": "ed42085b429944311d00ebabb19bfbfd250e88584d1bb79d76927266ef169e37"
+      "path": "lib/microdot/__init__.py",
+      "sha256": "c6f6e11414ec04623b60a24a10a6b734e7dde9a9dd2ad93c5292625ca4d015e3"
     },
     {
-      "path": "lib/microdot/microdot.mpy",
-      "sha256": "0e9efeb25fcbe882ea9f27aa3b643042b9abd0328006eac6507edd4766ddb211"
+      "path": "lib/microdot/microdot.py",
+      "sha256": "622d83d3a7d08201ecd6d121e5f449dcd8758604f872dfe7b200e4b0f6f8c0cf"
     },
     {
-      "path": "alert_manager.mpy",
-      "sha256": "d8b22463a474c9bba82fdc1876c9d31bc6aa8888fa369fa72385caa0d9b18283"
+      "path": "alert_manager.py",
+      "sha256": "b24420b345daed9e4c858f2aa6455e9d6bbc77169184a0e7a6fe370f11688cc8"
     },
     {
-      "path": "brewersfriend.mpy",
-      "sha256": "94f21919bc9bdb272005a127aa03ce8f26bbb8796cf18f5e548d5bafab2dafad"
+      "path": "brewersfriend.py",
+      "sha256": "8651a64c499d7fe97bb65f7a0558f76307533f1603f2cec6a0eb7d6df77af639"
     },
     {
-      "path": "config_manager.mpy",
-      "sha256": "855f3a351b5db664416fdbf57d670b0ae35ea2ad449e622fa88c2b01f6dab50b"
+      "path": "config_manager.py",
+      "sha256": "45f544cd82dd3a7dd8287abc4417a49d346ed8155fa34f92622de338c2ffa98f"
     },
     {
-      "path": "control.mpy",
-      "sha256": "1bc3cfed72babac8f65a989d281f4efe4b4ae98072eb65616444c4e648d85b61"
+      "path": "control.py",
+      "sha256": "b21fc09f977d1a6fff6afddb944c9cef05050298cc2c2e610977cdf675c744d6"
     },
     {
       "path": "main.py",
       "sha256": "5e7debf3d996716747a9f90f677f3082b56ddc2f01030c96c3507629b4ea36ab"
     },
     {
-      "path": "relay_control.mpy",
-      "sha256": "118725416d113ac8740b52b748dfef541be2621c2c835b9ae819526adc77ac29"
+      "path": "relay_control.py",
+      "sha256": "55fc4d60e09c7b4a7fd0ac2eb6787a8a7a5ab71e56090b8e2e87455429cf4477"
     },
     {
-      "path": "server.mpy",
-      "sha256": "fcb7b152c00a2f7f871f0438fc9fe9ed7a2a363ed6088d89eaef2cfa159e91a7"
+      "path": "server.py",
+      "sha256": "378cfcdb809a993e307cbd8a57950d6541c921965753cfd97f3060e3a2dba530"
     },
     {
-      "path": "temperature.mpy",
-      "sha256": "95dd8a0e4b708eedeb7fbd6904c8650b2dc26346820ba09c61ecb3238f3d1e84"
+      "path": "temperature.py",
+      "sha256": "3973c590e8cbee081bca3b7def1b4148ee91852bec0d49701b0899b0e2e1202b"
     },
     {
       "path": "version.py",
-      "sha256": "53b95a46084c2ef69b9a8f1897e0255eeef72693b7aa89427fda807bc57ee40f"
+      "sha256": "fe890a71413570a253eb969335c5c69c5747b737c8db333738a88e1dff6da099"
     },
     {
-      "path": "wifi.mpy",
-      "sha256": "1922fa96517568179de07c4bd2c4c73c02cb6e4abf19b6651d563801651be770"
+      "path": "wifi.py",
+      "sha256": "ce84b544afa7205ad4ff6d79afc32077125892d08463915e79140a37a2af222d"
     },
     {
       "path": "www/index.html",
-      "sha256": "6bcb8334b8b8eaee99c9bf328f1b3e34a7e8edefcc0896d9f9ab40b50d5839c1"
+      "sha256": "b7151040e7983d46c0cecd2beef82590a80870aa8043b559a6bd945ccc4a9733"
     },
     {
       "path": "www/style.css",
-      "sha256": "0408f2638878df7556a1e5c6abd44d6412722eba8aae91fae1e65805090aae2a"
+      "sha256": "28d0c215584ed73e7cc00b37676304d8e2c8f3a62c1b9f1c6e2209d568a16e17"
     },
     {
       "path": "www/app.js",
-      "sha256": "7723027768dae450f7f3c10235c95a723ae00e67343fb919f900685df4472e47"
+      "sha256": "93a8695e13b013a69bf31726d2bfa9da9c448740d9e640dee826a642e32c9e76"
     },
     {
       "path": "www/fg.js",
