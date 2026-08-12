@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.44",
+    "date": "2026-08-12",
+    "notes": "Corrected display of BEER setpoint on Crash mode."
+  },
+  {
     "version": "0.1.43",
     "date": "2026-08-11",
     "notes": "Rebuild Brewer's Friend dashboard messaging around a 10-state data-status classifier.\n\nbrewersfriend._classify_data_status writes state.fg.data_status = {state,color,title,detail,since_h}; ten states cover healthy / device_quiet / device_offline / battery_low / bf_unreachable / manual_only / session_ended / session_inactive / waiting / no_session.\n\nDelete the phantom \"DATA STALE 19 d\" bug: fetch_current no longer falls back to the frozen fg_data.jsonl ring buffer; returns honest empty values when device_active=0, and _apply_fetch_current_to_state preserves last-known-good SG so the \"SESSION ENDED N h ago\" banner quotes the correct final gravity.\n\nNew device meta on Pico and browser: device_active, device_name, device_battery_pct (RSSI intentionally omitted -- distracting, not useful diagnostically).\n\nalert_manager rewrite: edge-triggered DEVICE OFFLINE / BACK ONLINE / BATTERY LOW / BF UNREACHABLE emails with per-kind 15-min dedupe; battery-low fires once per BF session_id. Replaces the misfiring _check_bf_staleness which spammed \"BF data stale\" for ended sessions.\n\nBrowser UI: universal #status-banner (yellow/red/blue/gray) painted from data_status. New sixth DEVICE strip cell (colored dot + name + battery + last check-in age). CURRENT SG subline gains a source annotation (\"from Yellow\" / \"manual entry\" / \"latest of session\").\n\nNew setting api.fg.battery_low_pct (default 20) on the API and FG tab. New alerts.device_alerts master switch (default true) for the new alert family. Config schema v15 -> v16.\n\nBoot-safety: classifier skips until the first successful poll of the boot so a persisted stale last_poll_success_time never triggers a spurious BF UNREACHABLE + RECOVERED email pair on every reboot. Session-select resets data_status_last_state so switching sessions doesn't false-fire alerts."
