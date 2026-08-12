@@ -1,10 +1,10 @@
 {
-  "version": "0.1.43",
-  "build_date": "2026-08-11",
-  "firmware_file": "fermvault-pico-firmware-0.1.43.zip",
-  "firmware_sha256": "bae7e8b7c1d362097591dee96680d18a2b7de4b19a805f419a201aabf5e5cc20",
-  "bundle_file": "firmware-bundle-0.1.43.json",
-  "bundle_sha256": "c407ddbc4f0e4ec85794999a7091ee213bd88fbd3527542eab2a6aed592b6043",
+  "version": "0.1.44",
+  "build_date": "2026-08-12",
+  "firmware_file": "fermvault-pico-firmware-0.1.44.zip",
+  "firmware_sha256": "c6bd7d1ca00462ae30727ef11a97bf50c95a0846d2d8ecc78f3a3ce2aa8938cf",
+  "bundle_file": "firmware-bundle-0.1.44.json",
+  "bundle_sha256": "aec33ec1c92fdf4630e4177d08c789e6eb7af7b1f599a359be22d193cf795a64",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,7 +16,7 @@
     },
     {
       "path": "alert_manager.py",
-      "sha256": "b24420b345daed9e4c858f2aa6455e9d6bbc77169184a0e7a6fe370f11688cc8"
+      "sha256": "bd6201ad97671bda83edf8fa80be1eb2b5f43a30468580790419ecfc944a6e2b"
     },
     {
       "path": "brewersfriend.py",
@@ -28,7 +28,7 @@
     },
     {
       "path": "control.py",
-      "sha256": "b21fc09f977d1a6fff6afddb944c9cef05050298cc2c2e610977cdf675c744d6"
+      "sha256": "4441f33ef5dc34f78c177e03761a8ff3e422fc102b7d14ddd18e8561a3647c42"
     },
     {
       "path": "main.py",
@@ -40,7 +40,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "378cfcdb809a993e307cbd8a57950d6541c921965753cfd97f3060e3a2dba530"
+      "sha256": "e4be16ea81b364b462c8a4b188f3d1e224afe9a7a765d45487ccb50c7f461a05"
     },
     {
       "path": "temperature.py",
@@ -48,7 +48,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "fe890a71413570a253eb969335c5c69c5747b737c8db333738a88e1dff6da099"
+      "sha256": "01755952577eff0672c16943a501fdd7f08de1ff6749fc2eace57cdf0542c7e1"
     },
     {
       "path": "wifi.py",
@@ -64,7 +64,7 @@
     },
     {
       "path": "www/app.js",
-      "sha256": "93a8695e13b013a69bf31726d2bfa9da9c448740d9e640dee826a642e32c9e76"
+      "sha256": "3eaf30f47feda04988336ba580fee2c3eb0cf5870cbca4659066f6f2473485dd"
     },
     {
       "path": "www/fg.js",
