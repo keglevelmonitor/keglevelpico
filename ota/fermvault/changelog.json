@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.45",
+    "date": "2026-08-13",
+    "notes": "Fix OTA diff so only updated files are copied on update"
+  },
+  {
     "version": "0.1.44",
     "date": "2026-08-12",
     "notes": "Corrected display of BEER setpoint on Crash mode."
