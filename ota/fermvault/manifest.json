@@ -1,10 +1,10 @@
 {
-  "version": "0.1.45",
-  "build_date": "2026-08-13",
-  "firmware_file": "fermvault-pico-firmware-0.1.45.zip",
-  "firmware_sha256": "c62daae685ab3ff70095d673281b3eeaa22670d381cb3382fccc9996320642fb",
-  "bundle_file": "firmware-bundle-0.1.45.json",
-  "bundle_sha256": "27e914db786abc0932c9d245b533c082dc9c9b2ba51aaf3c193d9db1e9b1a5c3",
+  "version": "0.1.46",
+  "build_date": "2026-08-24",
+  "firmware_file": "fermvault-pico-firmware-0.1.46.zip",
+  "firmware_sha256": "f8e973517346bf5ab68ce5fe49b9392d23e3d521ef22eef42402c47c0d0554ac",
+  "bundle_file": "firmware-bundle-0.1.46.json",
+  "bundle_sha256": "44582bd070cd7c20906ded9679fb045cdffd6836b5bd49a59d88dba77c64d232",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -20,7 +20,7 @@
     },
     {
       "path": "brewersfriend.py",
-      "sha256": "8651a64c499d7fe97bb65f7a0558f76307533f1603f2cec6a0eb7d6df77af639"
+      "sha256": "55ca02738a6e528ca66c4386816081da1f0ef3525357bad52518cfb07e258cd5"
     },
     {
       "path": "config_manager.py",
@@ -36,11 +36,11 @@
     },
     {
       "path": "relay_control.py",
-      "sha256": "55fc4d60e09c7b4a7fd0ac2eb6787a8a7a5ab71e56090b8e2e87455429cf4477"
+      "sha256": "1930687998274d641fe5dc9d64c1f80d669a8c9e408ae6220d69faf5562ba060"
     },
     {
       "path": "server.py",
-      "sha256": "e4be16ea81b364b462c8a4b188f3d1e224afe9a7a765d45487ccb50c7f461a05"
+      "sha256": "4f1bbceb075fcdc39c3f03b19604fd350f0706edb6a50090ed9b34113a991a03"
     },
     {
       "path": "temperature.py",
@@ -48,7 +48,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "0e0dba8f8545cb539b6b5be31f1d3d024f13c56e7550352268ac12bd18370304"
+      "sha256": "94976a0e80471b4d01dd0919ae14eb36e344effeaaafb9e0292424707ddc234b"
     },
     {
       "path": "wifi.py",
@@ -64,7 +64,7 @@
     },
     {
       "path": "www/app.js",
-      "sha256": "03d9eabdd9b73af6955618990cd982990f120beb5838bb4ad6369440b6db2549"
+      "sha256": "d488a17d3cfbcb6aaa9eb20415ef43abd46b04c2ebe16be28ad2a401b675743a"
     },
     {
       "path": "www/fg.js",
@@ -76,7 +76,7 @@
     },
     {
       "path": "www/bf-client.js",
-      "sha256": "6c1b3d28bd8f3c70df8647386e383f86b2a3c77a2f82dcb9712a27b6d55cd300"
+      "sha256": "0875350dc68da3643b1ed88654104847a77fb2488a2ec7c6783f69992a110e98"
     },
     {
       "path": "www/sg-compensate.js",
