@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.46",
+    "date": "2026-08-24",
+    "notes": "Corrected overrun issues with Pico being on for long periods of time."
+  },
+  {
     "version": "0.1.45",
     "date": "2026-08-13",
     "notes": "Fix OTA diff so only updated files are copied on update"
