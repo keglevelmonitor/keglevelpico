@@ -1,10 +1,10 @@
 {
-  "version": "0.1.48",
+  "version": "0.1.49",
   "build_date": "2026-08-26",
-  "firmware_file": "fermvault-pico-firmware-0.1.48.zip",
-  "firmware_sha256": "403343b38cae328e3cc0c16463c35a457a742c39510916e5e27cb17686979b4d",
-  "bundle_file": "firmware-bundle-0.1.48.json",
-  "bundle_sha256": "f92984d1252215e4485a4d1b019b6acbc9575bffc63089ff5cca9b0b7f4f1ea2",
+  "firmware_file": "fermvault-pico-firmware-0.1.49.zip",
+  "firmware_sha256": "378b9873ff88fcf6c37c47d5a73bf1d0dab54d1770d4bb31d3c7256ca8c318b2",
+  "bundle_file": "firmware-bundle-0.1.49.json",
+  "bundle_sha256": "89a065d1e6b3d9bda3f88dcb516999609de56c13748c41914838910824d80a99",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -48,7 +48,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "be5fabc653524b0e502b39b584e203bebf31648e98eb64bbbbec49867a8779c6"
+      "sha256": "91be5491a22a928eeb894ac735267f4f25c7a3b3713834903376b05d49587e5a"
     },
     {
       "path": "wifi.py",
@@ -64,7 +64,7 @@
     },
     {
       "path": "www/app.js",
-      "sha256": "c059de7171be2b63be325518727b375262c537354908c1019199bc296ee02c4b"
+      "sha256": "1655e21a3274ef8bfa65ece27e6775c8eff1a4c8f9bcd3448916962a77d198a1"
     },
     {
       "path": "www/fg.js",
