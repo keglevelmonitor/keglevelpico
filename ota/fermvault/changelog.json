@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.48",
+    "date": "2026-08-26",
+    "notes": "Fixed \"jitter\" between tabs (horizontal size of all tabs now identical)"
+  },
+  {
     "version": "0.1.47",
     "date": "2026-08-26",
     "notes": "Added tooltip for data points on graph"
