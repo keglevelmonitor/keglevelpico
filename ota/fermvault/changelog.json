@@ -1,5 +1,10 @@
 [
   {
+    "version": "0.1.49",
+    "date": "2026-08-26",
+    "notes": "Removed orphan from CURRENT SG subline"
+  },
+  {
     "version": "0.1.48",
     "date": "2026-08-26",
     "notes": "Fixed \"jitter\" between tabs (horizontal size of all tabs now identical)"
