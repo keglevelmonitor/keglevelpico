@@ -1,10 +1,10 @@
 {
-  "version": "0.1.22",
-  "build_date": "2026-04-06",
-  "firmware_file": "scalebrain-firmware-0.1.22.zip",
-  "firmware_sha256": "03356f59b27de580db00cf2384d2f1282e3c07e02a6f3075ec65be8f14e1ede8",
-  "bundle_file": "firmware-bundle-0.1.22.json",
-  "bundle_sha256": "61c5fdab858f53010e3fc6f343eb2066bb3722dbc2d57f8f5a3052073dd02b81",
+  "version": "0.1.23",
+  "build_date": "2026-08-27",
+  "firmware_file": "scalebrain-firmware-0.1.23.zip",
+  "firmware_sha256": "4b41c420f337ccb1ee62ce3415fc94c0f8b5983ac13b3627a987cff80c5acada",
+  "bundle_file": "firmware-bundle-0.1.23.json",
+  "bundle_sha256": "203260e5a8b8d1731043ce006e117c6ac5b2b75a9792f4f6ebb42884cd998576",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -36,7 +36,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "55c0c50dfb989ac9b6e82ed1bcde60a9a4c732001c78f7ce2b80f19a24390473"
+      "sha256": "f85cc45d45274d3f546bf0b391fd485a0bd89014b9085face3db2a694aabeb28"
     },
     {
       "path": "wifi.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "a4449e5c19ed96179dfb49944b5304a47092036b67067754d03fde9790a8ccb9"
+      "sha256": "a2bed08a8a9ec2ca8ec8ef7034af6e2531536709a20762d2cdf730e56a04dd72"
     },
     {
       "path": "www/style.css",
