@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.77",
+    "date": "2026-08-27",
+    "notes": "Backward compatibility with 1.075 and prior OTA updates"
+  },
+  {
     "version": "1.0.76",
     "date": "2026-08-27",
     "notes": "Cleaned up the ABOUT tab"
@@ -143,10 +148,5 @@
     "version": "1.0.46",
     "date": "2026-03-29",
     "notes": "Fixed RELOAD button to bypass browser cache"
-  },
-  {
-    "version": "1.0.45",
-    "date": "2026-03-29",
-    "notes": "Improved main navigation hover style"
   }
 ]
