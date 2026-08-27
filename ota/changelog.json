@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.76",
+    "date": "2026-08-27",
+    "notes": "Cleaned up the ABOUT tab"
+  },
+  {
     "version": "1.0.75",
     "date": "2026-08-10",
     "notes": "Created function for optimizing ram with .mpy"
@@ -143,10 +148,5 @@
     "version": "1.0.45",
     "date": "2026-03-29",
     "notes": "Improved main navigation hover style"
-  },
-  {
-    "version": "1.0.44",
-    "date": "2026-03-28",
-    "notes": "Fixed weight units (kg/lb) in keg form"
   }
 ]
