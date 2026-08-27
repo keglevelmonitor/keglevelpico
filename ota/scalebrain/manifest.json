@@ -2,7 +2,7 @@
   "version": "0.1.23",
   "build_date": "2026-08-27",
   "firmware_file": "scalebrain-firmware-0.1.23.zip",
-  "firmware_sha256": "4b41c420f337ccb1ee62ce3415fc94c0f8b5983ac13b3627a987cff80c5acada",
+  "firmware_sha256": "5fdcf73477e49bb0f27de15b5b6447bf80efc2bffe9a3be72d5a6abcfad75507",
   "bundle_file": "firmware-bundle-0.1.23.json",
   "bundle_sha256": "203260e5a8b8d1731043ce006e117c6ac5b2b75a9792f4f6ebb42884cd998576",
   "files": [
