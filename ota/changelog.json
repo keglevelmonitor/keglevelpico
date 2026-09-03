@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.1.2",
+    "date": "2026-09-03",
+    "notes": "Added support for powering with a battery pack of 3 AA lithium batteries (connected to VSYS). Refer to Help."
+  },
+  {
     "version": "1.0.77",
     "date": "2026-08-27",
     "notes": "Backward compatibility with 1.075 and prior OTA updates"
@@ -143,10 +148,5 @@
     "version": "1.0.47",
     "date": "2026-03-30",
     "notes": "Improved connection stability; BatchFlow card display improvements"
-  },
-  {
-    "version": "1.0.46",
-    "date": "2026-03-29",
-    "notes": "Fixed RELOAD button to bypass browser cache"
   }
 ]
