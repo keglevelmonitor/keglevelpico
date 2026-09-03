@@ -1,10 +1,10 @@
 {
-  "version": "1.0.77",
-  "build_date": "2026-08-27",
-  "firmware_file": "keglevel-pico-firmware-1.0.77.zip",
-  "firmware_sha256": "27ef0c3de43c71b7bbbfb84e827f9ac6814d7511dd34d81df5723badd4aae0cb",
-  "bundle_file": "firmware-bundle-1.0.77.json",
-  "bundle_sha256": "7440efbdcef3be2fbc9994a447245c63d4974ee9016938afa440784b3b18b41e",
+  "version": "1.1.2",
+  "build_date": "2026-09-03",
+  "firmware_file": "keglevel-pico-firmware-1.1.2.zip",
+  "firmware_sha256": "e417e996b3487814d8c6d9b8d0665599df1685f378822420ebb69611f728d8af",
+  "bundle_file": "firmware-bundle-1.1.2.json",
+  "bundle_sha256": "61c78e35f66fb8a9a42c3b6702e90192d65c09f621cdd3606465b89b90709d38",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,11 +16,11 @@
     },
     {
       "path": "alert_manager.py",
-      "sha256": "4f76a27ddd64d8bc34b51c524abf7bb9294e9f214c427f564169715a3ed67a68"
+      "sha256": "2dea2ff385cc9677eaea907578da6363580be9478ce0fd34dbd8250adefe7373"
     },
     {
       "path": "config_manager.py",
-      "sha256": "3dde26005a6af0ab751dd5df7a54bd3e554262a16d478e6f0bf2f8cb1f9c6a68"
+      "sha256": "3623ee7d7c72f3957fa02f82277ec5a81df13a2232e6bd23c1bd9a461f64effd"
     },
     {
       "path": "diagnostic.py",
@@ -28,15 +28,19 @@
     },
     {
       "path": "main.py",
-      "sha256": "0febb732e94c3cd304e984b6eef20433740343a52bc9293aae0da07bd8c01db1"
+      "sha256": "fc8733dbd8d7cf10578df0e31d266c50df9e00559cdc25d665fe0dfbede7f003"
+    },
+    {
+      "path": "power.py",
+      "sha256": "7d1e90b95b931647a026ae394f36e44f9945a79bdf0fd5369984f22375484c49"
     },
     {
       "path": "sensor.py",
-      "sha256": "1af89434dda22874466ffdee216a6ec2148f435767fd08ac72eeff209b2f402b"
+      "sha256": "4ddc854157d542c75c801abdbf604ce631c4df424824540350d2d72b50492408"
     },
     {
       "path": "server.py",
-      "sha256": "da5d0a94006853c247e5482116d464d4ea7b6d6283b81e27a5c61ef3d0a69715"
+      "sha256": "8b0f6da6ef83199abb53a4483d2ccc9e45f0b81d07107686c38f78a5efd391aa"
     },
     {
       "path": "temperature.py",
@@ -44,7 +48,7 @@
     },
     {
       "path": "version.py",
-      "sha256": "68c7b6eebc4adb5c02b468f4bd52c57abc99d03e327813fd2ec694b228deafd2"
+      "sha256": "57a337c68003e8a9b5e738c8f0beaaab60d35bd5a55860357d5616878d809898"
     },
     {
       "path": "wifi.py",
@@ -52,15 +56,15 @@
     },
     {
       "path": "www/index.html",
-      "sha256": "c762cb11e95129cdd79bf1dd046e565e5bfdd66f45c21b6c8e437cd2efc4aa10"
+      "sha256": "bad2b9254f6d6d29c4f4f5775f7765e8cce36c6ebdd53d760b4f012d53128801"
     },
     {
       "path": "www/style.css",
-      "sha256": "0f8f26647b792d08c38d12ebf2cf6e41a803161fd2a436b141b498bf82581f58"
+      "sha256": "34a0e1fb6bc477fd8f24d1ecd2399518738f08b66baf53c886036c243d1a7260"
     },
     {
       "path": "www/app.js",
-      "sha256": "60e206e248cd71339378fa94cc3d8af2ae6c6745449a714735939739175ac128"
+      "sha256": "e24a156e230674cc137c5547dfe0ce53c01dab20b94a8144f6648cdb7557a478"
     },
     {
       "path": "www/help.html",
