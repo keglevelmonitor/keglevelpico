@@ -1,10 +1,10 @@
 {
-  "version": "0.1.49",
-  "build_date": "2026-08-26",
-  "firmware_file": "fermvault-pico-firmware-0.1.49.zip",
-  "firmware_sha256": "378b9873ff88fcf6c37c47d5a73bf1d0dab54d1770d4bb31d3c7256ca8c318b2",
-  "bundle_file": "firmware-bundle-0.1.49.json",
-  "bundle_sha256": "89a065d1e6b3d9bda3f88dcb516999609de56c13748c41914838910824d80a99",
+  "version": "0.1.50",
+  "build_date": "2026-09-05",
+  "firmware_file": "fermvault-pico-firmware-0.1.50.zip",
+  "firmware_sha256": "2e8856ed047a5cd090b6cb6d3ae5a15e5e1bb346867203d96b9ec22a7b2f7610",
+  "bundle_file": "firmware-bundle-0.1.50.json",
+  "bundle_sha256": "2235913b35bce99d0adcaba3c7d6be9006c4e937a6fa8ea3ee24bbe86e475207",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,7 +16,7 @@
     },
     {
       "path": "alert_manager.py",
-      "sha256": "bd6201ad97671bda83edf8fa80be1eb2b5f43a30468580790419ecfc944a6e2b"
+      "sha256": "ffd29fd55cd4bf13033b04a4bd049d3a6516054ee534d2b8121868764537ee28"
     },
     {
       "path": "brewersfriend.py",
@@ -24,15 +24,15 @@
     },
     {
       "path": "config_manager.py",
-      "sha256": "45f544cd82dd3a7dd8287abc4417a49d346ed8155fa34f92622de338c2ffa98f"
+      "sha256": "90cac675abfee210677ad54479e493916a39ecfb62e3ffa39116d312faa112c2"
     },
     {
       "path": "control.py",
-      "sha256": "4441f33ef5dc34f78c177e03761a8ff3e422fc102b7d14ddd18e8561a3647c42"
+      "sha256": "813a4964c56f3e9205a7e7fe2afd7ca054eac8b1ce3f5b94173a73e0111feb71"
     },
     {
       "path": "main.py",
-      "sha256": "5e7debf3d996716747a9f90f677f3082b56ddc2f01030c96c3507629b4ea36ab"
+      "sha256": "a16cebef7693fa770b3a3d35106db67ba3f3d916b6e78d2ab84a76129b53d1d1"
     },
     {
       "path": "relay_control.py",
@@ -40,7 +40,7 @@
     },
     {
       "path": "server.py",
-      "sha256": "4f1bbceb075fcdc39c3f03b19604fd350f0706edb6a50090ed9b34113a991a03"
+      "sha256": "66cc4cb2fbe4265aeccac8f91338e8f461ea5cc87e37551302e11ff1cf7478f6"
     },
     {
       "path": "temperature.py",
@@ -48,27 +48,27 @@
     },
     {
       "path": "version.py",
-      "sha256": "91be5491a22a928eeb894ac735267f4f25c7a3b3713834903376b05d49587e5a"
+      "sha256": "efbd0431c027ec1146b3d0b811f5d737728cfa0a9d982588d8fe7b1cecbc3985"
     },
     {
       "path": "wifi.py",
-      "sha256": "ce84b544afa7205ad4ff6d79afc32077125892d08463915e79140a37a2af222d"
+      "sha256": "048d7269e79954afd58bf38d2b0aefd731e35db4f4dded52de58ade90e1a3865"
     },
     {
       "path": "www/index.html",
-      "sha256": "090b485f0877055c3a4b768bf5dcca30acff5e7c4916fa26b18dade6b32dbbfe"
+      "sha256": "8ce6f90667b69a905470aeb9ea66221dee11752f019546cd32a86e21d4041be1"
     },
     {
       "path": "www/style.css",
-      "sha256": "5029db8d3a3ba94f9d0cb3f7f30a4b86fbbfcc39f1853e8caf6ef5de70ff8e7d"
+      "sha256": "2ab99a4fe34ee70edc280b4009718e7a80197d3b1007e5a2676faab2b68d8200"
     },
     {
       "path": "www/app.js",
-      "sha256": "1655e21a3274ef8bfa65ece27e6775c8eff1a4c8f9bcd3448916962a77d198a1"
+      "sha256": "6f881ef41c849d854c6ffcd1112f0f3a4bf5f127b7654a61d81b859a12923970"
     },
     {
       "path": "www/fg.js",
-      "sha256": "c2036c96a5a92a6f367c3e2a342c6e9b32f445f3f3d67a938cc5c306a7b631d0"
+      "sha256": "38cb5fadffb5068bf87c329c9e7afa837ccb82cf9e49f2b349ade9bc2489e9ba"
     },
     {
       "path": "www/chart.js",
