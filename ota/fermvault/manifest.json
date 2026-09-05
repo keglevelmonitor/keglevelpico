@@ -1,10 +1,10 @@
 {
-  "version": "0.1.50",
+  "version": "0.1.51",
   "build_date": "2026-09-05",
-  "firmware_file": "fermvault-pico-firmware-0.1.50.zip",
-  "firmware_sha256": "2e8856ed047a5cd090b6cb6d3ae5a15e5e1bb346867203d96b9ec22a7b2f7610",
-  "bundle_file": "firmware-bundle-0.1.50.json",
-  "bundle_sha256": "2235913b35bce99d0adcaba3c7d6be9006c4e937a6fa8ea3ee24bbe86e475207",
+  "firmware_file": "fermvault-pico-firmware-0.1.51.zip",
+  "firmware_sha256": "052a6fb5dfa2f03e89c293353c13de898d6928fd0a579441ea4eed499aef521c",
+  "bundle_file": "firmware-bundle-0.1.51.json",
+  "bundle_sha256": "ddabf6ca11e4cd98e85a1bb1e56bd25d9fa4f473ca6ec388ca0118ffdc05a0d7",
   "files": [
     {
       "path": "lib/microdot/__init__.py",
@@ -16,11 +16,11 @@
     },
     {
       "path": "alert_manager.py",
-      "sha256": "ffd29fd55cd4bf13033b04a4bd049d3a6516054ee534d2b8121868764537ee28"
+      "sha256": "a4f4629ed42023aacd50290c7260061e104b5fd15f02bd27294b2fe21d215694"
     },
     {
       "path": "brewersfriend.py",
-      "sha256": "55ca02738a6e528ca66c4386816081da1f0ef3525357bad52518cfb07e258cd5"
+      "sha256": "82a4bad28f1997ed43a665c03d667d03bde044399cf021a447b34f15b00df49f"
     },
     {
       "path": "config_manager.py",
@@ -44,15 +44,15 @@
     },
     {
       "path": "temperature.py",
-      "sha256": "3973c590e8cbee081bca3b7def1b4148ee91852bec0d49701b0899b0e2e1202b"
+      "sha256": "add62d8bb4acd7f000ebec1c2626f57189d4bca36e8191eb7a023c246d744ccc"
     },
     {
       "path": "version.py",
-      "sha256": "efbd0431c027ec1146b3d0b811f5d737728cfa0a9d982588d8fe7b1cecbc3985"
+      "sha256": "00d1f725786e417025d1cdc27073c94882cf57b47128c075a7ce254d5e475893"
     },
     {
       "path": "wifi.py",
-      "sha256": "048d7269e79954afd58bf38d2b0aefd731e35db4f4dded52de58ade90e1a3865"
+      "sha256": "ec6adf04eb80a5e03c63a7a6e34c83555f6a58b24cf12044d5a19b5d09629ba7"
     },
     {
       "path": "www/index.html",
@@ -76,7 +76,7 @@
     },
     {
       "path": "www/bf-client.js",
-      "sha256": "0875350dc68da3643b1ed88654104847a77fb2488a2ec7c6783f69992a110e98"
+      "sha256": "57dc59729518ebcd01ce75605c3d73e44ba0f269ba096fe6497f91000b77e891"
     },
     {
       "path": "www/sg-compensate.js",
